@@ -4,7 +4,9 @@ Welcome to the repository of robotics team 4010 for our FRC robot.
 
 ## New Season Information
 
-This repository contains the code for the new season of 2025. The challenge will be revealed on January 4th, 2025. Stay tuned for updates and more information about the challenge.
+## New Season Information
+
+This repository contains the code for the new season of 2025. The game and the rules are specified in the following PDF: [2025 FRC Game Manual](https://firstfrc.blob.core.windows.net/frc2025/Manual/2025GameManual.pdf). Stay tuned for updates and more information about the challenge.
 
 ## About Us
 
