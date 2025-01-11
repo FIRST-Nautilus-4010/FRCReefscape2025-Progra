@@ -12,6 +12,13 @@ public class TeleOp {
 
     final JoystickButton zeroHdgBtn = new JoystickButton(driverJoystick, Constants.OperatorConstants.ZERO_HDG);
 
+    final JoystickButton spinIn = new JoystickButton (codriverJoystick, Constants.OperatorConstants.SPIN_IN);
+    final JoystickButton spinOut = new JoystickButton (codriverJoystick, Constants.OperatorConstants.SPIN_OUT);
+    
+    final JoystickButton OpenClaw = new JoystickButton(codriverJoystick, Constants.OperatorConstants.OPEN_CLAW);
+
+    
+
     public TeleOp() {
         RobotContainer.swerve.setDefaultCommand(new SwerveDriveJoystick(
             RobotContainer.swerve,
@@ -20,6 +27,15 @@ public class TeleOp {
             () -> -driverJoystick.getRawAxis(Constants.OperatorConstants.DRIVER_Z),
             () -> driverJoystick.getRawButton(Constants.OperatorConstants.ROBOT_ORIENTED)));
         zeroHdgBtn.onTrue(new InstantCommand(() -> RobotContainer.swerve.zeroHeading()));
+
+        spinIn.toggleOnTrue(new InstantCommand(() -> RobotContainer.claw.setMotors(1)));
+        spinIn.toggleOnFalse(new InstantCommand(() -> RobotContainer.claw.setMotors(0)));
+
+        spinOut.toggleOnTrue(new InstantCommand(() -> RobotContainer.claw.setMotors(-1)));
+        spinOut.toggleOnFalse(new InstantCommand(() -> RobotContainer.claw.setMotors(0)));
+
+        OpenClaw.toggleOnTrue(new InstantCommand(() -> RobotContainer.claw.setClawMotorPos(1)));
+        OpenClaw.toggleOnFalse(new InstantCommand(() -> RobotContainer.claw.setClawMotorPos(0)));
     }
 
     

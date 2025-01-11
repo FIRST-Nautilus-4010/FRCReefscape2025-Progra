@@ -44,7 +44,7 @@ public final class Constants {
       // PID constants
       public static final double PID_P = 0.217; // Proportional gain
       public static final double PID_I = 0; // Integral gain
-      public static final double PID_D = 0.0; // Derivative gain
+      public static final double PID_D = 0.0; // Derirvative gain
 
       // Encoder offsets
       public static final double[] ENCODER_OFFSETS = {0, 0, 0, 0}; // {FL, FR, BL, BR} offsets
@@ -113,9 +113,9 @@ public final class Constants {
       // Buttons
     public static final int ZERO_HDG = 1;
     public static final int ROBOT_ORIENTED = 4;
-    public static final int TAKE = 5;
-    public static final int GIVE = 6;
-
+    public static final int OPEN_CLAW = 5;
+    public static final int SPIN_IN = 6;
+    public static final int SPIN_OUT = 7;
     // Co-Driver constants
 
       // Joystick settings
@@ -123,7 +123,9 @@ public final class Constants {
 
       // Sticks
     public static final int SHOOTER_ANG = 1;
-    
+    public static final double kP = 0.1;
+    public static final double kI = 0.0;
+    public static final double kD = 0.0;
       // Buttons
     public static final int RELOAD = 5;
     public static final int SHOOT = 6;
@@ -139,6 +141,9 @@ public final class Constants {
     public static final int FR_STR = 2;
     public static final int BL_STR = 3;
     public static final int BR_STR = 4;
+    public static final int CLAW_R_MOTOR = 5;
+    public static final int CLAW_L_MOTOR = 6;
+    public static final int CLAW_MOTOR = 7;
 
     // Krakens 
       public static final int FL_PWR = 1;
@@ -151,9 +156,10 @@ public final class Constants {
     public static final int FR_ENC = 9;
     public static final int BL_ENC = 10;
     public static final int BR_ENC = 11;
+
   }
 
-  public static class VisionConstants{
+  public static class VisionConstants {
     public static final Transform3d[] ROBOT_TO_CAM = {
       new Transform3d(new Translation3d(), new Rotation3d()), // Camera 1
       new Transform3d(new Translation3d(), new Rotation3d()) // Camera 2
@@ -167,4 +173,11 @@ public final class Constants {
 
     public static final double MAX_X = 100; // The maximum x value of the camera in px, so it depends on the resolution
   }
+
+  public static class ClawConstants {
+    public static final double P = 1;
+    public static final double I = 1;
+    public static final double D = 1;
+  }
+
 }
