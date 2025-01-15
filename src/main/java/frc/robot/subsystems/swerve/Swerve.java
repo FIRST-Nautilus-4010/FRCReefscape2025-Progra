@@ -122,17 +122,7 @@ public class Swerve extends SubsystemBase{
     }
 
     // Set the desired state for each swerveModule by giving an array of states
-    public void setStates(SwerveModuleState[] desired_states, ChassisSpeeds chassisSpeeds){
-        speeds = chassisSpeeds;
-
-        SwerveDriveKinematics.desaturateWheelSpeeds(desired_states, Constants.ChassisConstants.MAX_SPD);
-        frontLeft.setDesiredState(desired_states[0]);
-        frontRight.setDesiredState(desired_states[1]);
-        backLeft.setDesiredState(desired_states[2]);
-        backRight.setDesiredState(desired_states[3]);
-    }
-
-    public void setStatesWithoutSpeeds(SwerveModuleState[] desired_states){
+    public void setStates(SwerveModuleState[] desired_states){
         SwerveDriveKinematics.desaturateWheelSpeeds(desired_states, Constants.ChassisConstants.MAX_SPD);
         frontLeft.setDesiredState(desired_states[0]);
         frontRight.setDesiredState(desired_states[1]);
