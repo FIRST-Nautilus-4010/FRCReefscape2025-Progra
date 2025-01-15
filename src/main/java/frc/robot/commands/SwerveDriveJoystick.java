@@ -63,7 +63,7 @@ public class SwerveDriveJoystick extends Command{
 
         SwerveModuleState[] moduleStates = Constants.ChassisConstants.KINEMATICS.toSwerveModuleStates(chassisSpeeds);
         
-        swerve.setStates(moduleStates, chassisSpeeds);
+        swerve.setStates(moduleStates);
 
         swerve_desired_state_publisher.set(moduleStates);
     }
