@@ -11,33 +11,29 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.utils.Constants;
 
-public class SwerveDriveJoystick extends Command{
+public class SwerveDriveJoystick extends Command {
     private final Swerve swerve;
     private final Supplier<Double> x, y, z;
-    private final Supplier<Boolean> field_relative;
+    private final Supplier<Boolean> fieldRelative;
     private final SlewRateLimiter xLimiter, yLimiter, zLimiter;
-    StructArrayPublisher<SwerveModuleState> swerve_desired_state_publisher = NetworkTableInstance.getDefault()
+    StructArrayPublisher<SwerveModuleState> swerveDesiredStatePublisher = NetworkTableInstance.getDefault()
         .getStructArrayTopic("desiredStates", SwerveModuleState.struct).publish();
 
-    public SwerveDriveJoystick(Swerve swerve, 
-    Supplier<Double> x, Supplier<Double> y, Supplier<Double> z,
-    Supplier<Boolean> field_relative){
+    public SwerveDriveJoystick(
+        Swerve swerve, Supplier<Double> x, 
+        Supplier<Double> y, Supplier<Double> z,
+        Supplier<Boolean> fieldRelative
+    ) {
         this.swerve = swerve;
         this.x = x;
         this.y = y;
         this.z = z;
-        this.field_relative = field_relative;
+        this.fieldRelative = fieldRelative;
         this.xLimiter = new SlewRateLimiter(Constants.ChassisConstants.MAX_ACCEL);
         this.yLimiter = new SlewRateLimiter(Constants.ChassisConstants.MAX_ACCEL);
         this.zLimiter = new SlewRateLimiter(Constants.ChassisConstants.MAX_ANG_ACCEL);
         addRequirements(swerve);
     }
-
-    @Override
-    public void initialize() {
-
-    }
-
 
     @Override
     public void execute() {
@@ -54,7 +50,7 @@ public class SwerveDriveJoystick extends Command{
         zSpeed = zLimiter.calculate(zSpeed) * Constants.ChassisConstants.MAX_ANG_SPD;
 
         ChassisSpeeds chassisSpeeds;
-        if (field_relative.get()){
+        if (fieldRelative.get()){
             //Relative to field
             chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, zSpeed, swerve.getRotation2d());
         } else {
@@ -65,16 +61,11 @@ public class SwerveDriveJoystick extends Command{
         
         swerve.setStates(moduleStates);
 
-        swerve_desired_state_publisher.set(moduleStates);
+        swerveDesiredStatePublisher.set(moduleStates);
     }
 
     @Override
     public void end(boolean interrupted) {
         swerve.stopModules();
-    }
-
-    @Override
-    public boolean isFinished() {
-        return false;
     }
 }
