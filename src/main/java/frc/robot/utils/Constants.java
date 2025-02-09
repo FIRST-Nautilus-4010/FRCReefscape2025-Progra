@@ -113,14 +113,14 @@ public final class Constants {
     public static final int CODRIVER_PORT = 1;
 
       // Sticks
-    public static final int SHOOTER_ANG = 1;
     public static final double kP = 0.1;
     public static final double kI = 0.0;
     public static final double kD = 0.0;
+    
       // Buttons
     public static final int RELOAD = 5;
-    public static final int SHOOT = 6;
-    public static final int AUTOALIGN = 1;
+    public static final int CALIBRATE = 6;
+    public static final int CALIBRATE1 = 7;
 
     // General constants
     public static final double JOYSTICK_DEADZONE = .1;
@@ -139,10 +139,11 @@ public final class Constants {
     public static final int ELEVATOR1 = 6;
 
     public static final int ROLLERS = 7;
-    public static final int CLAW = 8;
-    public static final int ANGLE = 9;
+    public static final int ROLLERS1 = 8;
+    public static final int CLAW = 9;
+    public static final int ANGLE = 10;
 
-    public static final int ARM = 10;
+    public static final int ARM = 11;
 
     //--------CTR Electronics--------
 
@@ -184,13 +185,9 @@ public final class Constants {
   }
 
   public static class ClawConstants {
-    public static final double CLAW_NORMALIZE = 12;
-
     public static final double CLAW_P = 0.1;
     public static final double CLAW_I = 0.0;
     public static final double CLAW_D = 0.0;
-
-    public static final double PULSE_2_DEGREE = 0.1;
 
     public static final double ANGLE_P = 0.1;
     public static final double ANGLE_I = 0.0;

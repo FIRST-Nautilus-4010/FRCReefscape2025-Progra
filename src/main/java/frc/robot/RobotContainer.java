@@ -19,14 +19,30 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
-
+import frc.robot.subsystems.Arm;
+import frc.robot.subsystems.Claw;
+import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.utils.Constants.AutonomousConstants;
 import frc.robot.utils.Constants.ChassisConstants;
 
 public class RobotContainer {
   public static final Swerve swerve = new Swerve(true);
+  public static final Elevator elevator = new Elevator(false);
+  public static final Claw claw = new Claw(false, false, false);
+  public static final Arm arm = new Arm(false);
+
+  public static Command calibrateSubystems() {
+    return new InstantCommand(
+        () -> {
+          elevator.calibrate();
+          claw.calibrate();
+          arm.calibrate();
+        }
+    );
+  }
 
   public static Command getAutonomousCommand() {
     return Commands.print("No autonomous command configured");

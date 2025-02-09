@@ -12,6 +12,8 @@ public class TeleOp {
     final static Joystick codriverJoystick = new Joystick(OperatorConstants.CODRIVER_PORT);
 
     final static JoystickButton zeroHdgBtn = new JoystickButton(driverJoystick, OperatorConstants.ZERO_HDG);
+    final static JoystickButton calibrateBtn = new JoystickButton(codriverJoystick, OperatorConstants.CALIBRATE);
+    final static JoystickButton calibrateBtn1 = new JoystickButton(codriverJoystick, OperatorConstants.CALIBRATE1);
 
     public static void initialize() {
         RobotContainer.swerve.setDefaultCommand(new SwerveDriveJoystick(
@@ -21,6 +23,8 @@ public class TeleOp {
             () -> -driverJoystick.getRawAxis(OperatorConstants.DRIVER_Z),
             () -> !driverJoystick.getRawButton(OperatorConstants.ROBOT_ORIENTED)));
         zeroHdgBtn.onTrue(new InstantCommand(() -> RobotContainer.swerve.zeroHeading()));
+        
+        calibrateBtn.and(calibrateBtn1).onTrue(RobotContainer.calibrateSubystems());
     }
     
 }

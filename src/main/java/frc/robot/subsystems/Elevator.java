@@ -10,7 +10,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
+import frc.robot.utils.SaveData;
 import frc.robot.utils.Constants.ElevatorConstants;
 import frc.robot.utils.Constants.HardwareMap;
 
@@ -26,6 +26,18 @@ public class Elevator extends SubsystemBase {
     private double pulse2M = 0;
 
     public Elevator(boolean isInverted) {
+        try {
+            elevatorOffset = SaveData.readData("elevatorOffset");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            pulse2M = SaveData.readData("pulse2M");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         SparkMaxConfig elevatorMotorConfig = new SparkMaxConfig();
         elevatorMotorConfig.inverted(isInverted);
         elevatorMotor.configure(elevatorMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -51,9 +63,11 @@ public class Elevator extends SubsystemBase {
         if (speed > 0 && getTopLimitSwitch()) {
             stop();
             pulse2M = ElevatorConstants.MAX_HEIGHT / (elevatorEncoder.get() - elevatorOffset);
+            SaveData.saveData("pulse2M", pulse2M);
         } else if (speed < 0 && getBottomLimitSwitch()) {
             stop();
             elevatorOffset = elevatorEncoder.get();
+            SaveData.saveData("elevatorOffset", elevatorOffset);
         } else {
             elevatorMotor.set(speed);
         }
@@ -76,7 +90,7 @@ public class Elevator extends SubsystemBase {
                 break;
             }
             
-            setSpeed(-1);
+            setSpeed(-.1);
 
             if(getBottomLimitSwitch()) {
                 while (true) {
@@ -85,7 +99,7 @@ public class Elevator extends SubsystemBase {
                         break;
                     }
                     
-                    setSpeed(1);
+                    setSpeed(.1);
 
                     if (getTopLimitSwitch()) {
                         while (getEncoderPosition() != 0) {
