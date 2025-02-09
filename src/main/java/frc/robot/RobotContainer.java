@@ -20,8 +20,10 @@ import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
+
 import frc.robot.subsystems.swerve.Swerve;
-import frc.robot.utils.Constants;
+import frc.robot.utils.Constants.AutonomousConstants;
+import frc.robot.utils.Constants.ChassisConstants;
 
 public class RobotContainer {
   public static final Swerve swerve = new Swerve(true);
@@ -31,21 +33,21 @@ public class RobotContainer {
   }
 
   public static Command getTestCommand() {
-    TrajectoryConfig trajectoryConfig = new TrajectoryConfig(Constants.AutonomousConstants.MAX_SPD, Constants.AutonomousConstants.MAX_ACCEL);
+    TrajectoryConfig trajectoryConfig = new TrajectoryConfig(AutonomousConstants.MAX_SPD, AutonomousConstants.MAX_ACCEL);
     swerve.resetOdometry(new Pose2d());
 
     Trajectory trajectory = generateTrajectory(trajectoryConfig);
     publishTrajectory(trajectory);
 
-    PIDController xController = new PIDController(Constants.AutonomousConstants.P, Constants.AutonomousConstants.I, Constants.AutonomousConstants.D);
-    PIDController yController = new PIDController(Constants.AutonomousConstants.P, Constants.AutonomousConstants.I, Constants.AutonomousConstants.D);
-    ProfiledPIDController zController = new ProfiledPIDController(Constants.AutonomousConstants.P_Z, Constants.AutonomousConstants.I_Z, Constants.AutonomousConstants.D_Z, Constants.AutonomousConstants.Z_CONTROLER);
+    PIDController xController = new PIDController(AutonomousConstants.P, AutonomousConstants.I, AutonomousConstants.D);
+    PIDController yController = new PIDController(AutonomousConstants.P, AutonomousConstants.I, AutonomousConstants.D);
+    ProfiledPIDController zController = new ProfiledPIDController(AutonomousConstants.P_Z, AutonomousConstants.I_Z, AutonomousConstants.D_Z, AutonomousConstants.Z_CONTROLER);
     zController.enableContinuousInput(-Math.PI, Math.PI);
 
     return new SwerveControllerCommand(
         trajectory,
         swerve::getPose,
-        Constants.ChassisConstants.KINEMATICS,
+        ChassisConstants.KINEMATICS,
         xController,
         yController,
         zController,

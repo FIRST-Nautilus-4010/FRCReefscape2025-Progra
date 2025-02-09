@@ -135,13 +135,22 @@ public final class Constants {
     public static final int BL_STR = 3;
     public static final int BR_STR = 4;
 
+    public static final int ELEVATOR = 5;
+    public static final int ELEVATOR1 = 6;
+
+    public static final int ROLLERS = 7;
+    public static final int CLAW = 8;
+    public static final int ANGLE = 9;
+
+    public static final int ARM = 10;
+
     //--------CTR Electronics--------
 
     // Krakens 
-      public static final int FL_PWR = 1;
-      public static final int FR_PWR = 2;
-      public static final int BL_PWR = 3;
-      public static final int BR_PWR = 4;
+    public static final int FL_PWR = 1;
+    public static final int FR_PWR = 2;
+    public static final int BL_PWR = 3;
+    public static final int BR_PWR = 4;
 
     // Swerve encoders
     public static final int FL_ENC = 5;
@@ -151,9 +160,56 @@ public final class Constants {
 
     // Gyro
     public static final int PIGEON = 9;
+
+    //------------roboRIO--------------
+
+    // DIO
+    public static final int ELEVATOR_ENC = 0;
+    public static final int BOTTOM_LIMIT = 1;
+    public static final int TOP_LIMIT = 2;
+
+    public static final int CLAW_ENC = 3;
+    public static final int ANGLE_ENC = 4;
+
+    public static final int ARM_ENC = 5;
   }
 
-  public static class VisionConstants{
+  public static class ElevatorConstants {
+    public static final double MAX_HEIGHT = 0;
+
+    public static final double P = 0.1;
+    public static final double I = 0.0;
+    public static final double D = 0.0;
+    
+  }
+
+  public static class ClawConstants {
+    public static final double CLAW_NORMALIZE = 12;
+
+    public static final double CLAW_P = 0.1;
+    public static final double CLAW_I = 0.0;
+    public static final double CLAW_D = 0.0;
+
+    public static final double PULSE_2_DEGREE = 0.1;
+
+    public static final double ANGLE_P = 0.1;
+    public static final double ANGLE_I = 0.0;
+    public static final double ANGLE_D = 0.0;
+
+    public static final double MAX_ANGLE = 0;
+    public static final double MIN_ANGLE = 0;
+  }
+
+  public static class ArmConstants {
+    public static final double P = 0.1;
+    public static final double I = 0.0;
+    public static final double D = 0.0;
+
+    public static final double MAX_ANGLE = 0;
+    public static final double MIN_ANGLE = 0;
+  }
+
+  public static class VisionConstants {
     public static final Transform3d[] ROBOT_TO_CAM = {
       new Transform3d(new Translation3d(), new Rotation3d()), // Camera 1.
       new Transform3d(new Translation3d(), new Rotation3d()) // Camera 2.

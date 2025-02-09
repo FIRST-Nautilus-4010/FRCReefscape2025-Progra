@@ -8,8 +8,10 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.wpilibj2.command.Command;
+
 import frc.robot.subsystems.swerve.Swerve;
-import frc.robot.utils.Constants;
+import frc.robot.utils.Constants.OperatorConstants;
+import frc.robot.utils.Constants.ChassisConstants;
 
 public class SwerveDriveJoystick extends Command {
     private final Swerve swerve;
@@ -29,9 +31,9 @@ public class SwerveDriveJoystick extends Command {
         this.y = y;
         this.z = z;
         this.fieldRelative = fieldRelative;
-        this.xLimiter = new SlewRateLimiter(Constants.ChassisConstants.MAX_ACCEL);
-        this.yLimiter = new SlewRateLimiter(Constants.ChassisConstants.MAX_ACCEL);
-        this.zLimiter = new SlewRateLimiter(Constants.ChassisConstants.MAX_ANG_ACCEL);
+        this.xLimiter = new SlewRateLimiter(ChassisConstants.MAX_ACCEL);
+        this.yLimiter = new SlewRateLimiter(ChassisConstants.MAX_ACCEL);
+        this.zLimiter = new SlewRateLimiter(ChassisConstants.MAX_ANG_ACCEL);
         addRequirements(swerve);
     }
 
@@ -41,13 +43,13 @@ public class SwerveDriveJoystick extends Command {
         double ySpeed = y.get();
         double zSpeed = z.get();
 
-        xSpeed = Math.abs(xSpeed) > Constants.OperatorConstants.JOYSTICK_DEADZONE ? xSpeed : 0.0;
-        ySpeed = Math.abs(ySpeed) > Constants.OperatorConstants.JOYSTICK_DEADZONE ? ySpeed : 0.0;
-        zSpeed = Math.abs(zSpeed) > Constants.OperatorConstants.JOYSTICK_DEADZONE ? zSpeed : 0.0;
+        xSpeed = Math.abs(xSpeed) > OperatorConstants.JOYSTICK_DEADZONE ? xSpeed : 0.0;
+        ySpeed = Math.abs(ySpeed) > OperatorConstants.JOYSTICK_DEADZONE ? ySpeed : 0.0;
+        zSpeed = Math.abs(zSpeed) > OperatorConstants.JOYSTICK_DEADZONE ? zSpeed : 0.0;
 
-        xSpeed = xLimiter.calculate(xSpeed) * Constants.ChassisConstants.MAX_SPD;
-        ySpeed = yLimiter.calculate(ySpeed) * Constants.ChassisConstants.MAX_SPD;
-        zSpeed = zLimiter.calculate(zSpeed) * Constants.ChassisConstants.MAX_ANG_SPD;
+        xSpeed = xLimiter.calculate(xSpeed) * ChassisConstants.MAX_SPD;
+        ySpeed = yLimiter.calculate(ySpeed) * ChassisConstants.MAX_SPD;
+        zSpeed = zLimiter.calculate(zSpeed) * ChassisConstants.MAX_ANG_SPD;
 
         ChassisSpeeds chassisSpeeds;
         if (fieldRelative.get()){
@@ -57,7 +59,7 @@ public class SwerveDriveJoystick extends Command {
             chassisSpeeds = new ChassisSpeeds(xSpeed, ySpeed, zSpeed);
         }
 
-        SwerveModuleState[] moduleStates = Constants.ChassisConstants.KINEMATICS.toSwerveModuleStates(chassisSpeeds);
+        SwerveModuleState[] moduleStates = ChassisConstants.KINEMATICS.toSwerveModuleStates(chassisSpeeds);
         
         swerve.setStates(moduleStates);
 

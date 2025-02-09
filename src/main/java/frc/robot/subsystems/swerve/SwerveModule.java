@@ -13,8 +13,8 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import frc.robot.utils.Constants;
 
+import frc.robot.utils.Constants.ChassisConstants;
 import frc.robot.utils.Constants.ModuleConstants;
 
 public class SwerveModule {
@@ -109,7 +109,7 @@ public class SwerveModule {
         desiredState.optimize(encoderRotation);
         desiredState.speedMetersPerSecond *= desiredState.angle.minus(encoderRotation).getCos();
 
-        driveMotor.set(desiredState.speedMetersPerSecond / Constants.ChassisConstants.MAX_SPD);
+        driveMotor.set(desiredState.speedMetersPerSecond / ChassisConstants.MAX_SPD);
         turningMotor.set(turningPIDController.calculate(getAbsoluteEncoderRad(), desiredState.angle.getRadians()));
     }
 }

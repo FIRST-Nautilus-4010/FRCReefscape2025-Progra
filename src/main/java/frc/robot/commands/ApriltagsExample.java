@@ -52,7 +52,7 @@ public class ApriltagsExample extends Command{
 
                         Transform3d apriltagPos = camera.positionTorobot.plus(apriltagToCam);
                         
-                        TrajectoryConfig trajectoryConfig = new TrajectoryConfig(Constants.AutonomousConstants.MAX_SPD, Constants.AutonomousConstants.MAX_ACCEL);
+                        TrajectoryConfig trajectoryConfig = new TrajectoryConfig(AutonomousConstants.MAX_SPD, AutonomousConstants.MAX_ACCEL);
 
                         Trajectory trajectory = TrajectoryGenerator.generateTrajectory(
                             RobotContainer.swerve.getPose(),
@@ -62,10 +62,10 @@ public class ApriltagsExample extends Command{
                             
                         );
                         
-                        PIDController xController = new PIDController(Constants.AutonomousConstants.P, Constants.AutonomousConstants.I, Constants.AutonomousConstants.D);
-                        PIDController yController = new PIDController(Constants.AutonomousConstants.P, Constants.AutonomousConstants.I, Constants.AutonomousConstants.D);
-                        ProfiledPIDController zController = new ProfiledPIDController(Constants.AutonomousConstants.P_Z, 
-                            Constants.AutonomousConstants.I_Z, Constants.AutonomousConstants.D_Z, Constants.AutonomousConstants.Z_CONTROLER
+                        PIDController xController = new PIDController(AutonomousConstants.P, AutonomousConstants.I, AutonomousConstants.D);
+                        PIDController yController = new PIDController(AutonomousConstants.P, AutonomousConstants.I, AutonomousConstants.D);
+                        ProfiledPIDController zController = new ProfiledPIDController(AutonomousConstants.P_Z, 
+                            AutonomousConstants.I_Z, AutonomousConstants.D_Z, AutonomousConstants.Z_CONTROLER
                         );
                         zController.enableContinuousInput(-Math.PI, Math.PI);
 

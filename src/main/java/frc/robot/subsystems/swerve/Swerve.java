@@ -13,24 +13,28 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.utils.Constants;
+
+import frc.robot.utils.Constants.HardwareMap;
+import frc.robot.utils.Constants.AutonomousConstants;
+import frc.robot.utils.Constants.ChassisConstants;
+import frc.robot.utils.Constants.ModuleConstants;
 
 public class Swerve extends SubsystemBase{
 
     //Defines every single module by giving the drive spark id, the turning spark id, the absolute encoder id, absolute encoder offset, is inverted
-    private final SwerveModule frontLeft = new SwerveModule(Constants.HardwareMap.FL_PWR, Constants.HardwareMap.FL_STR, Constants.HardwareMap.FL_ENC, Constants.ModuleConstants.ENCODER_OFFSETS[0], false, false);
-    private final SwerveModule frontRight = new SwerveModule(Constants.HardwareMap.FR_PWR, Constants.HardwareMap.FR_STR, Constants.HardwareMap.FR_ENC, Constants.ModuleConstants.ENCODER_OFFSETS[1], false, false);
-    private final SwerveModule backLeft = new SwerveModule(Constants.HardwareMap.BL_PWR, Constants.HardwareMap.BL_STR, Constants.HardwareMap.BL_ENC, Constants.ModuleConstants.ENCODER_OFFSETS[2], false, false);
-    private final SwerveModule backRight = new SwerveModule(Constants.HardwareMap.BR_PWR, Constants.HardwareMap.BR_STR, Constants.HardwareMap.BR_ENC,  Constants.ModuleConstants.ENCODER_OFFSETS[3], false, false);
+    private final SwerveModule frontLeft = new SwerveModule(HardwareMap.FL_PWR, HardwareMap.FL_STR, HardwareMap.FL_ENC, ModuleConstants.ENCODER_OFFSETS[0], false, false);
+    private final SwerveModule frontRight = new SwerveModule(HardwareMap.FR_PWR, HardwareMap.FR_STR, HardwareMap.FR_ENC, ModuleConstants.ENCODER_OFFSETS[1], false, false);
+    private final SwerveModule backLeft = new SwerveModule(HardwareMap.BL_PWR, HardwareMap.BL_STR, HardwareMap.BL_ENC, ModuleConstants.ENCODER_OFFSETS[2], false, false);
+    private final SwerveModule backRight = new SwerveModule(HardwareMap.BR_PWR, HardwareMap.BR_STR, HardwareMap.BR_ENC, ModuleConstants.ENCODER_OFFSETS[3], false, false);
 
     private final AHRS gyro = new AHRS(NavXComType.kMXP_SPI);
-    private final Pigeon2 pigeon = new Pigeon2(Constants.HardwareMap.PIGEON);
+    private final Pigeon2 pigeon = new Pigeon2(HardwareMap.PIGEON);
 
     private boolean usePigeon = true;
 
-    private final SwerveDriveOdometry odometer = new SwerveDriveOdometry(Constants.ChassisConstants.KINEMATICS,
+    private final SwerveDriveOdometry odometer = new SwerveDriveOdometry(ChassisConstants.KINEMATICS,
             new Rotation2d(0), getSwerveModulePos(),
-            Constants.AutonomousConstants.initialPose
+            AutonomousConstants.initialPose
     );
 
     
@@ -122,7 +126,7 @@ public class Swerve extends SubsystemBase{
     }
 
     public void setStates(SwerveModuleState[] desiredStates){
-        SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, Constants.ChassisConstants.MAX_SPD);
+        SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, ChassisConstants.MAX_SPD);
         frontLeft.setDesiredState(desiredStates[0]);
         frontRight.setDesiredState(desiredStates[1]);
         backLeft.setDesiredState(desiredStates[2]);
