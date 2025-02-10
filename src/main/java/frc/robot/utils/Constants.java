@@ -176,34 +176,34 @@ public final class Constants {
   }
 
   public static class ElevatorConstants {
-    public static final double MAX_HEIGHT = 0;
+    public static final double MAX_HEIGHT = 1.6675;
 
-    public static final double P = 0.1;
+    public static final double P = 0.217;
     public static final double I = 0.0;
     public static final double D = 0.0;
     
   }
 
   public static class ClawConstants {
-    public static final double CLAW_P = 0.1;
+    public static final double CLAW_P = 0.217;
     public static final double CLAW_I = 0.0;
     public static final double CLAW_D = 0.0;
 
-    public static final double ANGLE_P = 0.1;
+    public static final double ANGLE_P = 0.217;
     public static final double ANGLE_I = 0.0;
     public static final double ANGLE_D = 0.0;
 
-    public static final double MAX_ANGLE = 0;
-    public static final double MIN_ANGLE = 0;
+    public static final double MAX_ANGLE = 88.4;
+    public static final double MIN_ANGLE = -88.4;
   }
 
   public static class ArmConstants {
-    public static final double P = 0.1;
+    public static final double P = 0.217;
     public static final double I = 0.0;
     public static final double D = 0.0;
 
-    public static final double MAX_ANGLE = 0;
-    public static final double MIN_ANGLE = 0;
+    public static final double MAX_ANGLE = 116;
+    public static final double MIN_ANGLE = -104;
   }
 
   public static class VisionConstants {
@@ -211,13 +211,10 @@ public final class Constants {
       new Transform3d(new Translation3d(), new Rotation3d()), // Camera 1.
       new Transform3d(new Translation3d(), new Rotation3d()) // Camera 2.
     };
-
-    public static final double NOTE_WIDTH = 1; // The note width at 1 meter.
+    
     public static final double CAM_ANGLE[] = {
       Math.toRadians(62.5),
       Math.toRadians(62.5)
     }; // The view angle of the camera.
-
-    public static final double MAX_X = 100; // The maximum x value of the camera in px. It depends on the resolution.
   }
 }
