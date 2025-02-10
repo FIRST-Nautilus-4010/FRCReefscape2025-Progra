@@ -8,7 +8,9 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utils.SaveData;
+import frc.robot.RobotContainer;
 import frc.robot.utils.Constants.ArmConstants;
+import frc.robot.utils.Constants.ElevatorConstants;
 import frc.robot.utils.Constants.HardwareMap;
 
 public class Arm extends SubsystemBase {
@@ -42,9 +44,9 @@ public class Arm extends SubsystemBase {
     }
 
     public void setArm(double speed) {
-        if (getAngle() >= ArmConstants.MAX_ANGLE && speed > 0) {
+        if (getAngle() >= ArmConstants.MAX_ANGLE - 1 && speed > 0) {
             armMotor.set(0);
-        } else if (getAngle() <= ArmConstants.MIN_ANGLE && speed < 0) {
+        } else if (getAngle() <= ArmConstants.MIN_ANGLE + 1 && speed < 0) {
             armMotor.set(0);
         } else {
             armMotor.set(speed);
@@ -56,6 +58,7 @@ public class Arm extends SubsystemBase {
     }
 
     public void calibrate() {
+        RobotContainer.elevator.setPosition(ElevatorConstants.MAX_HEIGHT);
         long startTime = System.currentTimeMillis();
         
         while (true) {
@@ -94,5 +97,6 @@ public class Arm extends SubsystemBase {
                 break;
             }
         }
+        RobotContainer.elevator.setPosition(0);
     }
 }

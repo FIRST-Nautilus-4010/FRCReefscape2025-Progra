@@ -6,7 +6,9 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utils.SaveData;
+import frc.robot.RobotContainer;
 import frc.robot.utils.Constants.ClawConstants;
+import frc.robot.utils.Constants.ElevatorConstants;
 import frc.robot.utils.Constants.HardwareMap;
 
 import com.revrobotics.spark.SparkMax;
@@ -85,9 +87,9 @@ public class Claw extends SubsystemBase {
     }
 
     public void setClaw(double speed) {
-        if (getClawPosition() >= 1 && speed > 0) {
+        if (getClawPosition() >= .97 && speed > 0) {
             clawMotor.set(0);
-        } else if (getClawPosition() <= 0 && speed < 0) {
+        } else if (getClawPosition() <= .3 && speed < 0) {
             clawMotor.set(0);
         } else {
             clawMotor.set(speed);
@@ -99,9 +101,9 @@ public class Claw extends SubsystemBase {
     }
 
     public void setAngle(double velocity) {
-        if (getAngle() >= ClawConstants.MAX_ANGLE && velocity > 0) {
+        if (getAngle() >= ClawConstants.MAX_ANGLE - 1 && velocity > 0) {
             angleMotor.set(0);
-        } else if (getAngle() <= ClawConstants.MIN_ANGLE && velocity < 0) {
+        } else if (getAngle() <= ClawConstants.MIN_ANGLE + 1 && velocity < 0) {
             angleMotor.set(0);
         } else {
             angleMotor.set(velocity);
@@ -212,7 +214,9 @@ public class Claw extends SubsystemBase {
     }
 
     public void calibrate() {
+        RobotContainer.elevator.setPosition(ElevatorConstants.MAX_HEIGHT);
         calibrateClaw();
         calibrateAngle();
+        RobotContainer.elevator.setPosition(0);
     }
 }
