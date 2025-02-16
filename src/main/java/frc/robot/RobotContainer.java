@@ -18,10 +18,9 @@ import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
-
+import frc.robot.commands.Autonomous;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Elevator;
@@ -47,7 +46,7 @@ public class RobotContainer {
   }
 
   public static Command getAutonomousCommand() {
-    return Commands.print("No autonomous command configured");
+    return new Autonomous();
   }
 
   public static void goTo(Pose2d start, List<Translation2d> intermediatePoints, Pose2d end, Runnable... functions) {
@@ -103,8 +102,7 @@ public class RobotContainer {
         claw.setClawPosition(ClawConstants.SOURCE_POSITION);
         claw.setRollersSpeed(1);
     } catch (Exception e) {
-        // Manejo de excepciones
-        System.err.println("Error al ir a la fuente: " + e.getMessage());
+        System.err.println("Error al ir al source: " + e.getMessage());
     }
   }
 
@@ -119,7 +117,6 @@ public class RobotContainer {
         claw.setClawPosition(ClawConstants.REEF_POSITION);
         claw.setRollersSpeed(-1);
     } catch (Exception e) {
-        // Manejo de excepciones
         System.err.println("Error al ir al arrecife: " + e.getMessage());
     }
   }
