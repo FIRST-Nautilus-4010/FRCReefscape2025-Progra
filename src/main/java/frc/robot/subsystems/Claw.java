@@ -36,18 +36,6 @@ public class Claw extends SubsystemBase {
     
     public Claw(boolean rollersInverted, boolean clawInverted, boolean angleInverted) {
         try {
-            clawOffset = SaveData.readData("clawOffset");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        try {
-            clawNormalize = SaveData.readData("clawNormalize");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        try {
             angleOffset = SaveData.readData("angleOffset");
         } catch (Exception e) {
             e.printStackTrace();
