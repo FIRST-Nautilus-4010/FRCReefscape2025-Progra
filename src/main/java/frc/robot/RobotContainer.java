@@ -19,6 +19,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 import frc.robot.commands.Autonomous;
 import frc.robot.subsystems.Arm;
@@ -35,6 +36,9 @@ public class RobotContainer {
   public static final Elevator elevator = new Elevator(false);
   public static final Claw claw = new Claw(false, false, false);
   public static final Arm arm = new Arm(false);
+
+  public static final Autonomous autonomous = new Autonomous();
+
   public static Command calibrateSubystems() {
     return new InstantCommand(
         () -> {
@@ -45,8 +49,12 @@ public class RobotContainer {
     );
   }
 
-  public static Command getAutonomousCommand() {
-    return new Autonomous();
+  public static Command getRollersCommand() {
+    return new StartEndCommand(
+      () -> claw.setRollersSpeed(1), 
+      () -> claw.setRollersSpeed(0), 
+      claw
+    );
   }
 
   public static void goTo(Pose2d start, List<Translation2d> intermediatePoints, Pose2d end, Runnable... functions) {

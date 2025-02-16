@@ -105,14 +105,16 @@ public final class Constants {
     public static final int CODRIVER_PORT = 1;
 
       // Sticks
-    public static final double kP = 0.1;
-    public static final double kI = 0.0;
-    public static final double kD = 0.0;
+    public static final int CODRIVER_X = 1;
+    public static final int CODRIVER_Y = 0;
+    public static final int CODRIVER_Z = 4;
+    public static final int CODRIVER_A = 3;
     
       // Buttons
-    public static final int RELOAD = 5;
     public static final int CALIBRATE = 6;
     public static final int CALIBRATE1 = 7;
+    public static final int AUTO = 8;
+    public static final int ROLLERS = 5;
 
     // General constants
     public static final double JOYSTICK_DEADZONE = .1;
