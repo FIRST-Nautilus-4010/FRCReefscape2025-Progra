@@ -1,5 +1,9 @@
 package frc.robot.commands;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -13,6 +17,11 @@ public class Autonomous extends Command {
     private Pose3d focusedSource = new Pose3d(new Translation3d(LARGE_DISTANCE, LARGE_DISTANCE, 0), new Rotation3d());
     private int reefId = 0;
     private int sourceId = 0;
+    private List<Boolean> visitedReefs;
+
+    public Autonomous() {
+        visitedReefs = new ArrayList<>(Collections.nCopies(AutonomousConstants.REEF_POS.length, false));
+    }
 
     @Override
     public void initialize() {
@@ -31,11 +40,12 @@ public class Autonomous extends Command {
                         .getDistance(focusedReef.toPose2d().getTranslation())
                         - focusedReef.getZ();
 
-                if (currentDistance < focusedDistance) {
+                if (currentDistance < focusedDistance && !visitedReefs.get(i)) {
                     focusedReef = AutonomousConstants.REEF_POS[i];
                     focusedSource = AutonomousConstants.SOURCE_POS[j];
                     reefId = i;
                     sourceId = j;
+                    visitedReefs.set(i, true);
                 }
             }
         }
