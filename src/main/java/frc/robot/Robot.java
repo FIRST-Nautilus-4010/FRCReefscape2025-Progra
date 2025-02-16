@@ -14,6 +14,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotInit() {
+    RobotContainer.claw.calibrateClaw();
   }
 
   @Override

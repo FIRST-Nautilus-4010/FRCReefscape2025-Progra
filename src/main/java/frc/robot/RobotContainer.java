@@ -21,19 +21,21 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
+
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.swerve.Swerve;
+import frc.robot.utils.Constants.ArmConstants;
 import frc.robot.utils.Constants.AutonomousConstants;
 import frc.robot.utils.Constants.ChassisConstants;
+import frc.robot.utils.Constants.ClawConstants;
 
 public class RobotContainer {
   public static final Swerve swerve = new Swerve(true);
   public static final Elevator elevator = new Elevator(false);
   public static final Claw claw = new Claw(false, false, false);
   public static final Arm arm = new Arm(false);
-
   public static Command calibrateSubystems() {
     return new InstantCommand(
         () -> {
@@ -48,11 +50,16 @@ public class RobotContainer {
     return Commands.print("No autonomous command configured");
   }
 
-  public static Command getTestCommand() {
+  public static void goTo(Pose2d start, List<Translation2d> intermediatePoints, Pose2d end, Runnable... functions) {
     TrajectoryConfig trajectoryConfig = new TrajectoryConfig(AutonomousConstants.MAX_SPD, AutonomousConstants.MAX_ACCEL);
     swerve.resetOdometry(new Pose2d());
 
-    Trajectory trajectory = generateTrajectory(trajectoryConfig);
+    Trajectory trajectory = TrajectoryGenerator.generateTrajectory(
+      start,
+      intermediatePoints,
+      end,
+      trajectoryConfig
+    );;
     publishTrajectory(trajectory);
 
     PIDController xController = new PIDController(AutonomousConstants.P, AutonomousConstants.I, AutonomousConstants.D);
@@ -60,7 +67,7 @@ public class RobotContainer {
     ProfiledPIDController zController = new ProfiledPIDController(AutonomousConstants.P_Z, AutonomousConstants.I_Z, AutonomousConstants.D_Z, AutonomousConstants.Z_CONTROLER);
     zController.enableContinuousInput(-Math.PI, Math.PI);
 
-    return new SwerveControllerCommand(
+    Command command = new SwerveControllerCommand(
         trajectory,
         swerve::getPose,
         ChassisConstants.KINEMATICS,
@@ -70,27 +77,55 @@ public class RobotContainer {
         swerve::setStates,
         swerve
     );
+
+    command.initialize();
+    while (!command.isFinished()) {
+      command.execute();
+      for (Runnable function : functions){
+        function.run();
+      }
+    }
+    command.end(false);
   }
 
-  private static Trajectory generateTrajectory(TrajectoryConfig config) {
-    return TrajectoryGenerator.generateTrajectory(
-        swerve.getPose(),
-        List.of(
-            new Translation2d(3, 0),
-            new Translation2d(3, -1.5),
-            new Translation2d(1.5, -1.5),
-            new Translation2d(1.5, 0),
-            new Translation2d(4.5, 0),
-            new Translation2d(4.5, 1.5),
-            new Translation2d(3, 1.5),
-            new Translation2d(3, 0),
-            new Translation2d(6, -1.5),
-            new Translation2d(7.5, -1.5),
-            new Translation2d(7.5, 0)
-        ),
-        new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
-        config
-    );
+  public static boolean hasCoral() {
+    return claw.getClawAmp() > ClawConstants.CLAW_AMP_THRESHOLD;
+  }
+
+  public static void goToSource(int sourceId) {
+    try {
+        goTo(swerve.getPose(), null, AutonomousConstants.SOURCE_POS[sourceId].toPose2d(),
+            () -> arm.setArmPosition(ArmConstants.SOURCE_ANGLE),
+            () -> claw.setAnglePosition(ClawConstants.SOURCE_ANGLE),
+            () -> elevator.setPosition(AutonomousConstants.SOURCE_POS[sourceId].getZ())
+        );
+
+        claw.setClawPosition(ClawConstants.SOURCE_POSITION);
+        claw.setRollersSpeed(1);
+    } catch (Exception e) {
+        // Manejo de excepciones
+        System.err.println("Error al ir a la fuente: " + e.getMessage());
+    }
+  }
+
+  public static void goToReef(int reefId) {
+    try {
+        goTo(swerve.getPose(), null, AutonomousConstants.REEF_POS[reefId].toPose2d(),
+            () -> arm.setArmPosition(ArmConstants.REEF_ANGLE),
+            () -> claw.setAnglePosition(ClawConstants.REEF_ANGLE),
+            () -> elevator.setPosition(AutonomousConstants.REEF_POS[reefId].getZ())
+        );
+
+        claw.setClawPosition(ClawConstants.REEF_POSITION);
+        claw.setRollersSpeed(-1);
+    } catch (Exception e) {
+        // Manejo de excepciones
+        System.err.println("Error al ir al arrecife: " + e.getMessage());
+    }
+  }
+
+  public static Command getTestCommand() {
+    return new InstantCommand(() -> goTo(swerve.getPose(), null, new Pose2d(1, 1.5, new Rotation2d(52))));
   }
 
   private static void publishTrajectory(Trajectory trajectory) {

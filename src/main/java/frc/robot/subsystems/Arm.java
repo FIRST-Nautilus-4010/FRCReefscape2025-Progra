@@ -60,43 +60,45 @@ public class Arm extends SubsystemBase {
     public void calibrate() {
         RobotContainer.elevator.setPosition(ElevatorConstants.MAX_HEIGHT);
         long startTime = System.currentTimeMillis();
-        
-        while (true) {
-            if (System.currentTimeMillis() - startTime >= 50000) {
-                System.out.println("Calibración terminada por tiempo de espera.");
-                break;
-            }
-            
-            setArm(-.1);
 
-            if(armMotor.getOutputCurrent() > 30) {
+        while (System.currentTimeMillis() - startTime < 50000) {
+            setArm(-0.1);
+
+            if (armMotor.getOutputCurrent() > ArmConstants.AMP_THRESHOLD) {
                 armOffset = armEncoder.get() - ArmConstants.MIN_ANGLE;
                 SaveData.saveData("armOffset", armOffset);
-                while (true) {
-                    if (System.currentTimeMillis() - startTime >= 50000) {
-                        System.out.println("Calibración terminada por tiempo de espera.");
-                        break;
-                    }
-                    
-                    setArm(.1);
 
-                    if (armMotor.getOutputCurrent() > 30) {
+                while (System.currentTimeMillis() - startTime < 50000) {
+                    setArm(0.1);
+
+                    if (armMotor.getOutputCurrent() > ArmConstants.AMP_THRESHOLD) {
                         pulse2Degree = ArmConstants.MAX_ANGLE / (armEncoder.get() - armOffset);
                         SaveData.saveData("armPulse2Degree", pulse2Degree);
+
                         while (getAngle() != 0) {
                             if (System.currentTimeMillis() - startTime >= 50000) {
                                 System.out.println("Calibración terminada por tiempo de espera.");
-                                break;
+                                setArm(0);
+                                return;
                             }
 
                             setArmPosition(0);
                         }
-                        break;
+
+                        System.out.println("Calibración terminada.");
+                        setArm(0);
+                        return;
                     }
                 }
-                break;
+
+                System.out.println("Calibración terminada por tiempo de espera.");
+                setArm(0);
+                return;
             }
         }
+
+        System.out.println("Calibración terminada por tiempo de espera.");
+        setArm(0);
         RobotContainer.elevator.setPosition(0);
     }
 }

@@ -1,6 +1,7 @@
 package frc.robot.utils;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -9,18 +10,6 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 
 public final class Constants {
-
-  public static class FieldConstants {
-    public static final double SPK_HEIGHT = 2.03;
-    public static final Translation2d SPK_POS = new Translation2d(16.54, 5.555);
-    public static final Translation2d[] BLOCKED_ASTAR_NODES = null;
-
-    public static final Translation2d[] NOTE_POS = {
-      new Translation2d(2.9, 4.105), new Translation2d(2.9, 5.555), new Translation2d(2.9, 7.005),
-      new Translation2d(8.27, .745), new Translation2d(8.27, 2.425), new Translation2d(8.27, 4.105), new Translation2d(8.27, 5.785), new Translation2d(8.27, 7.465),
-      new Translation2d(13.64, 4.105), new Translation2d(13.64, 5.555), new Translation2d(13.64, 7.005)
-    };
-  }
 
   public static class ModuleConstants {
       // Wheel specifications
@@ -89,7 +78,10 @@ public final class Constants {
                         MAX_ANG_ACCEL
     );
 
-    public static final double MAX_DIST_SPK = 5;
+
+
+    public static final Pose3d[] REEF_POS = {new Pose3d()};
+    public static final Pose3d[] SOURCE_POS = {new Pose3d()};
   }
 
   public static class OperatorConstants {
@@ -181,7 +173,8 @@ public final class Constants {
     public static final double P = 0.217;
     public static final double I = 0.0;
     public static final double D = 0.0;
-    
+
+    public static final double AMP_THRESHOLD = 5;
   }
 
   public static class ClawConstants {
@@ -195,6 +188,15 @@ public final class Constants {
 
     public static final double MAX_ANGLE = 88.4;
     public static final double MIN_ANGLE = -88.4;
+
+    public static final double SOURCE_ANGLE = 0;
+    public static final double REEF_ANGLE = 0;
+
+    public static final double SOURCE_POSITION = 0;
+    public static final double REEF_POSITION = 0;
+
+    public static final double CLAW_AMP_THRESHOLD = 5;
+    public static final double ANGLE_AMP_THRESHOLD = 5;
   }
 
   public static class ArmConstants {
@@ -204,6 +206,11 @@ public final class Constants {
 
     public static final double MAX_ANGLE = 116;
     public static final double MIN_ANGLE = -104;
+
+    public static final double SOURCE_ANGLE = 0;
+    public static final double REEF_ANGLE = 0;
+
+    public static final double AMP_THRESHOLD = 5;
   }
 
   public static class VisionConstants {

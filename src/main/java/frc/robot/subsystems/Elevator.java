@@ -60,11 +60,11 @@ public class Elevator extends SubsystemBase {
     }
 
     public void setSpeed(double speed) {
-        if (speed > 0 && getTopLimitSwitch()) {
+        if (speed > 0 && (getTopLimitSwitch() || getEncoderPosition() > ElevatorConstants.MAX_HEIGHT)) {
             stop();
             pulse2M = ElevatorConstants.MAX_HEIGHT / (elevatorEncoder.get() - elevatorOffset);
             SaveData.saveData("pulse2M", pulse2M);
-        } else if (speed < 0 && getBottomLimitSwitch()) {
+        } else if (speed < 0 && (getBottomLimitSwitch() || getEncoderPosition() < 0)) {
             stop();
             elevatorOffset = elevatorEncoder.get();
             SaveData.saveData("elevatorOffset", elevatorOffset);
@@ -78,7 +78,7 @@ public class Elevator extends SubsystemBase {
     }
 
     public void stop() {
-        elevatorMotor.set(0);
+        elevatorMotor.stopMotor();
     }
 
     public void calibrate() {
@@ -92,7 +92,7 @@ public class Elevator extends SubsystemBase {
             
             setSpeed(-.1);
 
-            if(getBottomLimitSwitch()) {
+            if(getBottomLimitSwitch() || elevatorMotor.getOutputCurrent() > ElevatorConstants.AMP_THRESHOLD) {
                 while (true) {
                     if (System.currentTimeMillis() - startTime >= 50000) {
                         System.out.println("Calibración terminada por tiempo de espera.");
@@ -101,7 +101,7 @@ public class Elevator extends SubsystemBase {
                     
                     setSpeed(.1);
 
-                    if (getTopLimitSwitch()) {
+                    if (getTopLimitSwitch() || elevatorMotor.getOutputCurrent() > ElevatorConstants.AMP_THRESHOLD) {
                         while (getEncoderPosition() != 0) {
                             if (System.currentTimeMillis() - startTime >= 50000) {
                                 System.out.println("Calibración terminada por tiempo de espera.");

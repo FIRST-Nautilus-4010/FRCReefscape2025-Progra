@@ -11,6 +11,7 @@ import frc.robot.utils.Constants.ClawConstants;
 import frc.robot.utils.Constants.ElevatorConstants;
 import frc.robot.utils.Constants.HardwareMap;
 
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
@@ -19,7 +20,7 @@ public class Claw extends SubsystemBase {
     private final SparkMax rollersMotor1 = new SparkMax(HardwareMap.ROLLERS1, MotorType.kBrushless);
 
     private final SparkMax clawMotor = new SparkMax(HardwareMap.CLAW, MotorType.kBrushless);
-    private final DutyCycleEncoder clawEncoder = new DutyCycleEncoder(HardwareMap.CLAW_ENC);
+    private final RelativeEncoder clawEncoder = clawMotor.getEncoder();
     private final PIDController clawPID = new PIDController(ClawConstants.CLAW_P, ClawConstants.CLAW_I, ClawConstants.CLAW_D);
 
     private final SparkMax angleMotor = new SparkMax(HardwareMap.ANGLE, MotorType.kBrushless);
@@ -73,9 +74,13 @@ public class Claw extends SubsystemBase {
         angleMotorConfig.inverted(angleInverted);
         angleMotor.configure(angleMotorConfig, SparkMax.ResetMode.kResetSafeParameters, SparkMax.PersistMode.kPersistParameters);
     }
+
+    public double getClawAmp() {
+        return clawMotor.getOutputCurrent();
+    }
     
     public double getClawPosition() {
-        return clawEncoder.get() / clawNormalize;
+        return clawEncoder.getPosition() / clawNormalize;
     }
 
     public double getAngle() {
@@ -142,9 +147,8 @@ public class Claw extends SubsystemBase {
             
             setClaw(-.1);
 
-            if(clawMotor.getOutputCurrent() > 30) {
-                clawOffset = clawEncoder.get();
-                SaveData.saveData("clawOffset", clawOffset);
+            if(getClawAmp() > ClawConstants.CLAW_AMP_THRESHOLD) {
+                clawOffset = clawEncoder.getPosition();
                 while (true) {
                     if (System.currentTimeMillis() - startTime >= 50000) {
                         System.out.println("Calibración terminada por tiempo de espera.");
@@ -153,9 +157,8 @@ public class Claw extends SubsystemBase {
                     
                     setClaw(.1);
 
-                    if (clawMotor.getOutputCurrent() > 30) {
-                        clawNormalize = 1 / (clawEncoder.get() - clawOffset);
-                        SaveData.saveData("clawNormalize", clawNormalize);
+                    if (getClawAmp() > ClawConstants.CLAW_AMP_THRESHOLD) {
+                        clawNormalize = 1 / (clawEncoder.getPosition() - clawOffset);
                         while (getClawPosition() != 0) {
                             if (System.currentTimeMillis() - startTime >= 50000) {
                                 System.out.println("Calibración terminada por tiempo de espera.");
@@ -175,42 +178,42 @@ public class Claw extends SubsystemBase {
     public void calibrateAngle() {
         long startTime = System.currentTimeMillis();
         
-        while (true) {
-            if (System.currentTimeMillis() - startTime >= 50000) {
-                System.out.println("Calibración terminada por tiempo de espera.");
-                break;
-            }
-            
-            setAngle(-.1);
+        while (System.currentTimeMillis() - startTime < 50000) {
+            setAngle(-0.1);
 
-            if(angleMotor.getOutputCurrent() > 30) {
+            if (angleMotor.getOutputCurrent() > ClawConstants.ANGLE_AMP_THRESHOLD) {
                 angleOffset = angleEncoder.get() - ClawConstants.MIN_ANGLE;
                 SaveData.saveData("angleOffset", angleOffset);
-                while (true) {
-                    if (System.currentTimeMillis() - startTime >= 50000) {
-                        System.out.println("Calibración terminada por tiempo de espera.");
-                        break;
-                    }
+                
+                while (System.currentTimeMillis() - startTime < 50000) {
+                    setAngle(0.1);
                     
-                    setAngle(.1);
-
-                    if (angleMotor.getOutputCurrent() > 30) {
+                    if (angleMotor.getOutputCurrent() > ClawConstants.ANGLE_AMP_THRESHOLD) {
                         pulse2Degree = ClawConstants.MAX_ANGLE / (angleEncoder.get() - angleOffset);
                         SaveData.saveData("anglePulse2Degree", pulse2Degree);
+                        
                         while (getAngle() != 0) {
                             if (System.currentTimeMillis() - startTime >= 50000) {
                                 System.out.println("Calibración terminada por tiempo de espera.");
-                                break;
+                                setAngle(0);
+                                return;
                             }
-
-                            setAnglePosition(0);
                         }
-                        break;
+                        
+                        System.out.println("Calibración terminada.");
+                        setAngle(0);
+                        return;
                     }
                 }
-                break;
+                
+                System.out.println("Calibración terminada por tiempo de espera.");
+                setAngle(0);
+                return;
             }
         }
+        
+        System.out.println("Calibración terminada por tiempo de espera.");
+        setAngle(0);
     }
 
     public void calibrate() {
