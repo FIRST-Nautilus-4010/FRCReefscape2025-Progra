@@ -34,8 +34,8 @@ public class TeleOp {
 
         RobotContainer.claw.setAngle(codriverJoystick.getRawAxis(OperatorConstants.CODRIVER_A));
         RobotContainer.claw.setClaw(codriverJoystick.getRawAxis(OperatorConstants.CODRIVER_X));
-        RobotContainer.arm.setArm(codriverJoystick.getRawAxis(OperatorConstants.CODRIVER_Z));
-        RobotContainer.elevator.setSpeed(codriverJoystick.getRawAxis(OperatorConstants.CODRIVER_Y));
+        RobotContainer.arm.set(codriverJoystick.getRawAxis(OperatorConstants.CODRIVER_Z));
+        RobotContainer.elevator.set(codriverJoystick.getRawAxis(OperatorConstants.CODRIVER_Y));
 
         rollers.toggleOnTrue(RobotContainer.getRollersCommand());
     }

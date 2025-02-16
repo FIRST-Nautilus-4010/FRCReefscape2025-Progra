@@ -102,12 +102,12 @@ public class RobotContainer {
   public static void goToSource(int sourceId) {
     try {
         goTo(swerve.getPose(), null, AutonomousConstants.SOURCE_POS[sourceId].toPose2d(),
-            () -> arm.setArmPosition(ArmConstants.SOURCE_ANGLE),
-            () -> claw.setAnglePosition(ClawConstants.SOURCE_ANGLE),
-            () -> elevator.setPosition(AutonomousConstants.SOURCE_POS[sourceId].getZ())
+            () -> arm.setPos(ArmConstants.SOURCE_ANGLE),
+            () -> claw.setAnglePos(ClawConstants.SOURCE_ANGLE),
+            () -> elevator.setPos(AutonomousConstants.SOURCE_POS[sourceId].getZ())
         );
 
-        claw.setClawPosition(ClawConstants.SOURCE_POSITION);
+        claw.setClawPos(ClawConstants.SOURCE_POSITION);
         claw.setRollersSpeed(1);
     } catch (Exception e) {
         System.err.println("Error al ir al source: " + e.getMessage());
@@ -117,12 +117,12 @@ public class RobotContainer {
   public static void goToReef(int reefId) {
     try {
         goTo(swerve.getPose(), null, AutonomousConstants.REEF_POS[reefId].toPose2d(),
-            () -> arm.setArmPosition(ArmConstants.REEF_ANGLE),
-            () -> claw.setAnglePosition(ClawConstants.REEF_ANGLE),
-            () -> elevator.setPosition(AutonomousConstants.REEF_POS[reefId].getZ())
+            () -> arm.setPos(ArmConstants.REEF_ANGLE),
+            () -> claw.setAnglePos(ClawConstants.REEF_ANGLE),
+            () -> elevator.setPos(AutonomousConstants.REEF_POS[reefId].getZ())
         );
 
-        claw.setClawPosition(ClawConstants.REEF_POSITION);
+        claw.setClawPos(ClawConstants.REEF_POSITION);
         claw.setRollersSpeed(-1);
     } catch (Exception e) {
         System.err.println("Error al ir al arrecife: " + e.getMessage());

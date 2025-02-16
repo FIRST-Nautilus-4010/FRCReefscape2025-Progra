@@ -4,6 +4,7 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utils.SaveData;
 import frc.robot.RobotContainer;
@@ -73,13 +74,19 @@ public class Claw extends SubsystemBase {
         SparkMaxConfig angleMotorConfig = new SparkMaxConfig();
         angleMotorConfig.inverted(angleInverted);
         angleMotor.configure(angleMotorConfig, SparkMax.ResetMode.kResetSafeParameters, SparkMax.PersistMode.kPersistParameters);
+
+        calibrateClaw();
     }
 
     public double getClawAmp() {
         return clawMotor.getOutputCurrent();
     }
+
+    public double getAngleAmp() {
+        return angleMotor.getOutputCurrent();
+    }
     
-    public double getClawPosition() {
+    public double getClawPos() {
         return clawEncoder.getPosition() / clawNormalize;
     }
 
@@ -92,17 +99,17 @@ public class Claw extends SubsystemBase {
     }
 
     public void setClaw(double speed) {
-        if (getClawPosition() >= .97 && speed > 0) {
+        if (getClawPos() >= .97 && speed > 0) {
             clawMotor.set(0);
-        } else if (getClawPosition() <= .3 && speed < 0) {
+        } else if (getClawPos() <= .3 && speed < 0) {
             clawMotor.set(0);
         } else {
             clawMotor.set(speed);
         }
     }
 
-    public void setClawPosition(double position) {
-        setClaw(clawPID.calculate(getClawPosition(), position));
+    public void setClawPos(double position) {
+        setClaw(clawPID.calculate(getClawPos(), position));
     }
 
     public void setAngle(double velocity) {
@@ -116,7 +123,7 @@ public class Claw extends SubsystemBase {
         
     }
 
-    public void setAnglePosition(double angle) {
+    public void setAnglePos(double angle) {
         setAngle(anglePID.calculate(getAngle(), angle));
     }
 
@@ -126,10 +133,10 @@ public class Claw extends SubsystemBase {
         setAngle(angleSpeed);
     }
 
-    public void setPosition(double speed, double position, double angle) {
+    public void setPos(double speed, double position, double angle) {
         setRollersSpeed(speed);
-        setClawPosition(position);
-        setAnglePosition(angle);
+        setClawPos(position);
+        setAnglePos(angle);
     }
 
     public void stop() {
@@ -159,13 +166,13 @@ public class Claw extends SubsystemBase {
 
                     if (getClawAmp() > ClawConstants.CLAW_AMP_THRESHOLD) {
                         clawNormalize = 1 / (clawEncoder.getPosition() - clawOffset);
-                        while (getClawPosition() != 0) {
+                        while (getClawPos() != 0) {
                             if (System.currentTimeMillis() - startTime >= 50000) {
                                 System.out.println("Calibración terminada por tiempo de espera.");
                                 break;
                             }
 
-                            setClawPosition(0);
+                            setClawPos(0);
                         }
                         break;
                     }
@@ -181,14 +188,14 @@ public class Claw extends SubsystemBase {
         while (System.currentTimeMillis() - startTime < 50000) {
             setAngle(-0.1);
 
-            if (angleMotor.getOutputCurrent() > ClawConstants.ANGLE_AMP_THRESHOLD) {
+            if (getAngleAmp() > ClawConstants.ANGLE_AMP_THRESHOLD) {
                 angleOffset = angleEncoder.get() - ClawConstants.MIN_ANGLE;
                 SaveData.saveData("angleOffset", angleOffset);
                 
                 while (System.currentTimeMillis() - startTime < 50000) {
                     setAngle(0.1);
                     
-                    if (angleMotor.getOutputCurrent() > ClawConstants.ANGLE_AMP_THRESHOLD) {
+                    if (getAngleAmp() > ClawConstants.ANGLE_AMP_THRESHOLD) {
                         pulse2Degree = ClawConstants.MAX_ANGLE / (angleEncoder.get() - angleOffset);
                         SaveData.saveData("anglePulse2Degree", pulse2Degree);
                         
@@ -217,9 +224,17 @@ public class Claw extends SubsystemBase {
     }
 
     public void calibrate() {
-        RobotContainer.elevator.setPosition(ElevatorConstants.MAX_HEIGHT);
+        RobotContainer.elevator.setPos(ElevatorConstants.MAX_HEIGHT);
         calibrateClaw();
         calibrateAngle();
-        RobotContainer.elevator.setPosition(0);
+        RobotContainer.elevator.setPos(0);
+    }
+
+    @Override
+    public void periodic() {
+        SmartDashboard.putNumber("Claw Position", getClawPos());
+        SmartDashboard.putNumber("Claw Angle", getAngle());
+        SmartDashboard.putNumber("Claw Amp", getClawAmp());
+        SmartDashboard.putNumber("Angle Amp", getAngleAmp());
     }
 }

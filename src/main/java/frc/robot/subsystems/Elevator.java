@@ -9,6 +9,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utils.SaveData;
 import frc.robot.utils.Constants.ElevatorConstants;
@@ -47,6 +48,10 @@ public class Elevator extends SubsystemBase {
         elevatorMotor1.configure(elevatorMotor1Config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
+    public double getAmp() {
+        return elevatorMotor.getOutputCurrent();
+    }
+
     public boolean getBottomLimitSwitch() {
         return bottomLimitSwitch.get();
     }
@@ -55,16 +60,16 @@ public class Elevator extends SubsystemBase {
         return topLimitSwitch.get();
     }
 
-    public double getEncoderPosition() {
+    public double getEncoderPos() {
         return (elevatorEncoder.get() - elevatorOffset) * pulse2M;
     }
 
-    public void setSpeed(double speed) {
-        if (speed > 0 && (getTopLimitSwitch() || getEncoderPosition() > ElevatorConstants.MAX_HEIGHT)) {
+    public void set(double speed) {
+        if (speed > 0 && (getTopLimitSwitch() || getEncoderPos() > ElevatorConstants.MAX_HEIGHT)) {
             stop();
             pulse2M = ElevatorConstants.MAX_HEIGHT / (elevatorEncoder.get() - elevatorOffset);
             SaveData.saveData("pulse2M", pulse2M);
-        } else if (speed < 0 && (getBottomLimitSwitch() || getEncoderPosition() < 0)) {
+        } else if (speed < 0 && (getBottomLimitSwitch() || getEncoderPos() < 0)) {
             stop();
             elevatorOffset = elevatorEncoder.get();
             SaveData.saveData("elevatorOffset", elevatorOffset);
@@ -73,8 +78,8 @@ public class Elevator extends SubsystemBase {
         }
     }
 
-    public void setPosition(double position) {
-        elevatorMotor.set(elevatorPID.calculate(getEncoderPosition(), position));
+    public void setPos(double position) {
+        elevatorMotor.set(elevatorPID.calculate(getEncoderPos(), position));
     }
 
     public void stop() {
@@ -90,25 +95,25 @@ public class Elevator extends SubsystemBase {
                 break;
             }
             
-            setSpeed(-.1);
+            set(-.1);
 
-            if(getBottomLimitSwitch() || elevatorMotor.getOutputCurrent() > ElevatorConstants.AMP_THRESHOLD) {
+            if(getBottomLimitSwitch() || getAmp() > ElevatorConstants.AMP_THRESHOLD) {
                 while (true) {
                     if (System.currentTimeMillis() - startTime >= 50000) {
                         System.out.println("Calibración terminada por tiempo de espera.");
                         break;
                     }
                     
-                    setSpeed(.1);
+                    set(.1);
 
-                    if (getTopLimitSwitch() || elevatorMotor.getOutputCurrent() > ElevatorConstants.AMP_THRESHOLD) {
-                        while (getEncoderPosition() != 0) {
+                    if (getTopLimitSwitch() || getAmp() > ElevatorConstants.AMP_THRESHOLD) {
+                        while (getEncoderPos() != 0) {
                             if (System.currentTimeMillis() - startTime >= 50000) {
                                 System.out.println("Calibración terminada por tiempo de espera.");
                                 break;
                             }
 
-                            setPosition(0);
+                            setPos(0);
                         }
                         break;
                     }
@@ -116,6 +121,11 @@ public class Elevator extends SubsystemBase {
                 break;
             }
         }
+    }
+
+    public void update() {
+        SmartDashboard.putNumber("Elevator Position", getEncoderPos());
+        SmartDashboard.putNumber("Elevator amp", getAmp());
     }
 
 }
