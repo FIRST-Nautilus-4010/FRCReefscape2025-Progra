@@ -82,6 +82,7 @@ public final class Constants {
 
     public static final Pose3d[] REEF_POS = {new Pose3d()};
     public static final Pose3d[] SOURCE_POS = {new Pose3d()};
+    public static final Pose3d[] ALGAE_POS = {new Pose3d()};
   }
 
   public static class OperatorConstants {
@@ -193,9 +194,11 @@ public final class Constants {
 
     public static final double SOURCE_ANGLE = 0;
     public static final double REEF_ANGLE = 0;
+    public static final double ALGAE_ANGLE = 1;
 
     public static final double SOURCE_POSITION = 0;
     public static final double REEF_POSITION = 0;
+    public static final double ALGAE_POSITION = 0;
 
     public static final double CLAW_AMP_THRESHOLD = 5;
     public static final double ANGLE_AMP_THRESHOLD = 5;
@@ -211,6 +214,7 @@ public final class Constants {
 
     public static final double SOURCE_ANGLE = 0;
     public static final double REEF_ANGLE = 0;
+    public static final double ALGAE_ANGLE = 1;
 
     public static final double AMP_THRESHOLD = 5;
   }

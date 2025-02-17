@@ -18,6 +18,7 @@ public class Autonomous extends Command {
     private int reefId = 0;
     private int sourceId = 0;
     private List<Boolean> visitedReefs;
+    private boolean hasAlgae = false;
 
     public Autonomous() {
         visitedReefs = new ArrayList<>(Collections.nCopies(AutonomousConstants.REEF_POS.length, false));
@@ -50,11 +51,21 @@ public class Autonomous extends Command {
             }
         }
 
+        if (reefId / 2 == Math.round(reefId /  2)) {
+            hasAlgae = visitedReefs.get(reefId) || visitedReefs.get(reefId + 1);
+        } else {
+            hasAlgae = visitedReefs.get(reefId) || visitedReefs.get(reefId - 1);
+        }
+
         // Move to the source
         RobotContainer.goToSource(sourceId);
 
         // If coral is detected, move to the reef
         if (RobotContainer.hasCoral()) {
+            if (hasAlgae) {
+                RobotContainer.removeAlgae((int) sourceId / 2);
+            }
+            
             RobotContainer.goToReef(reefId);
         }
     }

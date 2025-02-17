@@ -129,6 +129,20 @@ public class RobotContainer {
     }
   }
 
+  public static void removeAlgae(int algaeId) {
+    try {
+      goTo(swerve.getPose(), null, AutonomousConstants.ALGAE_POS[algaeId].toPose2d(),
+          () -> arm.setPos(ArmConstants.ALGAE_ANGLE),
+          () -> elevator.setPos(AutonomousConstants.ALGAE_POS[algaeId].getZ()),
+          () -> claw.setAnglePos(ClawConstants.ALGAE_ANGLE),
+          () -> claw.setClawPos(ClawConstants.ALGAE_POSITION),
+          () -> claw.setRollersSpeed(-1)
+      );
+    } catch (Exception e) {
+        System.err.println("Error al tratar de remover el algae: " + e.getMessage());
+    }
+  }
+
   public static Command getTestCommand() {
     return new InstantCommand(() -> goTo(swerve.getPose(), null, new Pose2d(1, 1.5, new Rotation2d(52))));
   }
