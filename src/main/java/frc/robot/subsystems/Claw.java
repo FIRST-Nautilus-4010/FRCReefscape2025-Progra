@@ -102,9 +102,11 @@ public class Claw extends SubsystemBase {
 
     public void setAngle(double velocity) {
         if (getAngle() >= ClawConstants.MAX_ANGLE - 1 && velocity > 0) {
-            angleMotor.set(0);
+            stopAngle();
         } else if (getAngle() <= ClawConstants.MIN_ANGLE + 1 && velocity < 0) {
-            angleMotor.set(0);
+            stopAngle();
+        } else if (velocity == 0) {
+            stop();
         } else {
             angleMotor.set(velocity);
         }
@@ -127,8 +129,19 @@ public class Claw extends SubsystemBase {
         setAnglePos(angle);
     }
 
+    public void stopClaw() {
+        clawMotor.set(0);
+    }
+
+    public void stopAngle() {
+        angleMotor.set(0.05);
+    }
+    public void stopRollers() {
+        rollersMotor.set(0);
+    }
+
     public void stop() {
-        set(0, 0, 0);
+        set(0, 0, 0.05);
     }
 
     public void calibrateClaw() {

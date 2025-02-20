@@ -80,7 +80,10 @@ public final class Constants {
 
 
 
-    public static final Pose3d[] REEF_POS = {new Pose3d()};
+    public static final Pose3d[] REEF_POS = {
+      new Pose3d(),
+      
+    };
     public static final Pose3d[] SOURCE_POS = {new Pose3d()};
     public static final Pose3d[] ALGAE_POS = {new Pose3d()};
   }
