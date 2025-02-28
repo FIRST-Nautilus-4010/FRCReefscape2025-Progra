@@ -25,6 +25,7 @@ import frc.robot.commands.Autonomous;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.utils.Constants.ArmConstants;
 import frc.robot.utils.Constants.AutonomousConstants;
@@ -32,10 +33,11 @@ import frc.robot.utils.Constants.ChassisConstants;
 import frc.robot.utils.Constants.ClawConstants;
 
 public class RobotContainer {
-  public static final Swerve swerve = new Swerve(true);
   public static final Elevator elevator = new Elevator(false);
   public static final Claw claw = new Claw(false, false, false);
   public static final Arm arm = new Arm(false);
+  public static final Vision  vision = new Vision();
+  public static final Swerve swerve = new Swerve(true);
 
   public static final Autonomous autonomous = new Autonomous();
 

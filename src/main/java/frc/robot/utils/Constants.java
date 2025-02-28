@@ -223,6 +223,7 @@ public final class Constants {
   }
 
   public static class VisionConstants {
+    public static final int CAM_NUM = 1; // Number of cameras.
     public static final Transform3d[] ROBOT_TO_CAM = {
       new Transform3d(new Translation3d(), new Rotation3d()), // Camera 1.
       new Transform3d(new Translation3d(), new Rotation3d()) // Camera 2.
@@ -232,5 +233,7 @@ public final class Constants {
       Math.toRadians(62.5),
       Math.toRadians(62.5)
     }; // The view angle of the camera.
+
+    public static final double APRILTAG_WIDTH = 0.1; // The width of the apriltag.
   }
 }

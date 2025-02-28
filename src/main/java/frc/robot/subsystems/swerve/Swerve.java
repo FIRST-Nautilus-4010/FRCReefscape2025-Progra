@@ -15,9 +15,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.robot.utils.Constants.HardwareMap;
+import frc.robot.RobotContainer;
 import frc.robot.utils.Constants.AutonomousConstants;
 import frc.robot.utils.Constants.ChassisConstants;
 import frc.robot.utils.Constants.ModuleConstants;
+import frc.robot.utils.Constants.VisionConstants;
 
 public class Swerve extends SubsystemBase{
 
@@ -104,6 +106,15 @@ public class Swerve extends SubsystemBase{
 
     // Updates the Odometer
     public void updateOdometry(){
+        for (int i = 0; i < VisionConstants.CAM_NUM; i++){
+            if (RobotContainer.vision.getAprilDetections(i) > 0) {
+                double[] botpose = RobotContainer.vision.getRobotPoseFromFirstAprilTag(i);
+                Pose2d pose = new Pose2d(botpose[0], botpose[1], Rotation2d.fromDegrees(botpose[2]));
+                odometer.resetPose(pose);
+                return;
+            }
+
+        }
         odometer.update(getRotation2d(), getSwerveModulePos());
     }
 
