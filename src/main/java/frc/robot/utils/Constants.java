@@ -52,8 +52,8 @@ public final class Constants {
     public static final double MAX_ANG_SPD = 2 * Math.PI; // in radians per second.
     
     // Maximum accelerations
-    public static final double MAX_ACCEL = 3;
-    public static final double MAX_ANG_ACCEL = 3;
+    public static final double MAX_ACCEL = 1.5;
+    public static final double MAX_ANG_ACCEL = 1.5;
   }
 
   public static class AutonomousConstants {
@@ -174,7 +174,7 @@ public final class Constants {
   }
 
   public static class ElevatorConstants {
-    public static final double MAX_HEIGHT = 1.6675;
+    public static final double MAX_HEIGHT = 8840000;
 
     public static final double P = 0.217;
     public static final double I = 0.0;
@@ -192,8 +192,8 @@ public final class Constants {
     public static final double ANGLE_I = 0.0;
     public static final double ANGLE_D = 0.0;
 
-    public static final double MAX_ANGLE = 88.4;
-    public static final double MIN_ANGLE = -88.4;
+    public static final double MAX_ANGLE = 88400000;
+    public static final double MIN_ANGLE = -884000000;
 
     public static final double SOURCE_ANGLE = 0;
     public static final double REEF_ANGLE = 0;
@@ -212,8 +212,8 @@ public final class Constants {
     public static final double I = 0.0;
     public static final double D = 0.0;
 
-    public static final double MAX_ANGLE = 116;
-    public static final double MIN_ANGLE = -104;
+    public static final double MAX_ANGLE = 884000000;
+    public static final double MIN_ANGLE = -884000000;
 
     public static final double SOURCE_ANGLE = 0;
     public static final double REEF_ANGLE = 0;

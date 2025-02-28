@@ -12,16 +12,24 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.Autonomous;
+import frc.robot.commands.SwerveDriveJoystick;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Elevator;
@@ -41,6 +49,18 @@ public class RobotContainer {
 
   public static final Autonomous autonomous = new Autonomous();
 
+  public static Command getAutonomouCmd() {
+    ChassisSpeeds chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(.1, 0, 0, RobotContainer.swerve.getRotation2d());
+    
+    SwerveModuleState[] states = ChassisConstants.KINEMATICS.toSwerveModuleStates(chassisSpeeds);
+
+    ChassisSpeeds chassisSpeeds1 = ChassisSpeeds.fromFieldRelativeSpeeds(0, 0, 0, RobotContainer.swerve.getRotation2d());
+    
+    SwerveModuleState[] states1 = ChassisConstants.KINEMATICS.toSwerveModuleStates(chassisSpeeds1);
+
+    return new SwerveDriveJoystick(swerve, () -> {return 0.0;}, () -> {return 0.7;}, () -> {return 0.0;}, () -> {return true;});
+  }
+  
   public static Command calibrateSubystems() {
     return new InstantCommand(
         () -> {

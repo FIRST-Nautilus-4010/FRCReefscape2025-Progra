@@ -11,6 +11,8 @@ import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructArrayPublisher;
+import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -33,6 +35,8 @@ public class Swerve extends SubsystemBase{
     private final Pigeon2 pigeon = new Pigeon2(HardwareMap.PIGEON);
 
     private boolean usePigeon = true;
+    StructPublisher<Pose2d> posePublisher = NetworkTableInstance.getDefault().getStructTopic("Robot position", Pose2d.struct).publish();
+    StructArrayPublisher<SwerveModuleState> swervePublisher = NetworkTableInstance.getDefault().getStructArrayTopic("Detected module states", SwerveModuleState.struct).publish();
 
     private final SwerveDriveOdometry odometer = new SwerveDriveOdometry(ChassisConstants.KINEMATICS,
             new Rotation2d(0), getSwerveModulePos(),
@@ -124,8 +128,8 @@ public class Swerve extends SubsystemBase{
         updateOdometry();
         SmartDashboard.putNumber("Robot Heading", getHeading());
         SmartDashboard.putString("Robot Location", getPose().getTranslation().toString());
-        NetworkTableInstance.getDefault().getStructTopic("Robot position", Pose2d.struct).publish().set(getPose());
-        NetworkTableInstance.getDefault().getStructArrayTopic("Detected module states", SwerveModuleState.struct).publish().set(getSwerveModuleStates());
+        posePublisher.set(getPose());
+        swervePublisher.set(getSwerveModuleStates());
     }
 
     // Stop the swerve modules
