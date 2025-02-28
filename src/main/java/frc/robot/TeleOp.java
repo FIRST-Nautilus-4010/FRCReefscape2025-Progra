@@ -28,9 +28,7 @@ public class TeleOp {
         
         calibrateBtn.and(calibrateBtn1).onTrue(RobotContainer.calibrateSubystems());
 
-        if (driverJoystick.getRawAxis(OperatorConstants.DRIVER_X) + driverJoystick.getRawAxis(OperatorConstants.DRIVER_Y) + driverJoystick.getRawAxis(OperatorConstants.DRIVER_Z) == 0){
-            auto.toggleOnTrue(RobotContainer.autonomous);
-        }
+        auto.toggleOnTrue(RobotContainer.autonomous);
 
         RobotContainer.claw.setAngle(codriverJoystick.getRawAxis(OperatorConstants.CODRIVER_A));
         RobotContainer.claw.setClaw(codriverJoystick.getRawAxis(OperatorConstants.CODRIVER_X));
