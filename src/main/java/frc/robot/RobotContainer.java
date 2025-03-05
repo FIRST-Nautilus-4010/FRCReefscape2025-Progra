@@ -58,7 +58,7 @@ public class RobotContainer {
     
     SwerveModuleState[] states1 = ChassisConstants.KINEMATICS.toSwerveModuleStates(chassisSpeeds1);
 
-    return new SwerveDriveJoystick(swerve, () -> {return 0.0;}, () -> {return 0.7;}, () -> {return 0.0;}, () -> {return true;});
+    return new SwerveDriveJoystick(swerve, () -> {return 0.0;}, () -> {return 0.4;}, () -> {return 0.0;}, () -> {return true;});
   }
   
   public static Command calibrateSubystems() {

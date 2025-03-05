@@ -50,7 +50,7 @@ public class SwerveModule {
         };
 
         driveMotor.getConfigurator().apply(driveMotorConfigs);
-        turningMotor.configure(turningMotorConfig, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
+        turningMotor.configure(turningMotorConfig, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kNoPersistParameters);
                 
         // Assigns a pid controller for the turning motor. This one takes a P variable stablish in constants that specifies the proportional PID value
         turningPIDController = new PIDController(ModuleConstants.PID_P, ModuleConstants.PID_I, ModuleConstants.PID_D);

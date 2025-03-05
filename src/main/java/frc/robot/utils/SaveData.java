@@ -25,7 +25,7 @@ public class SaveData {
             try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
                 map = (HashMap<String, Double>) ois.readObject();
             } catch (IOException | ClassNotFoundException e) {
-                e.printStackTrace();
+                
             }
         }
         return map;
@@ -35,7 +35,7 @@ public class SaveData {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(FILE_NAME))) {
             oos.writeObject(dataMap);
         } catch (IOException e) {
-            e.printStackTrace();
+            
         }
     }
 

@@ -26,18 +26,18 @@ public class Arm extends SubsystemBase {
         try {
             armOffset = SaveData.readData("armOffset");
         } catch (Exception e) {
-            e.printStackTrace();
+            
         }
 
         try {
             pulse2Degree = SaveData.readData("armPulse2Degree");
         } catch (Exception e) {
-            e.printStackTrace();
+            
         }
 
         SparkMaxConfig armMotorConfig = new SparkMaxConfig();
         armMotorConfig.inverted(armInverted);
-        armMotor.configure(armMotorConfig, SparkMax.ResetMode.kResetSafeParameters, SparkMax.PersistMode.kPersistParameters);
+        armMotor.configure(armMotorConfig, SparkMax.ResetMode.kResetSafeParameters, SparkMax.PersistMode.kNoPersistParameters);
     }
 
     public double getAngle() {

@@ -38,32 +38,32 @@ public class Claw extends SubsystemBase {
         try {
             angleOffset = SaveData.readData("angleOffset");
         } catch (Exception e) {
-            e.printStackTrace();
+            
         }
 
         try {
             pulse2Degree = SaveData.readData("anglePulse2Degree");
         } catch (Exception e) {
-            e.printStackTrace();
+            
         }
 
         SparkMaxConfig rollersMotorConfig = new SparkMaxConfig();
         rollersMotorConfig.inverted(false);
-        rollersMotor.configure(rollersMotorConfig, SparkMax.ResetMode.kResetSafeParameters, SparkMax.PersistMode.kPersistParameters);
+        rollersMotor.configure(rollersMotorConfig, SparkMax.ResetMode.kResetSafeParameters, SparkMax.PersistMode.kNoPersistParameters);
 
         SparkMaxConfig rollersMotor1Config = new SparkMaxConfig();
         rollersMotor1Config.follow(rollersMotor.getDeviceId());
-        rollersMotor1.configure(rollersMotor1Config, SparkMax.ResetMode.kResetSafeParameters, SparkMax.PersistMode.kPersistParameters);
+        rollersMotor1.configure(rollersMotor1Config, SparkMax.ResetMode.kResetSafeParameters, SparkMax.PersistMode.kNoPersistParameters);
 
         SparkMaxConfig clawMotorConfig = new SparkMaxConfig();
         clawMotorConfig.inverted(clawInverted);
-        clawMotor.configure(clawMotorConfig, SparkMax.ResetMode.kResetSafeParameters, SparkMax.PersistMode.kPersistParameters   );
+        clawMotor.configure(clawMotorConfig, SparkMax.ResetMode.kResetSafeParameters, SparkMax.PersistMode.kNoPersistParameters   );
 
         SparkMaxConfig angleMotorConfig = new SparkMaxConfig();
         angleMotorConfig.inverted(angleInverted);
-        angleMotor.configure(angleMotorConfig, SparkMax.ResetMode.kResetSafeParameters, SparkMax.PersistMode.kPersistParameters);
+        angleMotor.configure(angleMotorConfig, SparkMax.ResetMode.kResetSafeParameters, SparkMax.PersistMode.kNoPersistParameters);
 
-        calibrateClaw();
+        //calibrateClaw();
     }
 
     public double getClawAmp() {
@@ -84,16 +84,13 @@ public class Claw extends SubsystemBase {
 
     public void setRollersSpeed(double speed) {
         rollersMotor.set(speed);
+        rollersMotor1.set(speed);
     }
 
     public void setClaw(double speed) {
-        if (getClawPos() >= .97 && speed > 0) {
-            clawMotor.set(0);
-        } else if (getClawPos() <= .3 && speed < 0) {
-            clawMotor.set(0);
-        } else {
+        
             clawMotor.set(speed);
-        }
+    
     }
 
     public void setClawPos(double position) {

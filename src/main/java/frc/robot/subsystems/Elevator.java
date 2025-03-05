@@ -30,22 +30,22 @@ public class Elevator extends SubsystemBase {
         try {
             elevatorOffset = SaveData.readData("elevatorOffset");
         } catch (Exception e) {
-            e.printStackTrace();
+            
         }
 
         try {
             pulse2M = SaveData.readData("pulse2M");
         } catch (Exception e) {
-            e.printStackTrace();
+            
         }
 
         SparkMaxConfig elevatorMotorConfig = new SparkMaxConfig();
         elevatorMotorConfig.inverted(isInverted);
-        elevatorMotor.configure(elevatorMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        elevatorMotor.configure(elevatorMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
 
         SparkMaxConfig elevatorMotor1Config = new SparkMaxConfig();
         elevatorMotor1Config.follow(elevatorMotor.getDeviceId());
-        elevatorMotor1.configure(elevatorMotor1Config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        elevatorMotor1.configure(elevatorMotor1Config, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
     }
 
     public double getAmp() {
@@ -65,17 +65,10 @@ public class Elevator extends SubsystemBase {
     }
 
     public void set(double speed) {
-        if (speed > 0 && (getTopLimitSwitch() || getEncoderPos() > ElevatorConstants.MAX_HEIGHT)) {
-            stop();
-            pulse2M = ElevatorConstants.MAX_HEIGHT / (elevatorEncoder.get() - elevatorOffset);
-            SaveData.saveData("pulse2M", pulse2M);
-        } else if (speed < 0 && (getBottomLimitSwitch() || getEncoderPos() < 0)) {
-            stop();
-            elevatorOffset = elevatorEncoder.get();
-            SaveData.saveData("elevatorOffset", elevatorOffset);
-        } else {
+        
             elevatorMotor.set(speed);
-        }
+            elevatorMotor1.set(speed);
+        
     }
 
     public void setPos(double position) {

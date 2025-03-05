@@ -17,6 +17,9 @@ public class TeleOp {
     final static JoystickButton auto = new JoystickButton(codriverJoystick, OperatorConstants.AUTO);
     final static JoystickButton rollers = new JoystickButton(codriverJoystick, OperatorConstants.ROLLERS);
 
+    static double lastAnglePos = RobotContainer.claw.getAngle();
+    static double lastArmPos = RobotContainer.arm.getAngle();
+
     public static void initialize() {
         RobotContainer.swerve.setDefaultCommand(new SwerveDriveJoystick(
             RobotContainer.swerve,
@@ -26,16 +29,61 @@ public class TeleOp {
             () -> !driverJoystick.getRawButton(OperatorConstants.ROBOT_ORIENTED)));
         zeroHdgBtn.onTrue(new InstantCommand(() -> RobotContainer.swerve.zeroHeading()));
         
-        calibrateBtn.and(calibrateBtn1).onTrue(RobotContainer.calibrateSubystems());
+        //calibrateBtn.and(calibrateBtn1).onTrue(RobotContainer.calibrateSubystems());
 
-        auto.toggleOnTrue(RobotContainer.autonomous);
+        //auto.toggleOnTrue(RobotContainer.autonomous);
+        
+        RobotContainer.claw.setDefaultCommand( 
+            new InstantCommand(() -> moveClaw(), RobotContainer.claw)
+        );
+        RobotContainer.arm.setDefaultCommand(
+            new InstantCommand(() -> moveArm(), RobotContainer.arm)
+        );
+        //RobotContainer.elevator.setDefaultCommand(
+        //    new InstantCommand(() -> moveElevator(), RobotContainer.elevator)
+        //);
+       
 
-        RobotContainer.claw.setAngle(codriverJoystick.getRawAxis(OperatorConstants.CODRIVER_A));
-        RobotContainer.claw.setClaw(codriverJoystick.getRawAxis(OperatorConstants.CODRIVER_X));
-        RobotContainer.arm.set(codriverJoystick.getRawAxis(OperatorConstants.CODRIVER_Z));
-        RobotContainer.elevator.set(codriverJoystick.getRawAxis(OperatorConstants.CODRIVER_Y));
+       rollers.toggleOnTrue(new InstantCommand(() -> RobotContainer.claw.setRollersSpeed(1)));
+       rollers.toggleOnFalse(new InstantCommand(() -> RobotContainer.claw.setRollersSpeed(0)));
+        
+    }
 
-        rollers.toggleOnTrue(RobotContainer.getRollersCommand());
+    private static void moveClaw() {
+        
+        if (Math.abs(codriverJoystick.getRawAxis(0)) > .1) {
+            RobotContainer.claw.setAngle(codriverJoystick.getRawAxis(0)*.6);
+            lastAnglePos = RobotContainer.claw.getAngle();
+        } else {
+            RobotContainer.claw.setAnglePos(lastAnglePos);
+        }
+        if (Math.abs(codriverJoystick.getRawAxis(5)) > .1){
+            RobotContainer.claw.setClaw((codriverJoystick.getRawAxis(5) * .1));
+        } else {
+            RobotContainer.claw.setClaw(0);
+        }
+    }
+
+    private static void moveArm() {
+        if (codriverJoystick.getRawAxis(3) > 0) {
+            RobotContainer.arm.set(codriverJoystick.getRawAxis(3)*.2);
+            lastArmPos = RobotContainer.arm.getAngle();
+        } else if (codriverJoystick.getRawAxis(2) > 0) {
+            RobotContainer.arm.set(-codriverJoystick.getRawAxis(2)*.2);
+            lastArmPos = RobotContainer.arm.getAngle();
+        } else {
+            RobotContainer.arm.setPos(lastAnglePos);
+        }
+    }
+
+    private static void moveElevator() {
+        if (driverJoystick.getRawAxis(3) > 0) {
+            RobotContainer.elevator.set(driverJoystick.getRawAxis(3));
+        } else if (driverJoystick.getRawAxis(2) > 0) {
+            RobotContainer.elevator.set(-driverJoystick.getRawAxis(2));
+        } else {
+            RobotContainer.elevator.set(.13);
+        }
     }
 
 
