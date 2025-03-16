@@ -8,108 +8,65 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.utils.SaveData;
-import frc.robot.RobotContainer;
 import frc.robot.utils.Constants.ArmConstants;
-import frc.robot.utils.Constants.ElevatorConstants;
 import frc.robot.utils.Constants.HardwareMap;
 
 public class Arm extends SubsystemBase {
     private final SparkMax armMotor = new SparkMax(HardwareMap.ARM, MotorType.kBrushless);
+    private final SparkMax armMotor1 = new SparkMax(HardwareMap.ARM1, MotorType.kBrushless);
     private final DutyCycleEncoder armEncoder = new DutyCycleEncoder(HardwareMap.ARM_ENC);
     private final PIDController armPID = new PIDController(ArmConstants.P, ArmConstants.I, ArmConstants.D);
 
-    private double armOffset = 0;
-    private double pulse2Degree = 0;
+    private double angle = 0;
+    private boolean runToPosition = false;
 
     public Arm(boolean armInverted) {
-        try {
-            armOffset = SaveData.readData("armOffset");
-        } catch (Exception e) {
-            
-        }
-
-        try {
-            pulse2Degree = SaveData.readData("armPulse2Degree");
-        } catch (Exception e) {
-            
-        }
-
         SparkMaxConfig armMotorConfig = new SparkMaxConfig();
         armMotorConfig.inverted(armInverted);
         armMotor.configure(armMotorConfig, SparkMax.ResetMode.kResetSafeParameters, SparkMax.PersistMode.kNoPersistParameters);
+
+        SparkMaxConfig armMotor1Config = new SparkMaxConfig();
+        armMotor1Config.follow(armMotor.getDeviceId());
+        armMotor1.configure(armMotor1Config, SparkMax.ResetMode.kResetSafeParameters, SparkMax.PersistMode.kNoPersistParameters);
     }
 
     public double getAngle() {
-        return (armEncoder.get() - armOffset) * pulse2Degree;
+        return (armEncoder.get() - ArmConstants.OFFSET) * ArmConstants.PULSE2DEGREE;
     }
 
     public void set(double speed) {
-        if (getAngle() >= ArmConstants.MAX_ANGLE - 1 && speed > 0) {
-            armMotor.set(0);
-        } else if (getAngle() <= ArmConstants.MIN_ANGLE + 1 && speed < 0) {
-            armMotor.set(0);
+        if ((getAngle() >= ArmConstants.MAX_ANGLE - 1 || getAmp() < ArmConstants.AMP_THRESHOLD) && speed > 0 ) {
+            stop();
+        } else if ((getAngle() <= ArmConstants.MIN_ANGLE + 1 || getAmp() < ArmConstants.AMP_THRESHOLD) && speed < 0) {
+            stop();
         } else {
             armMotor.set(speed);
         }
     }
 
     public void setPos(double angle) {
-        set(armPID.calculate(getAngle(), angle));
+        this.angle = angle;
+    }
+
+    public void runToPosition(boolean runToPosition) {
+        this.runToPosition = runToPosition;
     }
 
     public double getAmp() {
         return armMotor.getOutputCurrent();
     }
 
-    public void calibrate() {
-        RobotContainer.elevator.setPos(ElevatorConstants.MAX_HEIGHT);
-        long startTime = System.currentTimeMillis();
-
-        while (System.currentTimeMillis() - startTime < 50000) {
-            set(-0.1);
-
-            if (getAmp() > ArmConstants.AMP_THRESHOLD) {
-                armOffset = armEncoder.get() - ArmConstants.MIN_ANGLE;
-                SaveData.saveData("armOffset", armOffset);
-
-                while (System.currentTimeMillis() - startTime < 50000) {
-                    set(0.1);
-
-                    if (getAmp() > ArmConstants.AMP_THRESHOLD) {
-                        pulse2Degree = ArmConstants.MAX_ANGLE / (armEncoder.get() - armOffset);
-                        SaveData.saveData("armPulse2Degree", pulse2Degree);
-
-                        while (getAngle() != 0) {
-                            if (System.currentTimeMillis() - startTime >= 50000) {
-                                System.out.println("Calibración terminada por tiempo de espera.");
-                                set(0);
-                                return;
-                            }
-
-                            setPos(0);
-                        }
-
-                        System.out.println("Calibración terminada.");
-                        set(0);
-                        return;
-                    }
-                }
-
-                System.out.println("Calibración terminada por tiempo de espera.");
-                set(0);
-                return;
-            }
-        }
-
-        System.out.println("Calibración terminada por tiempo de espera.");
-        set(0);
-        RobotContainer.elevator.setPos(0);
+    public void stop() {
+        armMotor.stopMotor();
     }
 
     @Override
     public void periodic() {
         SmartDashboard.putNumber("Arm Angle", getAngle());
         SmartDashboard.putNumber("Arm Current", getAmp());
+
+        if (runToPosition) {
+            set(armPID.calculate(getAngle(), angle));
+        } 
     }
 }

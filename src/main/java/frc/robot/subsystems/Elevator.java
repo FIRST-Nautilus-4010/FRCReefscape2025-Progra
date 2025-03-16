@@ -11,7 +11,6 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.utils.SaveData;
 import frc.robot.utils.Constants.ElevatorConstants;
 import frc.robot.utils.Constants.HardwareMap;
 
@@ -23,22 +22,10 @@ public class Elevator extends SubsystemBase {
     private final DigitalInput topLimitSwitch = new DigitalInput(HardwareMap.TOP_LIMIT);
     private final PIDController elevatorPID = new PIDController(ElevatorConstants.P, ElevatorConstants.I, ElevatorConstants.D);
 
-    private double elevatorOffset = 0;
-    private double pulse2M = 0;
+    private double position = 0;
+    private boolean runToPosition = false;
 
     public Elevator(boolean isInverted) {
-        try {
-            elevatorOffset = SaveData.readData("elevatorOffset");
-        } catch (Exception e) {
-            
-        }
-
-        try {
-            pulse2M = SaveData.readData("pulse2M");
-        } catch (Exception e) {
-            
-        }
-
         SparkMaxConfig elevatorMotorConfig = new SparkMaxConfig();
         elevatorMotorConfig.inverted(isInverted);
         elevatorMotor.configure(elevatorMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
@@ -60,65 +47,40 @@ public class Elevator extends SubsystemBase {
         return topLimitSwitch.get();
     }
 
-    public double getEncoderPos() {
-        return (elevatorEncoder.get() - elevatorOffset) * pulse2M;
+    public double getPos() {
+        return (elevatorEncoder.get() - ElevatorConstants.OFFSET) * ElevatorConstants.PULSE2M;
     }
 
     public void set(double speed) {
-        
+        if (speed > 0 && (getTopLimitSwitch() || getPos() > ElevatorConstants.MAX_HEIGHT || getAmp() < ElevatorConstants.AMP_THRESHOLD)) {
+            stop();
+        } else if (speed < 0 && (getBottomLimitSwitch() || getPos() < 0 || getAmp() < ElevatorConstants.AMP_THRESHOLD)) {
+            stop();
+        } else {
             elevatorMotor.set(speed);
-            elevatorMotor1.set(speed);
+        }
         
     }
 
     public void setPos(double position) {
-        elevatorMotor.set(elevatorPID.calculate(getEncoderPos(), position));
+        this.position = position;
+    }
+
+    public void runToPosition(boolean runToPosition) {
+        this.runToPosition = runToPosition;
     }
 
     public void stop() {
         elevatorMotor.stopMotor();
     }
 
-    public void calibrate() {
-        long startTime = System.currentTimeMillis();
-        
-        while (true) {
-            if (System.currentTimeMillis() - startTime >= 50000) {
-                System.out.println("Calibración terminada por tiempo de espera.");
-                break;
-            }
-            
-            set(-.1);
-
-            if(getBottomLimitSwitch() || getAmp() > ElevatorConstants.AMP_THRESHOLD) {
-                while (true) {
-                    if (System.currentTimeMillis() - startTime >= 50000) {
-                        System.out.println("Calibración terminada por tiempo de espera.");
-                        break;
-                    }
-                    
-                    set(.1);
-
-                    if (getTopLimitSwitch() || getAmp() > ElevatorConstants.AMP_THRESHOLD) {
-                        while (getEncoderPos() != 0) {
-                            if (System.currentTimeMillis() - startTime >= 50000) {
-                                System.out.println("Calibración terminada por tiempo de espera.");
-                                break;
-                            }
-
-                            setPos(0);
-                        }
-                        break;
-                    }
-                }
-                break;
-            }
-        }
-    }
-
     public void update() {
-        SmartDashboard.putNumber("Elevator Position", getEncoderPos());
+        SmartDashboard.putNumber("Elevator Position", getPos());
         SmartDashboard.putNumber("Elevator amp", getAmp());
+
+        if (runToPosition) {
+            set(elevatorPID.calculate(getPos(), position));
+        } 
     }
 
 }

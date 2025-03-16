@@ -142,6 +142,7 @@ public final class Constants {
     public static final int ANGLE = 10;
 
     public static final int ARM = 11;
+    public static final int ARM1 = 12;
 
     //--------CTR Electronics--------
 
@@ -181,31 +182,11 @@ public final class Constants {
     public static final double D = 0.0;
 
     public static final double AMP_THRESHOLD = 5;
+
+    public static final double OFFSET = 0;
+    public static final double PULSE2M = 0;
   }
 
-  public static class ClawConstants {
-    public static final double CLAW_P = 0.217;
-    public static final double CLAW_I = 0.0;
-    public static final double CLAW_D = 0.0;
-
-    public static final double ANGLE_P = 0.217;
-    public static final double ANGLE_I = 0.0;
-    public static final double ANGLE_D = 0.0;
-
-    public static final double MAX_ANGLE = 88400000;
-    public static final double MIN_ANGLE = -884000000;
-
-    public static final double SOURCE_ANGLE = 0;
-    public static final double REEF_ANGLE = 0;
-    public static final double ALGAE_ANGLE = 1;
-
-    public static final double SOURCE_POSITION = 0;
-    public static final double REEF_POSITION = 0;
-    public static final double ALGAE_POSITION = 0;
-
-    public static final double CLAW_AMP_THRESHOLD = 5;
-    public static final double ANGLE_AMP_THRESHOLD = 5;
-  }
 
   public static class ArmConstants {
     public static final double P = 0.217;
@@ -220,6 +201,9 @@ public final class Constants {
     public static final double ALGAE_ANGLE = 1;
 
     public static final double AMP_THRESHOLD = 5;
+
+    public static final double OFFSET = 0;
+    public static final double PULSE2DEGREE = 0;
   }
 
   public static class VisionConstants {
