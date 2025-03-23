@@ -72,13 +72,14 @@ public class Elevator extends SubsystemBase {
     public void moveToPosition() {
         double P0 = getPos();
         double P3 = position;
-        double k = 0.0186430923726995846 * (Math.abs(P3 - P0));
+        double n = Math.abs(P3 - P0);
+        double k = 0.0186430923726995846 * n;
         P0 *= k;
         P3 *= k;
         
         ArrayList<Double> points = new ArrayList<>();
-        for (int i = 0; i <= 200; i++) {
-            float t = i / 200;
+        for (int i = 0; i <= n; i++) {
+            double t = i / n;
             double point = P0 + (P3 - P0) / (1 + Math.pow(Math.E, -8 * (t- 0.5)));
 
             points.add(point);
