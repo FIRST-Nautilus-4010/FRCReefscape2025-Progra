@@ -1,6 +1,9 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.spark.SparkMax;
+
+import java.util.ArrayList;
+
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -66,7 +69,30 @@ public class Elevator extends SubsystemBase {
         this.position = position;
     }
 
-    public void runToPosition(boolean runToPosition) {
+    public void moveToPosition() {
+        double P0 = getPos();
+        double P3 = position;
+        double k = 0.0186430923726995846 * (Math.abs(P3 - P0));
+        P0 *= k;
+        P3 *= k;
+        
+        ArrayList<Double> points = new ArrayList<>();
+        for (int i = 0; i <= 200; i++) {
+            float t = i / 200;
+            double point = P0 + (P3 - P0) / (1 + Math.pow(Math.E, -8 * (t- 0.5)));
+
+            points.add(point);
+        }
+
+        for (int i = 0; i < points.size(); i++) {
+            double desiredPos = points.get(i);
+            while (Math.abs(desiredPos - getPos()) < .1) {
+                set(elevatorPID.calculate(getPos(), desiredPos));
+            }
+        }
+    }
+
+    public void setRunToPosition(boolean runToPosition) {
         this.runToPosition = runToPosition;
     }
 
@@ -79,7 +105,7 @@ public class Elevator extends SubsystemBase {
         SmartDashboard.putNumber("Elevator amp", getAmp());
 
         if (runToPosition) {
-            set(elevatorPID.calculate(getPos(), position));
+            moveToPosition();
         } 
     }
 

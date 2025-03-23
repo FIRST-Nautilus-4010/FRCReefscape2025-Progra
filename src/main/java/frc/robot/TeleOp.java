@@ -44,27 +44,27 @@ public class TeleOp {
         if (Math.abs(codriverJoystick.getRawAxis(3)) > 0) {
             RobotContainer.arm.set(codriverJoystick.getRawAxis(3)*.2);
             lastArmPos = RobotContainer.arm.getAngle();
-            RobotContainer.arm.runToPosition(false);
+            RobotContainer.arm.setRunToPosition(false);
         } else if (Math.abs(codriverJoystick.getRawAxis(2)) > 0) {
             RobotContainer.arm.set(-codriverJoystick.getRawAxis(2)*.2);
             lastArmPos = RobotContainer.arm.getAngle();
-            RobotContainer.arm.runToPosition(false);
+            RobotContainer.arm.setRunToPosition(false);
         } else {
             RobotContainer.arm.stop();
-            RobotContainer.arm.runToPosition(false);
+            RobotContainer.arm.setRunToPosition(false);
         }
     }
 
     private static void moveElevator() {
         if (Math.abs(driverJoystick.getRawAxis(3)) > 0) {
             RobotContainer.elevator.set(driverJoystick.getRawAxis(3));
-            RobotContainer.elevator.runToPosition(false);
+            RobotContainer.elevator.setRunToPosition(false);
         } else if (Math.abs(driverJoystick.getRawAxis(2)) > 0) {
             RobotContainer.elevator.set(-driverJoystick.getRawAxis(2));
-            RobotContainer.elevator.runToPosition(false);
+            RobotContainer.elevator.setRunToPosition(false);
         } else {
             RobotContainer.elevator.stop();
-            RobotContainer.elevator.runToPosition(false);
+            RobotContainer.elevator.setRunToPosition(false);
         }
     }
 
