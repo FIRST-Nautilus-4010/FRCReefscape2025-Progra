@@ -72,7 +72,7 @@ public class Elevator extends SubsystemBase {
     public ArrayList<Double> getInterPts() {
         double P0 = getPos();
         double P3 = position;
-        double n = Math.round(Math.abs(P3 - P0) / 2);
+        double n = Math.abs(P3 - P0) * 85;
         double k = 0.0186430923726995846 * n;
         P0 *= k;
         P3 *= k;
