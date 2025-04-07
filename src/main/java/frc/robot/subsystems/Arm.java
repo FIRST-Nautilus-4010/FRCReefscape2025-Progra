@@ -51,10 +51,10 @@ public class Arm extends SubsystemBase {
         this.angle = angle;
     }
 
-    public void moveToPosition() {
+    public ArrayList<Double> getInterPts() {
         double P0 = getAngle();
         double P3 = angle;
-        double n = Math.abs(P3 - P0);
+        double n = Math.round(Math.abs(P3 - P0) / 2);
         double k = 0.0186430923726995846 * n;
         P0 *= k;
         P3 *= k;
@@ -67,12 +67,8 @@ public class Arm extends SubsystemBase {
             points.add(point);
         }
 
-        for (int i = 0; i < points.size(); i++) {
-            double desiredPos = points.get(i);
-            while (Math.abs(desiredPos - getAngle()) < .1) {
-                set(armPID.calculate(getAngle(), desiredPos));
-            }
-        }
+
+        return points;
     }
 
     public void setRunToPosition(boolean runToPosition) {
@@ -87,13 +83,29 @@ public class Arm extends SubsystemBase {
         armMotor.stopMotor();
     }
 
+    int i = 0;
+    ArrayList<Double> points;
+
     @Override
     public void periodic() {
         SmartDashboard.putNumber("Arm Angle", getAngle());
         SmartDashboard.putNumber("Arm Current", getAmp());
 
         if (runToPosition) {
-            moveToPosition();
+            if (i == 0) {
+                points = getInterPts();
+            }
+            
+            double desiredPos = points.get(i);
+            if (Math.abs(desiredPos - getAngle()) < .1) {
+                i++;
+            } else {
+                armMotor.set(armPID.calculate(getAngle(), desiredPos));
+            }
+
+            if (i >= points.size() - 1) {
+                i = 0;
+            }
         } 
     }
 }

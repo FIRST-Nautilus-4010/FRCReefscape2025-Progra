@@ -69,10 +69,10 @@ public class Elevator extends SubsystemBase {
         this.position = position;
     }
 
-    public void moveToPosition() {
+    public ArrayList<Double> getInterPts() {
         double P0 = getPos();
         double P3 = position;
-        double n = Math.abs(P3 - P0);
+        double n = Math.round(Math.abs(P3 - P0) / 2);
         double k = 0.0186430923726995846 * n;
         P0 *= k;
         P3 *= k;
@@ -85,12 +85,8 @@ public class Elevator extends SubsystemBase {
             points.add(point);
         }
 
-        for (int i = 0; i < points.size(); i++) {
-            double desiredPos = points.get(i);
-            while (Math.abs(desiredPos - getPos()) < .1) {
-                set(elevatorPID.calculate(getPos(), desiredPos));
-            }
-        }
+
+        return points;
     }
 
     public void setRunToPosition(boolean runToPosition) {
@@ -101,12 +97,28 @@ public class Elevator extends SubsystemBase {
         elevatorMotor.stopMotor();
     }
 
+    int i = 0;
+    ArrayList<Double> points;
+
     public void update() {
         SmartDashboard.putNumber("Elevator Position", getPos());
         SmartDashboard.putNumber("Elevator amp", getAmp());
 
         if (runToPosition) {
-            moveToPosition();
+            if (i == 0) {
+                points = getInterPts();
+            }
+            
+            double desiredPos = points.get(i);
+            if (Math.abs(desiredPos - getPos()) < .1) {
+                i++;
+            } else {
+                elevatorMotor.set(elevatorPID.calculate(getPos(), desiredPos));
+            }
+
+            if (i >= points.size() - 1) {
+                i = 0;
+            }
         } 
     }
 

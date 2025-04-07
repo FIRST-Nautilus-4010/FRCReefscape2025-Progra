@@ -99,6 +99,29 @@ public class SwerveModule {
         return angle;
     }
 
+    public ArrayList<Double> getInterPts(double angle) {
+        // Calculate the turning motor positions
+        double P0 = getAbsoluteEncoderRad();
+        double P3 = angle;
+        double n = Math.abs(P3 - P0);
+        double k = 0.0186430923726995846 * n;
+        P0 *= k;
+        P3 *= k;
+        
+        
+        for (int i = 0; i <= n; i++) {
+            double t = i / n;
+            double point = P0 + (P3 - P0) / (1 + Math.pow(Math.E, -8 * (t- 0.5)));
+
+            points.add(point);
+        }
+
+        return points;
+    }
+
+    int i = 0;
+    ArrayList<Double> points = new ArrayList<>();
+
     // Move the module by giving a SwerveModuleState object
     public void setDesiredState(SwerveModuleState desiredState) {
         // Avoid auto alining while the robot is being operate
@@ -113,29 +136,21 @@ public class SwerveModule {
 
         driveMotor.set(desiredState.speedMetersPerSecond / ChassisConstants.MAX_SPD);
 
-
-        // Calculate the turning motor positions
-        double P0 = getAbsoluteEncoderRad();
-        double P3 = desiredState.angle.getRadians();
-        double n = Math.abs(P3 - P0);
-        double k = 0.0186430923726995846 * n;
-        P0 *= k;
-        P3 *= k;
-        
-        ArrayList<Double> points = new ArrayList<>();
-        for (int i = 0; i <= n; i++) {
-            double t = i / n;
-            double point = P0 + (P3 - P0) / (1 + Math.pow(Math.E, -8 * (t- 0.5)));
-
-            points.add(point);
+        if (i == 0) {
+            points = getInterPts(desiredState.angle.getRadians());
+        }
+            
+        double desiredPos = points.get(i);
+        if (Math.abs(desiredPos - getAbsoluteEncoderRad()) < .1) {
+            i++;
+        } else {
+            turningMotor.set(turningPIDController.calculate(getAbsoluteEncoderRad(), desiredPos));
         }
 
-        for (int i = 0; i < points.size(); i++) {
-            double desiredPos = points.get(i);
-            while (Math.abs(desiredPos - getAbsoluteEncoderRad()) < .1) {
-                turningMotor.set(turningPIDController.calculate(getAbsoluteEncoderRad(), desiredPos));
-            }
+        if (i >= points.size() - 1) {
+            i = 0;
         }
+
         
     }
 }
