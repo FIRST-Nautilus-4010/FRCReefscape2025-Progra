@@ -1,78 +1,62 @@
 package frc.robot.subsystems;
 
-import com.revrobotics.spark.SparkMax;
-
 import java.util.ArrayList;
 
-import com.revrobotics.spark.SparkBase.PersistMode;
-import com.revrobotics.spark.SparkBase.ResetMode;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.config.SparkMaxConfig;
+import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.utils.Constants.ElevatorConstants;
-import frc.robot.utils.Constants.HardwareMap;
 
-public class Elevator extends SubsystemBase {
-    private final SparkMax elevatorMotor = new SparkMax(HardwareMap.ELEVATOR, MotorType.kBrushless);
-    private final SparkMax elevatorMotor1 = new SparkMax(HardwareMap.ELEVATOR1, MotorType.kBrushless);
-    private final DutyCycleEncoder elevatorEncoder = new DutyCycleEncoder(HardwareMap.ELEVATOR_ENC);
-    private final DigitalInput bottomLimitSwitch = new DigitalInput(HardwareMap.BOTTOM_LIMIT);
-    private final DigitalInput topLimitSwitch = new DigitalInput(HardwareMap.TOP_LIMIT);
-    private final PIDController elevatorPID = new PIDController(ElevatorConstants.P, ElevatorConstants.I, ElevatorConstants.D);
+public class Elevator extends SubsystemBase{
+    TalonFX krakenL = new TalonFX(0);
+    TalonFX krakenR = new TalonFX(0);
+    DutyCycleEncoder angleEnc = new DutyCycleEncoder(3);
+    DutyCycleEncoder motorLEnc = new DutyCycleEncoder(3);
+    PIDController anglePID = new PIDController(1, 0, 0);
+    PIDController heightPID = new PIDController(1, 0, 0);
+    boolean onMaxLimit = false;
+    boolean onMinLimit = true;
+    double angleOffset = 0;
+    boolean runToPosition = false;
+    double angleSetpoint = 0;
+    double heightSetpoint = 0;
 
-    private double position = 0;
-    private boolean runToPosition = false;
-
-    public Elevator(boolean isInverted) {
-        SparkMaxConfig elevatorMotorConfig = new SparkMaxConfig();
-        elevatorMotorConfig.inverted(isInverted);
-        elevatorMotor.configure(elevatorMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
-
-        SparkMaxConfig elevatorMotor1Config = new SparkMaxConfig();
-        elevatorMotor1Config.follow(elevatorMotor.getDeviceId());
-        elevatorMotor1.configure(elevatorMotor1Config, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
-    }
-
-    public double getAmp() {
-        return elevatorMotor.getOutputCurrent();
-    }
-
-    public boolean getBottomLimitSwitch() {
-        return bottomLimitSwitch.get();
-    }
-    
-    public boolean getTopLimitSwitch() {
-        return topLimitSwitch.get();
-    }
-
-    public double getPos() {
-        return (elevatorEncoder.get() - ElevatorConstants.OFFSET) * ElevatorConstants.PULSE2M;
-    }
-
-    public void set(double speed) {
-        if (speed > 0 && (getTopLimitSwitch() || getPos() > ElevatorConstants.MAX_HEIGHT || getAmp() < ElevatorConstants.AMP_THRESHOLD)) {
-            stop();
-        } else if (speed < 0 && (getBottomLimitSwitch() || getPos() < 0 || getAmp() < ElevatorConstants.AMP_THRESHOLD)) {
-            stop();
-        } else {
-            elevatorMotor.set(speed);
+    public void setPower(double rotPower, double upPower) {
+        if (getHeight() <= 0.2 || (getAngle() > 270 && getAngle() < 90)) {
+            rotPower = 0;
+            upPower = rotPower;
         }
-        
+
+        double denom = Math.max(1, Math.abs(upPower + rotPower));
+        krakenL.set((upPower - rotPower) / denom);
+        krakenR.set((-upPower - rotPower) / denom);
     }
 
-    public void setPos(double position) {
-        this.position = position;
+    public double getAngle() {
+        return angleEnc.get() / 0.5;
     }
 
-    public ArrayList<Double> getInterPts() {
-        double P0 = getPos();
-        double P3 = position;
-        double n = Math.abs(P3 - P0) * 85;
+    public double getTotalAngle() {
+        return angleOffset + getAngle();
+    }
+
+    public double getHeight() {
+        return motorLEnc.get() - getTotalAngle() / .5;
+    }
+
+    public void setPos(double angle, double height) {
+        if (Math.abs(angle - getAngle()) > 180){
+            angle -= 360;
+        }
+        setPower(anglePID.calculate(getTotalAngle(), angle), heightPID.calculate(getHeight(), height));
+    }
+
+    public ArrayList<Double> getInterPts(double measurment, double setpoint) {
+        double P0 = measurment;
+        double P3 = setpoint;
+        double n = Math.round(Math.abs(P3 - P0) / 2);
         double k = 0.0186430923726995846 * n;
         P0 *= k;
         P3 *= k;
@@ -89,37 +73,64 @@ public class Elevator extends SubsystemBase {
         return points;
     }
 
-    public void setRunToPosition(boolean runToPosition) {
-        this.runToPosition = runToPosition;
-    }
+    int a = 0;
+    int h = 0;
+    ArrayList<Double> anglePoints;
+    ArrayList<Double> heightPoints;
 
-    public void stop() {
-        elevatorMotor.stopMotor();
-    }
+    @Override
+    public void periodic() {
+        if (onMaxLimit && getAngle() >= 0 && getAngle() < 180) {
+            angleOffset += 360;
+        }
 
-    int i = 0;
-    ArrayList<Double> points;
+        if (onMinLimit && getAngle() <= 360 && getAngle() > 180) {
+            angleOffset -= 360;
+        }
 
-    public void update() {
-        SmartDashboard.putNumber("Elevator Position", getPos());
-        SmartDashboard.putNumber("Elevator amp", getAmp());
+        onMaxLimit = getAngle() > 350;
+        onMinLimit = getAngle() < 10;
+
+        SmartDashboard.putNumber("Arm Angle", getAngle());
+        SmartDashboard.putNumber("Height", getHeight());
 
         if (runToPosition) {
-            if (i == 0) {
-                points = getInterPts();
+            if (a == 0) {
+                anglePoints = getInterPts(getTotalAngle(), angleSetpoint);
+            }
+
+            if (h == 0) {
+                heightPoints = getInterPts(getHeight(), heightSetpoint);
             }
             
-            double desiredPos = points.get(i);
-            if (Math.abs(desiredPos - getPos()) < .1) {
-                i++;
+            double desiredAngle = anglePoints.get(a);
+
+            double anglePwr = 0;
+            if (Math.abs(desiredAngle - getTotalAngle()) < .1) {
+                a++;
             } else {
-                elevatorMotor.set(elevatorPID.calculate(getPos(), desiredPos));
+                anglePwr = anglePID.calculate(getTotalAngle(), desiredAngle);
             }
 
-            if (i >= points.size() - 1) {
-                i = 0;
-            }
-        } 
-    }
 
+            double desiredHeight = heightPoints.get(h);
+
+            double heightPwr = 0;
+            if (Math.abs(desiredHeight - getHeight()) < .005) {
+                h++;
+            } else {
+                heightPwr = heightPID.calculate(getHeight(), desiredHeight);
+            }
+
+            setPower(anglePwr, heightPwr);
+
+            if (a >= anglePoints.size() - 1) {
+                a = 0;
+            }
+
+            if (h >= heightPoints.size() - 1) {
+                h = 0;
+            }
+        }
+    }    
 }

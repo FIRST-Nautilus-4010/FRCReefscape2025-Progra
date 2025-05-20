@@ -17,8 +17,6 @@ public class TeleOp {
     final static JoystickButton auto = new JoystickButton(codriverJoystick, OperatorConstants.AUTO);
     final static JoystickButton rollers = new JoystickButton(codriverJoystick, OperatorConstants.ROLLERS);
 
-    static double lastArmPos = RobotContainer.arm.getAngle();
-
     public static void initialize() {
         RobotContainer.swerve.setDefaultCommand(new SwerveDriveJoystick(
             RobotContainer.swerve,
@@ -28,45 +26,11 @@ public class TeleOp {
             () -> !driverJoystick.getRawButton(OperatorConstants.ROBOT_ORIENTED)));
         zeroHdgBtn.onTrue(new InstantCommand(() -> RobotContainer.swerve.zeroHeading()));
 
-        RobotContainer.arm.setDefaultCommand(
-            new InstantCommand(() -> moveArm(), RobotContainer.arm)
-        );
-
-        RobotContainer.elevator.setDefaultCommand(
-            new InstantCommand(() -> moveElevator(), RobotContainer.elevator)
-        );
        
 
         
     }
 
-    private static void moveArm() {
-        if (Math.abs(codriverJoystick.getRawAxis(3)) > 0) {
-            RobotContainer.arm.set(codriverJoystick.getRawAxis(3)*.2);
-            lastArmPos = RobotContainer.arm.getAngle();
-            RobotContainer.arm.setRunToPosition(false);
-        } else if (Math.abs(codriverJoystick.getRawAxis(2)) > 0) {
-            RobotContainer.arm.set(-codriverJoystick.getRawAxis(2)*.2);
-            lastArmPos = RobotContainer.arm.getAngle();
-            RobotContainer.arm.setRunToPosition(false);
-        } else {
-            RobotContainer.arm.stop();
-            RobotContainer.arm.setRunToPosition(false);
-        }
-    }
-
-    private static void moveElevator() {
-        if (Math.abs(driverJoystick.getRawAxis(3)) > 0) {
-            RobotContainer.elevator.set(driverJoystick.getRawAxis(3));
-            RobotContainer.elevator.setRunToPosition(false);
-        } else if (Math.abs(driverJoystick.getRawAxis(2)) > 0) {
-            RobotContainer.elevator.set(-driverJoystick.getRawAxis(2));
-            RobotContainer.elevator.setRunToPosition(false);
-        } else {
-            RobotContainer.elevator.stop();
-            RobotContainer.elevator.setRunToPosition(false);
-        }
-    }
 
 
 }

@@ -22,16 +22,12 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 import frc.robot.commands.Autonomous;
 import frc.robot.commands.SwerveDriveJoystick;
-import frc.robot.subsystems.Arm;
-import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.utils.Constants.AutonomousConstants;
 import frc.robot.utils.Constants.ChassisConstants;
 
 public class RobotContainer {
-  public static final Elevator elevator = new Elevator(false);
-  public static final Arm arm = new Arm(false);
   public static final Vision  vision = new Vision();
   public static final Swerve swerve = new Swerve(true);
 
