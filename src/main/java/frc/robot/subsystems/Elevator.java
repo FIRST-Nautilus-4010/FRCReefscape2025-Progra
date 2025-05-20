@@ -69,6 +69,7 @@ public class Elevator extends SubsystemBase{
             points.add(point);
         }
 
+        points.add(P3);
 
         return points;
     }
