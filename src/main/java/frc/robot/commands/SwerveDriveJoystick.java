@@ -7,6 +7,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 
 import frc.robot.subsystems.swerve.Swerve;
@@ -39,6 +40,8 @@ public class SwerveDriveJoystick extends Command {
 
     @Override
     public void execute() {
+        SmartDashboard.putNumberArray("Robot pos", new Double[] {swerve.getPose().getX(), swerve.getPose().getY()});
+
         double xSpeed = x.get();
         double ySpeed = y.get();
         double zSpeed = z.get();

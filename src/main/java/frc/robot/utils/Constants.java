@@ -26,9 +26,9 @@ public final class Constants {
       public static final double TURNING_RPM_2_RAD_S = 5676 / 60.0 * TURNING_ROT_2_RAD;
 
       // PID constants
-      public static final double PID_P = 0.217; // Proportional gain.
-      public static final double PID_I = 0; // Integral gain.
-      public static final double PID_D = 0.0; // Derirvative gain.
+      public static final double PID_P = 0.097; // Proportional gain.
+      public static final double PID_I = 0.000000004010; // Integral gain.
+      public static final double PID_D = 0.000267; // Derirvative gain.
 
       // Encoder offsets
       public static final double[] ENCODER_OFFSETS = {0, 0, 0, 0}; // {FL, FR, BL, BR} offsets.

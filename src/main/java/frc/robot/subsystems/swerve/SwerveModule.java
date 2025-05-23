@@ -86,7 +86,7 @@ public class SwerveModule {
 
     // Stops the motors
     public void stop(){
-        driveMotor.set(0);
+        driveMotor.set(0.0);
         turningMotor.set(0);
     }
 
@@ -95,7 +95,7 @@ public class SwerveModule {
         double angle = absoluteEncoder.getAbsolutePosition().getValue().magnitude();
         angle *= 2 * Math.PI;
         angle += absoluteEncoderOffset;
-        //SmartDashboard.putString("algo", angle.toString);
+        //SmartDashboard.putString("Algo", angle.toString);
         return angle;
     }
 
@@ -103,29 +103,28 @@ public class SwerveModule {
         // Calculate the turning motor positions
         double P0 = getAbsoluteEncoderRad();
         double P3 = angle;
-        double n = Math.abs(P3 - P0);
-        double k = 0.0186430923726995846 * n;
-        P0 *= k;
-        P3 *= k;
+        double n = Math.round(Math.abs(P3 - P0)) * 10;
         
-        
+        System.out.println("Iniciando nuevo array de puntos con n :" + n + ", P3: " + P3 + " y P0: " + P0);
         for (int i = 0; i <= n; i++) {
-            double t = i / n;
-            double point = P0 + (P3 - P0) / (1 + Math.pow(Math.E, -8 * (t- 0.5)));
+            double t = i;
+            double point = P0 + (t / n) * (P3 - P0);
 
             points.add(point);
-        }
 
+            System.out.println(point);
+        }
+        
         return points;
     }
 
-    int i = 0;
+    int i = -1;
     ArrayList<Double> points = new ArrayList<>();
 
     // Move the module by giving a SwerveModuleState object
     public void setDesiredState(SwerveModuleState desiredState) {
         // Avoid auto alining while the robot is being operate
-        if (Math.abs(desiredState.speedMetersPerSecond) < 0.09){
+        if (Math.abs(desiredState.speedMetersPerSecond) < 0.090){
             stop();
             return;
         }
@@ -136,20 +135,31 @@ public class SwerveModule {
 
         driveMotor.set(desiredState.speedMetersPerSecond / ChassisConstants.MAX_SPD);
 
-        if (i == 0) {
+        if (i == -1) {
             points = getInterPts(desiredState.angle.getRadians());
+            i++;
         }
             
-        double desiredPos = points.get(i);
-        if (Math.abs(desiredPos - getAbsoluteEncoderRad()) < .1) {
-            i++;
+       points.clear();
+        if (!points.isEmpty()) {
+            double desiredPos = points.get(i);
+            if (Math.abs(desiredPos - getAbsoluteEncoderRad()) < .1) {
+                System.out.println("llegue a la posicion");
+                System.out.println("desiredPos: " + desiredPos + ", i: " + i);
+                i++;
+            } else {
+                turningMotor.set(turningPIDController.calculate(getAbsoluteEncoderRad(), desiredPos));
+            }
+
+            if (i >= points.size()) {
+                points.clear();
+                i = -1;
+            }
         } else {
-            turningMotor.set(turningPIDController.calculate(getAbsoluteEncoderRad(), desiredPos));
+            turningMotor.set(turningPIDController.calculate(getAbsoluteEncoderRad(), desiredState.angle.getRadians()));
+            i = -1;
         }
 
-        if (i >= points.size() - 1) {
-            i = 0;
-        }
 
         
     }

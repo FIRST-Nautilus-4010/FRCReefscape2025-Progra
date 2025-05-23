@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.robot.utils.Constants.HardwareMap;
 import frc.robot.RobotContainer;
+import frc.robot.subsystems.Vision;
 import frc.robot.utils.Constants.AutonomousConstants;
 import frc.robot.utils.Constants.ChassisConstants;
 import frc.robot.utils.Constants.ModuleConstants;
@@ -33,6 +34,7 @@ public class Swerve extends SubsystemBase{
 
     private final AHRS gyro = new AHRS(NavXComType.kMXP_SPI);
     private final Pigeon2 pigeon = new Pigeon2(HardwareMap.PIGEON);
+    Vision vision = new Vision();
 
     private boolean usePigeon = true;
     StructPublisher<Pose2d> posePublisher = NetworkTableInstance.getDefault().getStructTopic("Robot position", Pose2d.struct).publish();
@@ -110,14 +112,16 @@ public class Swerve extends SubsystemBase{
 
     // Updates the Odometer
     public void updateOdometry(){
-        for (int i = 0; i < VisionConstants.CAM_NUM; i++){
-            if (RobotContainer.vision.getAprilDetections(i) > 0) {
-                double[] botpose = RobotContainer.vision.getRobotPoseFromFirstAprilTag(i);
-                Pose2d pose = new Pose2d(botpose[0], botpose[1], Rotation2d.fromDegrees(botpose[2]));
-                odometer.resetPose(pose);
-                return;
-            }
-
+        if (vision.getAprilDetections("limelight-three") > 0){
+            resetOdometry(
+                vision.getRobotPoseFromAprilTags(
+                    getHeading(), 
+                    pigeon.getPitch().getValueAsDouble(), 
+                    pigeon.getRoll().getValueAsDouble(), 
+                    true
+                ).pose
+            );
+            return;
         }
         odometer.update(getRotation2d(), getSwerveModulePos());
     }

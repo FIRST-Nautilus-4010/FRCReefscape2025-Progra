@@ -10,9 +10,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Elevator extends SubsystemBase{
-    TalonFX krakenL = new TalonFX(0);
-    TalonFX krakenR = new TalonFX(0);
-    DutyCycleEncoder angleEnc = new DutyCycleEncoder(3);
+    TalonFX krakenL = new TalonFX(16);
+    TalonFX krakenR = new TalonFX(15);
+    DutyCycleEncoder angleEnc = new DutyCycleEncoder(2);
     DutyCycleEncoder motorLEnc = new DutyCycleEncoder(3);
     PIDController anglePID = new PIDController(1, 0, 0);
     PIDController heightPID = new PIDController(1, 0, 0);
@@ -23,6 +23,19 @@ public class Elevator extends SubsystemBase{
     double angleSetpoint = 0;
     double heightSetpoint = 0;
 
+    public void setPower(double rotPower, double upPower, boolean runToPosition) {
+        if (getHeight() <= 0.2 || (getAngle() > 270 && getAngle() < 90)) {
+            rotPower = 0;
+            upPower = rotPower;
+        }
+
+        double denom = Math.max(1, Math.abs(upPower + rotPower));
+        krakenL.set((upPower - rotPower) / denom);
+        krakenR.set((-upPower - rotPower) / denom);
+
+        this.runToPosition = runToPosition;
+    }
+
     public void setPower(double rotPower, double upPower) {
         if (getHeight() <= 0.2 || (getAngle() > 270 && getAngle() < 90)) {
             rotPower = 0;
@@ -32,6 +45,8 @@ public class Elevator extends SubsystemBase{
         double denom = Math.max(1, Math.abs(upPower + rotPower));
         krakenL.set((upPower - rotPower) / denom);
         krakenR.set((-upPower - rotPower) / denom);
+
+        this.runToPosition = false;
     }
 
     public double getAngle() {
@@ -50,7 +65,11 @@ public class Elevator extends SubsystemBase{
         if (Math.abs(angle - getAngle()) > 180){
             angle -= 360;
         }
-        setPower(anglePID.calculate(getTotalAngle(), angle), heightPID.calculate(getHeight(), height));
+
+        angleSetpoint = angle;
+        heightSetpoint = height;
+
+        runToPosition = true;
     }
 
     public ArrayList<Double> getInterPts(double measurment, double setpoint) {
@@ -123,7 +142,7 @@ public class Elevator extends SubsystemBase{
                 heightPwr = heightPID.calculate(getHeight(), desiredHeight);
             }
 
-            setPower(anglePwr, heightPwr);
+            setPower(anglePwr, heightPwr, true);
 
             if (a >= anglePoints.size() - 1) {
                 a = 0;
