@@ -34,11 +34,11 @@ public class RobotContainer {
   public static final Autonomous autonomous = new Autonomous();
 
   public static Command getAutonomouCmd() {
-    return new SwerveDriveJoystick(swerve, () -> {return 0.0;}, () -> {return 0.4;}, () -> {return 0.0;}, () -> {return true;});
+    return goTo(swerve.getPose(), null, new Pose2d(4.6, 1.5, swerve.getRotation2d()));
   }
 
 
-  public static void goTo(Pose2d start, List<Translation2d> intermediatePoints, Pose2d end, Runnable... functions) {
+  public static Command goTo(Pose2d start, List<Translation2d> intermediatePoints, Pose2d end) {
     TrajectoryConfig trajectoryConfig = new TrajectoryConfig(AutonomousConstants.MAX_SPD, AutonomousConstants.MAX_ACCEL);
     swerve.resetOdometry(new Pose2d());
 
@@ -66,14 +66,8 @@ public class RobotContainer {
         swerve
     );
 
-    command.initialize();
-    while (!command.isFinished()) {
-      command.execute();
-      for (Runnable function : functions){
-        function.run();
-      }
-    }
-    command.end(false);
+    return command;
+
   }
 
   public static Command getTestCommand() {

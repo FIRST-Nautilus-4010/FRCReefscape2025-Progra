@@ -1,5 +1,7 @@
 package frc.robot.subsystems.swerve;
 
+import java.util.Optional;
+
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
@@ -13,6 +15,8 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -39,6 +43,8 @@ public class Swerve extends SubsystemBase{
     private boolean usePigeon = true;
     StructPublisher<Pose2d> posePublisher = NetworkTableInstance.getDefault().getStructTopic("Robot position", Pose2d.struct).publish();
     StructArrayPublisher<SwerveModuleState> swervePublisher = NetworkTableInstance.getDefault().getStructArrayTopic("Detected module states", SwerveModuleState.struct).publish();
+    
+    Optional<Alliance> ally = DriverStation.getAlliance();
 
     private final SwerveDriveOdometry odometer = new SwerveDriveOdometry(ChassisConstants.KINEMATICS,
             new Rotation2d(0), getSwerveModulePos(),
@@ -111,14 +117,21 @@ public class Swerve extends SubsystemBase{
     }
 
     // Updates the Odometer
-    public void updateOdometry(){
+        public void updateOdometry(){
+        boolean isRed;
+        if (!ally.isEmpty()){
+            isRed = ally.get() == Alliance.Red;
+        } else {
+            isRed = true;
+        }
+
         if (vision.getAprilDetections("limelight-three") > 0){
             resetOdometry(
                 vision.getRobotPoseFromAprilTags(
                     getHeading(), 
                     pigeon.getPitch().getValueAsDouble(), 
-                    pigeon.getRoll().getValueAsDouble(), 
-                    true
+                    pigeon.getRoll().getValueAsDouble(),
+                    isRed
                 ).pose
             );
             return;
