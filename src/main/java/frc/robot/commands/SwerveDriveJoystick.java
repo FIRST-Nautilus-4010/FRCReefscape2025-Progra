@@ -1,7 +1,7 @@
 package frc.robot.commands;
-
+// Imports de java
 import java.util.function.Supplier;
-
+// Imports de wplib
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -9,7 +9,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-
+// Impports locales
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.utils.Constants.OperatorConstants;
 import frc.robot.utils.Constants.ChassisConstants;
