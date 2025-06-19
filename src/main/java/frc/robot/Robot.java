@@ -4,21 +4,50 @@
 
 package frc.robot;
 
+import java.io.IOException;
+
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.subsystems.Coprocessor;
 
 public class Robot extends TimedRobot {
   private Command autonomousCommand;
-
+  private Coprocessor coprocessor;
+  private boolean ranTest = false;
 
   @Override
   public void robotInit() {
+    
   }
 
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
+
+    if (!ranTest) {
+      try {
+        coprocessor = new Coprocessor();
+        coprocessor.periodic();
+
+        if (coprocessor.isConnected()) {
+          System.out.println("Coprocesador conectado correctamente.");
+          int[][] path = coprocessor.getPathfind(0, 0, 100, 100);
+
+          for (int i = 0; i < path.length; i++) {
+            System.out.println("Punto " + i + ": (" + path[i][0] + ", " + path[i][1] + ")");
+          }
+
+          coprocessor.closeConnection(); // Cierra la conexión al finalizar
+          ranTest = true; // Solo se ejecuta una vez
+        } else {
+          System.err.println("No se pudo conectar al coprocesador.");
+        }
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+  }
   }
 
   @Override

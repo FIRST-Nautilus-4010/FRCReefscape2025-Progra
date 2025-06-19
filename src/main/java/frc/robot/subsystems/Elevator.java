@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -98,15 +99,23 @@ public class Elevator extends SubsystemBase{
     ArrayList<Double> anglePoints;
     ArrayList<Double> heightPoints;
 
+    private final NetworkTableEntry armAngleEntry = SmartDashboard.getEntry("Arm Angle");
+    private final NetworkTableEntry heightEntry = SmartDashboard.getEntry("Height");
+
+    int loopCounter = 0;
+
     @Override
     public void periodic() {
-        if (onMaxLimit && getAngle() >= 0 && getAngle() < 180) {
-            angleOffset += 360;
+        loopCounter++;
+
+        if (loopCounter >= 10) { // cada 10 ciclos (~200ms)
+            armAngleEntry.setDouble(getAngle());
+            heightEntry.setDouble(getHeight());
+            loopCounter = 0;
         }
 
-        if (onMinLimit && getAngle() <= 360 && getAngle() > 180) {
-            angleOffset -= 360;
-        }
+        if (onMaxLimit && getAngle() >= 0 && getAngle() < 180) angleOffset += 360;
+        if (onMinLimit && getAngle() <= 360 && getAngle() > 180) angleOffset -= 360;
 
         onMaxLimit = getAngle() > 350;
         onMinLimit = getAngle() < 10;
@@ -115,42 +124,28 @@ public class Elevator extends SubsystemBase{
         SmartDashboard.putNumber("Height", getHeight());
 
         if (runToPosition) {
-            if (a == 0) {
-                anglePoints = getInterPts(getTotalAngle(), angleSetpoint);
-            }
+            if (a == 0) anglePoints = getInterPts(getTotalAngle(), angleSetpoint);
+            if (h == 0) heightPoints = getInterPts(getHeight(), heightSetpoint);
 
-            if (h == 0) {
-                heightPoints = getInterPts(getHeight(), heightSetpoint);
-            }
-            
-            double desiredAngle = anglePoints.get(a);
+            double desiredAngle = (a < anglePoints.size()) ? anglePoints.get(a) : angleSetpoint;
+            double desiredHeight = (h < heightPoints.size()) ? heightPoints.get(h) : heightSetpoint;
 
-            double anglePwr = 0;
-            if (Math.abs(desiredAngle - getTotalAngle()) < .1) {
-                a++;
-            } else {
-                anglePwr = anglePID.calculate(getTotalAngle(), desiredAngle);
-            }
+            double anglePwr = 0, heightPwr = 0;
 
+            if (Math.abs(desiredAngle - getTotalAngle()) < 0.1) a++;
+            else anglePwr = anglePID.calculate(getTotalAngle(), desiredAngle);
 
-            double desiredHeight = heightPoints.get(h);
-
-            double heightPwr = 0;
-            if (Math.abs(desiredHeight - getHeight()) < .005) {
-                h++;
-            } else {
-                heightPwr = heightPID.calculate(getHeight(), desiredHeight);
-            }
+            if (Math.abs(desiredHeight - getHeight()) < 0.005) h++;
+            else heightPwr = heightPID.calculate(getHeight(), desiredHeight);
 
             setPower(anglePwr, heightPwr, true);
 
-            if (a >= anglePoints.size() - 1) {
+            if (a >= anglePoints.size() - 1 && h >= heightPoints.size() - 1) {
+                runToPosition = false;
                 a = 0;
-            }
-
-            if (h >= heightPoints.size() - 1) {
                 h = 0;
             }
         }
-    }    
+    }
+
 }

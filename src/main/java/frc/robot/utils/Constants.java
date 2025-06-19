@@ -220,4 +220,8 @@ public final class Constants {
 
     public static final double APRILTAG_WIDTH = 0.1; // The width of the apriltag.
   }
+
+  public static class CoprocessorConstants {
+    
+  }
 }
