@@ -10,49 +10,50 @@ public class Client {
     private Socket socket;
     private PrintWriter out;
     private BufferedReader in;
-    private DataInputStream dataIn;
 
     public Client(String host, int port) throws IOException {
         socket = new Socket(host, port);
         out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()), true);
-        dataIn = new DataInputStream(socket.getInputStream());
+        in = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
         System.out.println("Cliente conectado a " + host + ":" + port);
     }
 
-    // ✅ Enviar una línea simple como espera el servidor (sin writeUTF)
+    // Enviar un mensaje, agregando '\n' para el servidor
     public void sendMessage(String message) {
         if (out != null) {
-            out.print(message);
+            out.print(message); // println agrega el '\n' automáticamente
             out.flush();
         }
     }
 
-    // ✅ Recibir una línea simple
+    // Recibir una línea completa (terminada en '\n')
     public String receiveMessage() throws IOException {
-        dataIn = new DataInputStream(socket.getInputStream());
-        byte[] buffer = new byte[200];
-        dataIn.readFully(buffer);
-        if (buffer != null) {
-            String message = new String(buffer, StandardCharsets.UTF_8);
-            System.out.println("Mensaje recibido: " + message);
+        String line = in.readLine(); // lee hasta '\n'
+        if (line != null) {
+            System.out.println("Mensaje recibido: " + line);
         }
-        return null;
+        return line;
     }
 
+    // (Tu método receivePath() puede quedarse igual, solo llamará a receiveMessage() que ya separa)
     public int[][] receivePath() throws IOException {
         String countMsg = receiveMessage();
         if (countMsg == null) throw new IOException("No se recibió tamaño del path");
 
-        int count = Integer.parseInt(countMsg); // número de puntos
-        int byteSize = Integer.parseInt(receiveMessage()); // tamaño total en bytes
+        int count = Integer.parseInt(countMsg);
+        int byteSize = Integer.parseInt(receiveMessage());
 
         int[][] path = new int[count][2];
 
-        byte[] buffer = new byte[byteSize];  // count * 2 * sizeof(int)
-        dataIn.readFully(buffer);
+        byte[] buffer = new byte[byteSize];
+        int totalRead = 0;
+        while (totalRead < byteSize) {
+            int read = socket.getInputStream().read(buffer, totalRead, byteSize - totalRead);
+            if (read == -1) throw new IOException("Stream cerrado prematuramente");
+            totalRead += read;
+        }
 
-        ByteBuffer wrapped = ByteBuffer.wrap(buffer);
-        wrapped.order(ByteOrder.LITTLE_ENDIAN);
+        ByteBuffer wrapped = ByteBuffer.wrap(buffer).order(ByteOrder.LITTLE_ENDIAN);
 
         for (int i = 0; i < count; i++) {
             int y = wrapped.getInt();
@@ -68,7 +69,7 @@ public class Client {
         if (socket != null) socket.close();
         if (out != null) out.close();
         if (in != null) in.close();
-        if (dataIn != null) dataIn.close();
         System.out.println("Cliente cerrado.");
     }
 }
+
