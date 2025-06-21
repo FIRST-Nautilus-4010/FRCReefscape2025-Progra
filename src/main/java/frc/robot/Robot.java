@@ -5,6 +5,7 @@
 package frc.robot;
 
 import java.io.IOException;
+import java.util.List;
 
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -14,12 +15,10 @@ import frc.robot.subsystems.Coprocessor;
 
 public class Robot extends TimedRobot {
   private Command autonomousCommand;
-  private Coprocessor coprocessor = new Coprocessor();
-  private boolean ranTest = false;
-
+  
   @Override
   public void robotInit() {
-    
+    TeleOp.initialize();
   }
 
   @Override
@@ -56,7 +55,6 @@ public class Robot extends TimedRobot {
     if (autonomousCommand != null) {
       autonomousCommand.cancel();
     }
-    TeleOp.initialize();
   }
 
 

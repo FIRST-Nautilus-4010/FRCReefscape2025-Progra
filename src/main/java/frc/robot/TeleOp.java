@@ -25,10 +25,6 @@ public class TeleOp {
             () -> -driverJoystick.getRawAxis(OperatorConstants.DRIVER_Z),
             () -> !driverJoystick.getRawButton(OperatorConstants.ROBOT_ORIENTED)));
         zeroHdgBtn.onTrue(new InstantCommand(() -> RobotContainer.swerve.zeroHeading()));
-
-       
-
-        
     }
 
 

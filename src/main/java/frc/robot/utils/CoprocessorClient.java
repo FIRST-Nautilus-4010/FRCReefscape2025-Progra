@@ -8,22 +8,7 @@ import java.util.*;
 
 public class CoprocessorClient {
 
-    public static class Pair {
-        public int first;
-        public int second;
-
-        public Pair(int first, int second) {
-            this.first = first;
-            this.second = second;
-        }
-
-        @Override
-        public String toString() {
-            return "(" + first + ", " + second + ")";
-        }
-    }
-
-    private static final String SERVER_IP = "192.168.56.1";
+    private static final String SERVER_IP = "127.0.0.1";
     private static final int PORT = 27015;
 
     private Socket socket;
@@ -84,41 +69,58 @@ public class CoprocessorClient {
         return false;
     }
 
-    public List<Pair> sendPathfind(int sx, int sy, int dx, int dy) throws IOException {
+    public List<double[]> sendPathfind(double sx, double sy, double dx, double dy) throws IOException {
         sendMessage("pathfind");
         if (!"ok".equals(receiveMessage())) return List.of();
-
+    
         sendMessage(String.valueOf(sx));
         if (!"ok".equals(receiveMessage())) return List.of();
-
+    
         sendMessage(String.valueOf(sy));
         if (!"ok".equals(receiveMessage())) return List.of();
-
+    
         sendMessage(String.valueOf(dx));
         if (!"ok".equals(receiveMessage())) return List.of();
-
+    
         sendMessage(String.valueOf(dy));
-        String response = receiveMessage();
+        if (!"ok".equals(receiveMessage())) return List.of();
+    
+        List<double[]> path = new ArrayList<>();
+    
+        // Recibir pares (x, y) hasta que llegue "end"
+        while (true) {
+            String xStr = receiveMessage();
+            if ("end".equals(xStr)) break;
+    
+            String yStr = receiveMessage();
+            if ("end".equals(yStr)) break;
+            
+            if (xStr.equals("no path found")) {
+                System.out.println("No se encontró un camino.");
+                System.out.println(yStr);
+                return List.of();
+            }
 
-        if ("no path found".equals(response)) return List.of();
-
-        int count = Integer.parseInt(response);
-        int byteSize = Integer.parseInt(receiveMessage());
-
-        byte[] buffer = new byte[byteSize];
-        in.readFully(buffer);
-
-        List<Pair> path = new ArrayList<>();
-        ByteBuffer bb = ByteBuffer.wrap(buffer).order(ByteOrder.LITTLE_ENDIAN);
-        for (int i = 0; i < count; i++) {
-            int y = bb.getInt();
-            int x = bb.getInt();
-            path.add(new Pair(x, y));
+            try {
+                double x = Double.parseDouble(xStr);
+                double y = Double.parseDouble(yStr);
+                path.add(new double[]{x, y});
+            } catch (NumberFormatException e) {
+                System.err.println("Error al convertir coordenadas: " + xStr + ", " + yStr);
+                break;
+            }
         }
-
+    
+        // Enviar confirmación de recepción
         sendMessage("end");
-        System.out.println("[srv] " + receiveMessage());
-
+    
+        // Leer mensaje final (tiempo de ejecución u otro mensaje del servidor)
+        String finalMessage = receiveMessage();
+        System.out.println(finalMessage);
+    
         return path;
     }
+    
+    
+    
 }

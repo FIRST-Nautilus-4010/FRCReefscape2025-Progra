@@ -5,7 +5,6 @@ import java.util.List;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utils.CoprocessorClient;
-import frc.robot.utils.CoprocessorClient.Pair;
 
 public class Coprocessor extends SubsystemBase {
     private CoprocessorClient client;
@@ -38,7 +37,8 @@ public class Coprocessor extends SubsystemBase {
         isConnected = false;
     }
 
-    public List<Pair> getPathfind(int x, int y, int dx, int dy) {
+    public List<double[]> getPathfind(double x, double y, double dx, double dy) {
+        
         if (client == null || closed) return List.of();
 
         try {

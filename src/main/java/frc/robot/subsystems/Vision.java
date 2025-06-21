@@ -8,7 +8,7 @@ import frc.robot.utils.Constants.VisionConstants;
 
 public class Vision extends SubsystemBase{
     public int getAprilDetections(String cameraName){
-        System.out.println(LimelightHelpers.getTargetCount(cameraName));
+        //System.out.println(LimelightHelpers.getTargetCount(cameraName));
         return LimelightHelpers.getTargetCount(cameraName);
     }
 
