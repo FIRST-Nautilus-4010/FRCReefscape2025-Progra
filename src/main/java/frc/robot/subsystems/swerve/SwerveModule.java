@@ -28,6 +28,7 @@ public class SwerveModule {
     private final int turningSparkId;
     private final CANcoder absoluteEncoder;
     private final double absoluteEncoderOffset;
+    private final TrapezoidProfile profile;
 
 
     public SwerveModule(int driveTalonFxId, int turningSparkId, int absoluteEncoder_id, double absoluteEncoderOffset, Boolean driveInverted, Boolean turningInverted) {
@@ -60,6 +61,8 @@ public class SwerveModule {
 
         // Set The encoders into 0 position
         resetEncoders();
+
+        profile = new TrapezoidProfile(new TrapezoidProfile.Constraints(3.90625 * 2 * Math.PI, 2 * 2 * Math.PI));
 
     }
 
@@ -99,28 +102,6 @@ public class SwerveModule {
         return angle;
     }
 
-    public ArrayList<Double> getInterPts(double angle) {
-        // Calculate the turning motor positions
-        double P0 = getAbsoluteEncoderRad();
-        double P3 = angle;
-        double n = Math.round(Math.abs(P3 - P0)) * 10;
-        
-        System.out.println("Iniciando nuevo array de puntos con n :" + n + ", P3: " + P3 + " y P0: " + P0);
-        for (int i = 0; i <= n; i++) {
-            double t = i;
-            double point = P0 + (t / n) * (P3 - P0);
-
-            points.add(point);
-
-            System.out.println(point);
-        }
-        
-        return points;
-    }
-
-    int i = -1;
-    ArrayList<Double> points = new ArrayList<>();
-
     // Move the module by giving a SwerveModuleState object
     public void setDesiredState(SwerveModuleState desiredState) {
         // Avoid auto alining while the robot is being operate
@@ -134,31 +115,9 @@ public class SwerveModule {
         desiredState.speedMetersPerSecond *= desiredState.angle.minus(encoderRotation).getCos();
 
         driveMotor.set(desiredState.speedMetersPerSecond / ChassisConstants.MAX_SPD);
-
-        if (i == -1) {
-            points = getInterPts(desiredState.angle.getRadians());
-            i++;
-        }
-            
-       points.clear();
-        if (!points.isEmpty()) {
-            double desiredPos = points.get(i);
-            if (Math.abs(desiredPos - getAbsoluteEncoderRad()) < .1) {
-                System.out.println("llegue a la posicion");
-                System.out.println("desiredPos: " + desiredPos + ", i: " + i);
-                i++;
-            } else {
-                turningMotor.set(turningPIDController.calculate(getAbsoluteEncoderRad(), desiredPos));
-            }
-
-            if (i >= points.size()) {
-                points.clear();
-                i = -1;
-            }
-        } else {
-            turningMotor.set(turningPIDController.calculate(getAbsoluteEncoderRad(), desiredState.angle.getRadians()));
-            i = -1;
-        }
+        
+        var setpoint = profile.calculate(.5, new TrapezoidProfile.State(getAbsoluteEncoderRad(), 0), new TrapezoidProfile.State(desiredState.angle.getRadians(), 0))
+        turningMotor.set(turningPIDController.calculate(getAbsoluteEncoderRad(), setpoint));
 
 
         
