@@ -55,7 +55,7 @@ public class SwerveModule {
         // Assigns a pid controller for the turning motor. This one takes a P variable stablish in constants that specifies the proportional PID value
         turningPIDController = new ProfiledPIDController(
             ModuleConstants.PID_P, ModuleConstants.PID_I, ModuleConstants.PID_D, 
-            new TrapezoidProfile.Constraints(3.90625 * 2 * Math.PI, 2 * 2 * Math.PI)
+            new TrapezoidProfile.Constraints(3.90625 * 2 * Math.PI, 4 * 3.90625 * Math.PI)
         );
         turningPIDController.enableContinuousInput(-Math.PI, Math.PI);
 
