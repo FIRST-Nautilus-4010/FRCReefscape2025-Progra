@@ -15,7 +15,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import frc.robot.utils.Constants.ChassisConstants;
 import frc.robot.utils.Constants.ModuleConstants;
 
@@ -116,8 +116,8 @@ public class SwerveModule {
 
         driveMotor.set(desiredState.speedMetersPerSecond / ChassisConstants.MAX_SPD);
         
-        var setpoint = profile.calculate(.5, new TrapezoidProfile.State(getAbsoluteEncoderRad(), 0), new TrapezoidProfile.State(desiredState.angle.getRadians(), 0))
-        turningMotor.set(turningPIDController.calculate(getAbsoluteEncoderRad(), setpoint));
+        var setpoint = profile.calculate(0.5, new TrapezoidProfile.State(getAbsoluteEncoderRad(), 0), new TrapezoidProfile.State(desiredState.angle.getRadians(), 0));
+        turningMotor.set(turningPIDController.calculate(getAbsoluteEncoderRad(), setpoint.position));
 
 
         
