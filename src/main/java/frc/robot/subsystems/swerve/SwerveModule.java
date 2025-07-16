@@ -1,7 +1,5 @@
 package frc.robot.subsystems.swerve;
 
-import java.util.ArrayList;
-
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -11,7 +9,7 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
-import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -23,12 +21,11 @@ public class SwerveModule {
 
     private final TalonFX driveMotor;
     private final SparkMax turningMotor;
-    private final PIDController turningPIDController;
+    private final ProfiledPIDController turningPIDController;
     private final int driveTalonFxId;
     private final int turningSparkId;
     private final CANcoder absoluteEncoder;
     private final double absoluteEncoderOffset;
-    private final TrapezoidProfile profile;
 
 
     public SwerveModule(int driveTalonFxId, int turningSparkId, int absoluteEncoder_id, double absoluteEncoderOffset, Boolean driveInverted, Boolean turningInverted) {
@@ -56,13 +53,16 @@ public class SwerveModule {
         turningMotor.configure(turningMotorConfig, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kNoPersistParameters);
                 
         // Assigns a pid controller for the turning motor. This one takes a P variable stablish in constants that specifies the proportional PID value
-        turningPIDController = new PIDController(ModuleConstants.PID_P, ModuleConstants.PID_I, ModuleConstants.PID_D);
+        turningPIDController = new ProfiledPIDController(
+            ModuleConstants.PID_P, ModuleConstants.PID_I, ModuleConstants.PID_D, 
+            new TrapezoidProfile.Constraints(3.90625 * 2 * Math.PI, 2 * 2 * Math.PI)
+        );
         turningPIDController.enableContinuousInput(-Math.PI, Math.PI);
 
         // Set The encoders into 0 position
         resetEncoders();
 
-        profile = new TrapezoidProfile(new TrapezoidProfile.Constraints(3.90625 * 2 * Math.PI, 2 * 2 * Math.PI));
+        
 
     }
 
@@ -110,14 +110,14 @@ public class SwerveModule {
             return;
         }
 
-        Rotation2d encoderRotation = new Rotation2d(getAbsoluteEncoderRad() * ModuleConstants.TURNING_ROT_2_RAD);
+        Rotation2d encoderRotation = new Rotation2d(getAbsoluteEncoderRad());
         desiredState.optimize(encoderRotation);
         desiredState.speedMetersPerSecond *= desiredState.angle.minus(encoderRotation).getCos();
 
         driveMotor.set(desiredState.speedMetersPerSecond / ChassisConstants.MAX_SPD);
         
-        var setpoint = profile.calculate(0.5, new TrapezoidProfile.State(getAbsoluteEncoderRad(), 0), new TrapezoidProfile.State(desiredState.angle.getRadians(), 0));
-        turningMotor.set(turningPIDController.calculate(getAbsoluteEncoderRad(), setpoint.position));
+        double output = turningPIDController.calculate(getAbsoluteEncoderRad(), desiredState.angle.getRadians());
+        turningMotor.set(output);
 
 
         
