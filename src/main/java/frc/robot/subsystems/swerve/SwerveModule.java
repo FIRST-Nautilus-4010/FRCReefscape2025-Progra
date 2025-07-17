@@ -63,40 +63,40 @@ public class SwerveModule {
 
     }
 
-    // Stablish the encoders into 0 position
-    public final void resetEncoders(){
-        driveMotor.setPosition(0);
+    // Resets the drive motor encoder position to zero.
+    public final void resetEncoders() {
+        driveMotor.setPosition(0); // <-- Sets the drive motor encoder position to zero.
     }
 
-    // Returns a SwerveModuleState object with the module state
+    // Returns the current state of the swerve module as a SwerveModuleState object.
     public SwerveModuleState getState() {
-        double driveSpeed = driveMotor.get() * ModuleConstants.ENC_RPM_2_M_S;
-        double turningPosition = getAbsoluteEncoderRad();
+        double driveSpeed = driveMotor.get() * ModuleConstants.ENC_RPM_2_M_S; // <-- Converts the drive motor speed from RPM to meters per second.
+        double turningPosition = getAbsoluteEncoderRad(); // <-- Retrieves the current turning position in radians.
 
-        return new SwerveModuleState(driveSpeed, new Rotation2d(turningPosition));
+        return new SwerveModuleState(driveSpeed, new Rotation2d(turningPosition)); // <-- Creates a SwerveModuleState with speed and rotation.
     }
 
-    // Returns a SwerveModulePosition object with the actual modules position
+    // Returns the current position of the swerve module as a SwerveModulePosition object.
     public SwerveModulePosition getPosition() {
-        double driveDistance = driveMotor.getPosition().getValue().magnitude() * ModuleConstants.ENC_ROT_2_M;
-        double turningPosition = getAbsoluteEncoderRad() * ModuleConstants.TURNING_ROT_2_RAD;
+        double driveDistance = driveMotor.getPosition().getValue().magnitude() * ModuleConstants.ENC_ROT_2_M; // <-- Converts the drive motor encoder rotations to meters traveled.
+        double turningPosition = getAbsoluteEncoderRad() * ModuleConstants.TURNING_ROT_2_RAD; // <-- Converts the turning encoder rotations to radians.
 
-        return new SwerveModulePosition(driveDistance, new Rotation2d(turningPosition));
+        return new SwerveModulePosition(driveDistance, new Rotation2d(turningPosition)); // <-- Creates a SwerveModulePosition with distance and rotation.
     }
 
-    // Stops the motors
-    public void stop(){
-        driveMotor.set(0.0);
-        turningMotor.set(0);
+    // Stops both the drive and turning motors of the swerve module.
+    public void stop() {
+        driveMotor.set(0.0); // <-- Stops the drive motor by setting its speed to zero.
+        turningMotor.set(0); // <-- Stops the turning motor by setting its speed to zero.
     }
 
-    // Returns the absolute encoder actual radians
-    public double getAbsoluteEncoderRad(){
-        double angle = absoluteEncoder.getAbsolutePosition().getValue().magnitude();
-        angle *= 2 * Math.PI;
-        angle += absoluteEncoderOffset;
-        //SmartDashboard.putString("Algo", angle.toString);
-        return angle;
+    // Returns the absolute encoder position in radians, adjusted by the offset.
+    public double getAbsoluteEncoderRad() {
+        double angle = absoluteEncoder.getAbsolutePosition().getValue().magnitude(); // <-- Retrieves the raw absolute encoder position.
+        angle *= 2 * Math.PI; // <-- Converts the encoder position to radians.
+        angle += absoluteEncoderOffset; // <-- Adds the offset to the encoder position for calibration.
+        //SmartDashboard.putString("Algo", angle.toString); // <-- Debugging line (commented out).
+        return angle; // <-- Returns the adjusted encoder position in radians.
     }
 
     public ArrayList<Double> getInterPts(double angle) {
@@ -123,44 +123,30 @@ public class SwerveModule {
 
     // Move the module by giving a SwerveModuleState object
     public void setDesiredState(SwerveModuleState desiredState) {
-        // Avoid auto alining while the robot is being operate
-        if (Math.abs(desiredState.speedMetersPerSecond) < 0.090){
-            stop();
-            return;
+        // Avoid auto-aligning the swerve module when the robot is stationary.
+        // If the desired speed is below a threshold (0.090 m/s), stop the module and exit the method.
+        if (Math.abs(desiredState.speedMetersPerSecond) < 0.090) {
+            stop(); // <-- Stops both the drive and turning motors.
+            return; // <-- Exits the method to prevent unnecessary movement.
         }
 
-        Rotation2d encoderRotation = new Rotation2d(getAbsoluteEncoderRad() * ModuleConstants.TURNING_ROT_2_RAD);
-        desiredState.optimize(encoderRotation);
-        desiredState.speedMetersPerSecond *= desiredState.angle.minus(encoderRotation).getCos();
+        // Retrieves the current rotation of the module from the absolute encoder.
+        Rotation2d encoderRotation = new Rotation2d(getAbsoluteEncoderRad()); // <-- Converts the encoder position to a Rotation2d object.
 
-        driveMotor.set(desiredState.speedMetersPerSecond / ChassisConstants.MAX_SPD);
+        // Optimizes the desired state to minimize unnecessary rotation.
+        // Ensures the module rotates in the shortest direction to achieve the desired angle.
+        desiredState.optimize(encoderRotation); // <-- Optimizes the desired state based on the current encoder rotation.
 
-        if (i == -1) {
-            points = getInterPts(desiredState.angle.getRadians());
-            i++;
-        }
-            
-       points.clear();
-        if (!points.isEmpty()) {
-            double desiredPos = points.get(i);
-            if (Math.abs(desiredPos - getAbsoluteEncoderRad()) < .1) {
-                System.out.println("llegue a la posicion");
-                System.out.println("desiredPos: " + desiredPos + ", i: " + i);
-                i++;
-            } else {
-                turningMotor.set(turningPIDController.calculate(getAbsoluteEncoderRad(), desiredPos));
-            }
+        // Adjusts the desired speed based on the cosine of the angle difference.
+        // This compensates for the alignment of the module relative to the desired angle.
+        desiredState.speedMetersPerSecond *= desiredState.angle.minus(encoderRotation).getCos(); // <-- Scales the speed by the cosine of the angle difference.
 
-            if (i >= points.size()) {
-                points.clear();
-                i = -1;
-            }
-        } else {
-            turningMotor.set(turningPIDController.calculate(getAbsoluteEncoderRad(), desiredState.angle.getRadians()));
-            i = -1;
-        }
+        // Sets the drive motor speed as a fraction of the maximum speed.
+        driveMotor.set(desiredState.speedMetersPerSecond / ChassisConstants.MAX_SPD); // <-- Normalizes and sets the drive motor speed.
 
-
-        
+        // Calculates the output for the turning motor using a PID controller.
+        // The PID controller adjusts the turning motor to achieve the desired angle.
+        double output = turningPIDController.calculate(getAbsoluteEncoderRad(), desiredState.angle.getRadians()); // <-- PID calculation for turning motor.
+        turningMotor.set(output); // <-- Sets the turning motor output based on the PID calculation.
     }
 }

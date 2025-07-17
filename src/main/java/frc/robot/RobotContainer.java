@@ -1,7 +1,3 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot;
 
 import java.util.ArrayList;
@@ -20,8 +16,6 @@ import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
-import frc.robot.commands.Autonomous;
-import frc.robot.commands.SwerveDriveJoystick;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.utils.Constants.AutonomousConstants;
@@ -31,47 +25,44 @@ public class RobotContainer {
   public static final Vision  vision = new Vision();
   public static final Swerve swerve = new Swerve(true);
 
-  public static final Autonomous autonomous = new Autonomous();
-
   public static Command getAutonomouCmd() {
     return goTo(swerve.getPose(), null, new Pose2d(4.6, 1.5, swerve.getRotation2d()));
   }
 
 
   public static Command goTo(Pose2d start, List<Translation2d> intermediatePoints, Pose2d end) {
-    TrajectoryConfig trajectoryConfig = new TrajectoryConfig(AutonomousConstants.MAX_SPD, AutonomousConstants.MAX_ACCEL);
-    swerve.resetOdometry(new Pose2d());
+    TrajectoryConfig trajectoryConfig = new TrajectoryConfig(AutonomousConstants.MAX_SPD, AutonomousConstants.MAX_ACCEL); // <-- Configures the trajectory with maximum speed and acceleration.
+    swerve.resetOdometry(new Pose2d()); // <-- Resets the robot's odometry to the initial pose.
 
     Trajectory trajectory = TrajectoryGenerator.generateTrajectory(
-      start,
-      intermediatePoints,
-      end,
-      trajectoryConfig
+        start, // <-- Starting pose of the trajectory.
+        intermediatePoints, // <-- List of intermediate waypoints for the trajectory.
+        end, // <-- Ending pose of the trajectory.
+        trajectoryConfig // <-- Trajectory configuration settings.
     );
-    publishTrajectory(trajectory);
+    publishTrajectory(trajectory); // <-- Publishes the generated trajectory for debugging or visualization.
 
-    PIDController xController = new PIDController(AutonomousConstants.P, AutonomousConstants.I, AutonomousConstants.D);
-    PIDController yController = new PIDController(AutonomousConstants.P, AutonomousConstants.I, AutonomousConstants.D);
-    ProfiledPIDController zController = new ProfiledPIDController(AutonomousConstants.P_Z, AutonomousConstants.I_Z, AutonomousConstants.D_Z, AutonomousConstants.Z_CONTROLER);
-    zController.enableContinuousInput(-Math.PI, Math.PI);
+    PIDController xController = new PIDController(AutonomousConstants.P, AutonomousConstants.I, AutonomousConstants.D); // <-- PID controller for X-axis control.
+    PIDController yController = new PIDController(AutonomousConstants.P, AutonomousConstants.I, AutonomousConstants.D); // <-- PID controller for Y-axis control.
+    ProfiledPIDController zController = new ProfiledPIDController(AutonomousConstants.P_Z, AutonomousConstants.I_Z, AutonomousConstants.D_Z, AutonomousConstants.Z_CONTROLER); // <-- Profiled PID controller for Z-axis (rotation) control.
+    zController.enableContinuousInput(-Math.PI, Math.PI); // <-- Enables continuous input for rotation angles between -π and π.
 
     Command command = new SwerveControllerCommand(
-        trajectory,
-        swerve::getPose,
-        ChassisConstants.KINEMATICS,
-        xController,
-        yController,
-        zController,
-        swerve::setStates,
-        swerve
+        trajectory, // <-- The trajectory to follow.
+        swerve::getPose, // <-- Function to get the robot's current pose.
+        ChassisConstants.KINEMATICS, // <-- Kinematics configuration for the swerve drive.
+        xController, // <-- PID controller for X-axis control.
+        yController, // <-- PID controller for Y-axis control.
+        zController, // <-- Profiled PID controller for Z-axis control.
+        swerve::setStates, // <-- Function to set the swerve module states.
+        swerve // <-- The swerve subsystem.
     );
 
-    return command;
-
+    return command; // <-- Returns the command to execute the trajectory.
   }
 
   public static Command getTestCommand() {
-    return new InstantCommand(() -> goTo(swerve.getPose(), null, new Pose2d(1, 1.5, new Rotation2d(52))));
+    return new InstantCommand(() -> goTo(swerve.getPose(), null, new Pose2d(1, 1.5, new Rotation2d(52)))); // <-- Creates a test command to move the robot to a specific pose.
   }
 
   private static void publishTrajectory(Trajectory trajectory) {

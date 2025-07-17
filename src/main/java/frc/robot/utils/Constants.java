@@ -13,32 +13,32 @@ public final class Constants {
 
   public static class ModuleConstants {
       // Wheel specifications
-      public static final double WHEEL_DIAMETER = 0.1; //In meters.
+      public static final double WHEEL_DIAMETER = 0.1; // <-- In meters.
 
       // Motor ratios
-      public static final double PWR_RATIO = 1.0 / 6.12; // Power motor ratio.
-      public static final double STR_RATIO = 1.0 / 12.8; // Turning motor gear ratio.
+      public static final double PWR_RATIO = 1.0 / 6.12; // <-- Power motor ratio.
+      public static final double STR_RATIO = 1.0 / 12.8; // <-- Turning motor gear ratio.
 
       // Encoder conversions
       public static final double ENC_ROT_2_M = PWR_RATIO * Math.PI * WHEEL_DIAMETER; 
-      public static final double ENC_RPM_2_M_S = 5800 / 60.0 * ENC_ROT_2_M; // In meters per second.
+      public static final double ENC_RPM_2_M_S = 5800 / 60.0 * ENC_ROT_2_M; // <-- In meters per second.
       public static final double TURNING_ROT_2_RAD = STR_RATIO * 2 * Math.PI; 
       public static final double TURNING_RPM_2_RAD_S = 5676 / 60.0 * TURNING_ROT_2_RAD;
 
       // PID constants
-      public static final double PID_P = 0.097; // Proportional gain.
-      public static final double PID_I = 0.000000004010; // Integral gain.
-      public static final double PID_D = 0.000267; // Derirvative gain.
+      public static final double PID_P = 0.097; // <-- Proportional gain.
+      public static final double PID_I = 0.000000004010; // <-- Integral gain.
+      public static final double PID_D = 0.000267; // <-- Derirvative gain.
 
       // Encoder offsets
-      public static final double[] ENCODER_OFFSETS = {0, 0, 0, 0}; // {FL, FR, BL, BR} offsets.
+      public static final double[] ENCODER_OFFSETS = {0, 0, 0, 0}; // <-- {FL, FR, BL, BR} offsets.
 
   
   }
 
   public static class ChassisConstants {
-    public static final double TRACKWIDTH = .537;// Distance between right and left wheels.
-    public static final double WHEELBASE = .380; // Distance between front and back wheels.
+    public static final double TRACKWIDTH = .537;// <-- Distance between right and left wheels.
+    public static final double WHEELBASE = .380; // <-- Distance between front and back wheels.
     public static final double ROBOT_WEIGHT = 45;
         
     public static final SwerveDriveKinematics KINEMATICS = new SwerveDriveKinematics(
@@ -48,44 +48,68 @@ public final class Constants {
       new Translation2d(-TRACKWIDTH / 2, -WHEELBASE / 2));
 
     // Speed calculations
-    public static final double MAX_SPD = 3; // in m/s.
-    public static final double MAX_ANG_SPD = 2 * Math.PI; // in radians per second.
+    public static final double MAX_SPD = 3; // <-- in m/s.
+    public static final double MAX_ANG_SPD = 2 * Math.PI; // <-- in radians per second.
     
     // Maximum accelerations
-    public static final double MAX_ACCEL = 3;
-    public static final double MAX_ANG_ACCEL = 1.5;
+    public static final double MAX_ACCEL = 3; // <-- Maximum linear acceleration in meters per second^2.
+    public static final double MAX_ANG_ACCEL = 1.5; // <-- Maximum angular acceleration in radians per second^2.
   }
 
   public static class AutonomousConstants {
-    public static final Pose2d initialPose = new Pose2d();
+    public static final Pose2d initialPose = new Pose2d(); // <-- Initial pose of the robot.
 
-    public static final double P = 1.5;
-    public static final double I = 0;
-    public static final double D = 0;
+    public static final double P = 1.5; // <-- Proportional gain for autonomous control.
+    public static final double I = 0; // <-- Integral gain for autonomous control.
+    public static final double D = 0; // <-- Derivative gain for autonomous control.
 
-    public static final double P_Z = 3;
-    public static final double I_Z = 0;
-    public static final double D_Z = 0;
+    public static final double P_Z = 3; // <-- Proportional gain for Z-axis control.
+    public static final double I_Z = 0; // <-- Integral gain for Z-axis control.
+    public static final double D_Z = 0; // <-- Derivative gain for Z-axis control.
 
-    public static final double MAX_SPD = ChassisConstants.MAX_SPD; // In meters per second.
-    public static final double MAX_ACCEL = ChassisConstants.MAX_ACCEL; // In meters per second^2.
-    public static final double MAX_ANG_SPD = ChassisConstants.MAX_ANG_SPD; // In radians per second.
-    public static final double MAX_ANG_ACCEL = ChassisConstants.MAX_ANG_ACCEL; // In radians per second^2.
+    public static final double MAX_SPD = ChassisConstants.MAX_SPD; // <-- Maximum speed in meters per second.
+    public static final double MAX_ACCEL = ChassisConstants.MAX_ACCEL; // <-- Maximum acceleration in meters per second^2.
+    public static final double MAX_ANG_SPD = ChassisConstants.MAX_ANG_SPD; // <-- Maximum angular speed in radians per second.
+    public static final double MAX_ANG_ACCEL = ChassisConstants.MAX_ANG_ACCEL; // <-- Maximum angular acceleration in radians per second^2.
 
     public static final TrapezoidProfile.Constraints Z_CONTROLER = 
                 new TrapezoidProfile.Constraints(
-                        MAX_ANG_SPD,
-                        MAX_ANG_ACCEL
+                        MAX_ANG_SPD, // <-- Maximum angular speed for Z-axis control.
+                        MAX_ANG_ACCEL // <-- Maximum angular acceleration for Z-axis control.
     );
 
 
+    public enum FieldTarget {
+      REEF(new Pose3d[] {
+          new Pose3d(), // <-- Poses for the reef targets.
+      }),
+      SOURCE(new Pose3d[] {
+          new Pose3d() // <-- Poses for the source targets.
+      }),
+      ALGAE(new Pose3d[] {
+          new Pose3d()
+      });
+  
+      private final Pose3d[] poses;
+  
+      FieldTarget(Pose3d[] poses) {
+          this.poses = poses;
+      }
+  
+      public Pose3d[] getPoses() {
+          return poses;
+      }
 
-    public static final Pose3d[] REEF_POS = {
-      new Pose3d(),
+      public Pose3d getPose(int index) {
+        return poses[index];
+      }
       
-    };
-    public static final Pose3d[] SOURCE_POS = {new Pose3d()};
-    public static final Pose3d[] ALGAE_POS = {new Pose3d()};
+      public int getPoseCount() {
+          return poses.length;
+      }
+
+    }
+  
   }
 
   public static class OperatorConstants {
@@ -181,10 +205,25 @@ public final class Constants {
     public static final double I = 0.0;
     public static final double D = 0.0;
 
+    // Creates a new set of trapezoidal motion profile constraints
+    // Max velocity of 10 meters per second
+    // Max acceleration of 20 meters per second squared
+    public static final TrapezoidProfile.Constraints PROFILE_CONSTRAITS = 
+      new TrapezoidProfile.Constraints(
+        10, 20
+      );
+
     public static final double AMP_THRESHOLD = 5;
 
-    public static final double OFFSET = 0;
-    public static final double PULSE2M = 0;
+    public static final double ROT_2_M = 0;
+
+    // The enumeration for the elevator states
+    public enum ElevatorState {
+      RUN_TO_POSITION,
+      RUN_TO_ANGLE,
+      RUN_TO_HEIGHT,
+      RUN_MANUAL
+  }
   }
 
 
@@ -193,24 +232,38 @@ public final class Constants {
     public static final double I = 0.0;
     public static final double D = 0.0;
 
+    public static final TrapezoidProfile.Constraints PROFILE_CONSTRAITS = 
+      new TrapezoidProfile.Constraints(
+        10, 20
+      );
+
     public static final double MAX_ANGLE = 884000000;
     public static final double MIN_ANGLE = -884000000;
 
-    public static final double SOURCE_ANGLE = 0;
-    public static final double REEF_ANGLE = 0;
-    public static final double ALGAE_ANGLE = 1;
-
-    public static final double AMP_THRESHOLD = 5;
-
-    public static final double OFFSET = 0;
-    public static final double PULSE2DEGREE = 0;
+    public enum ArmPosition {
+      SOURCE(0),
+      REEF(0),
+      ALGAE(1);
+  
+      private final double angle;
+  
+      ArmPosition(double angle) {
+          this.angle = angle;
+      }
+  
+      public double getAngle() {
+          return angle;
+      }
+  }
+  
+    public static final double ROT_2_RADIAN = 0;
   }
 
   public static class VisionConstants {
-    public static final int CAM_NUM = 1; // Number of cameras.
+    public static final int CAM_NUM = 1; // <-- Number of cameras.
     public static final Transform3d[] ROBOT_TO_CAM = {
-      new Transform3d(new Translation3d(), new Rotation3d()), // Camera 1.
-      new Transform3d(new Translation3d(), new Rotation3d()) // Camera 2.
+      new Transform3d(new Translation3d(), new Rotation3d()), // <-- Camera 1.
+      new Transform3d(new Translation3d(), new Rotation3d()) // <-- Camera 2.
     };
     
     public static final double CAM_ANGLE[] = {
@@ -218,6 +271,6 @@ public final class Constants {
       Math.toRadians(62.5)
     }; // The view angle of the camera.
 
-    public static final double APRILTAG_WIDTH = 0.1; // The width of the apriltag.
+    public static final double APRILTAG_WIDTH = 0.1; // <-- The width of the apriltag.
   }
 }
