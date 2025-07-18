@@ -1,6 +1,6 @@
 package frc.robot.subsystems.Elevator;
 
-import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 // Subsystem responsible for controlling the elevator mechanism
@@ -8,12 +8,12 @@ public class ElevatorSubsystem extends SubsystemBase {
     private final ElevatorIO io; // Handles motor control for the elevator
     private final ElevatorSensors sensors; // Provides height and angle feedback
     private final ElevatorController controller; // PID controllers for height and angle
-    private final Joystick joystick; // Operator joystick
+    private final XboxController xboxController; // Operator joystick
 
     private ElevatorState currentState = ElevatorState.RUN_MANUAL;
 
-    public ElevatorSubsystem(Joystick joystick) {
-        this.joystick = joystick;
+    public ElevatorSubsystem(XboxController xboxController) {
+        this.xboxController = xboxController;
         this.io = new ElevatorIO();
         this.sensors = new ElevatorSensors(io.getLeftMotor(), io.getRightMotor());
         this.controller = new ElevatorController();
@@ -43,16 +43,16 @@ public class ElevatorSubsystem extends SubsystemBase {
                 break;
             case RUN_TO_HEIGHT:
                 heightPower = controller.calculateHeight(sensors.getHeight());
-                anglePower = joystick.getX(); // manual angle control
+                anglePower = xboxController.getLeftX(); // manual angle control
                 break;
             case RUN_TO_ANGLE:
                 anglePower = controller.calculateAngle(sensors.getAngle());
-                heightPower = joystick.getY(); // manual height control
+                heightPower = xboxController.getRightY(); // manual height control
                 break;
             case RUN_MANUAL:
-            default:
-                heightPower = joystick.getY();
-                anglePower = joystick.getX();
+                heightPower = xboxController.getRightY(); 
+                anglePower = xboxController.getLeftX();
+                break;
         }
 
         // Combine height and angle control using differential motor power
