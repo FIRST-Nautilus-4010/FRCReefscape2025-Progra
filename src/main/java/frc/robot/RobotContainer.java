@@ -22,6 +22,8 @@ import frc.robot.utils.Constants.AutonomousConstants;
 import frc.robot.utils.Constants.ChassisConstants;
 
 public class RobotContainer {
+  public static final Pose2d initialPose = new Pose2d(); // <-- Initial pose of the robot.
+
   public static final Vision  vision = new Vision();
   public static final Swerve swerve = new Swerve(true);
 

@@ -17,17 +17,35 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 
 import frc.robot.utils.Constants.ChassisConstants;
-import frc.robot.utils.Constants.ModuleConstants;
+
 
 public class SwerveModule {
 
-    private final TalonFX driveMotor;
-    private final SparkMax turningMotor;
-    private final PIDController turningPIDController;
-    private final int driveTalonFxId;
-    private final int turningSparkId;
-    private final CANcoder absoluteEncoder;
-    private final double absoluteEncoderOffset;
+    // Wheel specifications
+    final double WHEEL_DIAMETER = 0.1; // <-- In meters.
+
+    // Motor ratios
+    final double PWR_RATIO = 1.0 / 6.12; // <-- Power motor ratio.
+    final double STR_RATIO = 1.0 / 12.8; // <-- Turning motor gear ratio.
+
+    // Encoder conversions
+    final double ENC_ROT_2_M = PWR_RATIO * Math.PI * WHEEL_DIAMETER; 
+    final double ENC_RPM_2_M_S = 5800 / 60.0 * ENC_ROT_2_M; // <-- In meters per second.
+    final double TURNING_ROT_2_RAD = STR_RATIO * 2 * Math.PI; 
+    final double TURNING_RPM_2_RAD_S = 5676 / 60.0 * TURNING_ROT_2_RAD;
+
+    // PID constants
+    final double PID_P = 0.097; // <-- Proportional gain.
+    final double PID_I = 0.000000004010; // <-- Integral gain.
+    final double PID_D = 0.000267; // <-- Derirvative gain. 
+
+    final TalonFX driveMotor;
+    final SparkMax turningMotor;
+    final PIDController turningPIDController;
+    final int driveTalonFxId;
+    final int turningSparkId;
+    final CANcoder absoluteEncoder;
+    final double absoluteEncoderOffset;
 
 
     public SwerveModule(int driveTalonFxId, int turningSparkId, int absoluteEncoder_id, double absoluteEncoderOffset, Boolean driveInverted, Boolean turningInverted) {
@@ -55,7 +73,7 @@ public class SwerveModule {
         turningMotor.configure(turningMotorConfig, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kNoPersistParameters);
                 
         // Assigns a pid controller for the turning motor. This one takes a P variable stablish in constants that specifies the proportional PID value
-        turningPIDController = new PIDController(ModuleConstants.PID_P, ModuleConstants.PID_I, ModuleConstants.PID_D);
+        turningPIDController = new PIDController(PID_P, PID_I, PID_D);
         turningPIDController.enableContinuousInput(-Math.PI, Math.PI);
 
         // Set The encoders into 0 position
@@ -70,7 +88,7 @@ public class SwerveModule {
 
     // Returns the current state of the swerve module as a SwerveModuleState object.
     public SwerveModuleState getState() {
-        double driveSpeed = driveMotor.get() * ModuleConstants.ENC_RPM_2_M_S; // <-- Converts the drive motor speed from RPM to meters per second.
+        double driveSpeed = driveMotor.get() * ENC_RPM_2_M_S; // <-- Converts the drive motor speed from RPM to meters per second.
         double turningPosition = getAbsoluteEncoderRad(); // <-- Retrieves the current turning position in radians.
 
         return new SwerveModuleState(driveSpeed, new Rotation2d(turningPosition)); // <-- Creates a SwerveModuleState with speed and rotation.
@@ -78,8 +96,8 @@ public class SwerveModule {
 
     // Returns the current position of the swerve module as a SwerveModulePosition object.
     public SwerveModulePosition getPosition() {
-        double driveDistance = driveMotor.getPosition().getValue().magnitude() * ModuleConstants.ENC_ROT_2_M; // <-- Converts the drive motor encoder rotations to meters traveled.
-        double turningPosition = getAbsoluteEncoderRad() * ModuleConstants.TURNING_ROT_2_RAD; // <-- Converts the turning encoder rotations to radians.
+        double driveDistance = driveMotor.getPosition().getValue().magnitude() * ENC_ROT_2_M; // <-- Converts the drive motor encoder rotations to meters traveled.
+        double turningPosition = getAbsoluteEncoderRad() * TURNING_ROT_2_RAD; // <-- Converts the turning encoder rotations to radians.
 
         return new SwerveModulePosition(driveDistance, new Rotation2d(turningPosition)); // <-- Creates a SwerveModulePosition with distance and rotation.
     }
