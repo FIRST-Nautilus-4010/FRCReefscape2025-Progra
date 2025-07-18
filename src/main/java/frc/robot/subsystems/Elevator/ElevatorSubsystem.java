@@ -3,37 +3,35 @@ package frc.robot.subsystems.Elevator;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
+// Subsystem responsible for controlling the elevator mechanism
 public class ElevatorSubsystem extends SubsystemBase {
-    private final ElevatorIO io; // <-- Handles motor control for the elevator.
-    private final ElevatorSensors sensors; // <-- Provides sensor feedback for the elevator's position and angle.
-    private final ElevatorController controller; // <-- Manages PID control for height and angle adjustments.
-    private final Joystick joystick; // <-- Joystick for manual control of the elevator.
+    private final ElevatorIO io; // Handles motor control for the elevator
+    private final ElevatorSensors sensors; // Provides height and angle feedback
+    private final ElevatorController controller; // PID controllers for height and angle
+    private final Joystick joystick; // Operator joystick
 
-    private ElevatorState currentState = ElevatorState.RUN_MANUAL; // <-- Initial state set to manual control.
+    private ElevatorState currentState = ElevatorState.RUN_MANUAL;
 
     public ElevatorSubsystem(Joystick joystick) {
-        this.joystick = joystick; // <-- Assigns the joystick for operator control.
-        this.io = new ElevatorIO(); // <-- Initializes the motor controllers.
-        this.sensors = new ElevatorSensors(io.getLeftMotor(), io.getRightMotor()); // <-- Initializes sensors using the motor controllers.
-        this.controller = new ElevatorController(); // <-- Initializes the PID controllers for precise control.
+        this.joystick = joystick;
+        this.io = new ElevatorIO();
+        this.sensors = new ElevatorSensors(io.getLeftMotor(), io.getRightMotor());
+        this.controller = new ElevatorController();
     }
 
-    // Updates the current state of the elevator system.
     public void setState(ElevatorState state) {
-        this.currentState = state; // <-- Sets the elevator's operational state.
+        this.currentState = state;
     }
 
-    // Sets the target height for the elevator.
     public void setTargetHeight(double height) {
-        controller.setTargetHeight(height); // <-- Passes the desired height to the height PID controller.
+        controller.setTargetHeight(height);
     }
 
-    // Sets the target angle for the elevator.
     public void setTargetAngle(double angle) {
-        controller.setTargetAngle(angle); // <-- Passes the desired angle to the angle PID controller.
+        controller.setTargetAngle(angle);
     }
 
-    // Periodic method to execute logic based on the current state of the elevator.
+    // Called periodically: applies control logic based on current elevator state
     @Override
     public void periodic() {
         double heightPower = 0, anglePower = 0;
@@ -45,11 +43,11 @@ public class ElevatorSubsystem extends SubsystemBase {
                 break;
             case RUN_TO_HEIGHT:
                 heightPower = controller.calculateHeight(sensors.getHeight());
-                anglePower = joystick.getX();
+                anglePower = joystick.getX(); // manual angle control
                 break;
             case RUN_TO_ANGLE:
                 anglePower = controller.calculateAngle(sensors.getAngle());
-                heightPower = joystick.getY();
+                heightPower = joystick.getY(); // manual height control
                 break;
             case RUN_MANUAL:
             default:
@@ -57,7 +55,9 @@ public class ElevatorSubsystem extends SubsystemBase {
                 anglePower = joystick.getX();
         }
 
+        // Combine height and angle control using differential motor power
         io.setMotorPowers(heightPower + anglePower, heightPower - anglePower);
     }
 }
+
 

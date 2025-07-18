@@ -3,32 +3,46 @@ package frc.robot.subsystems.Elevator;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.hardware.TalonFX;
 
+/**
+ * Manages the motor controllers for the elevator subsystem,
+ * including configuration and basic control methods.
+ */
 public class ElevatorIO {
-    // Motor controllers for the elevator system.
-    private final TalonFX krakenLBottom = new TalonFX(16); // <-- Left bottom motor.
-    private final TalonFX krakenLTop = new TalonFX(15); // <-- Left top motor (follower).
-    private final TalonFX krakenRBottom = new TalonFX(17); // <-- Right bottom motor.
-    private final TalonFX krakenRTop = new TalonFX(18); // <-- Right top motor (follower).
+    private final TalonFX krakenLBottom = new TalonFX(16);
+    private final TalonFX krakenLTop = new TalonFX(15);
+    private final TalonFX krakenRBottom = new TalonFX(17);
+    private final TalonFX krakenRTop = new TalonFX(18);
 
+    /**
+     * Configures follower motors to mirror their respective leaders.
+     */
     public ElevatorIO() {
-        // Configures the top motors to follow the bottom motors.
-        krakenLTop.setControl(new Follower(krakenLBottom.getDeviceID(), false)); // <-- Left top motor follows left bottom motor.
-        krakenRTop.setControl(new Follower(krakenRBottom.getDeviceID(), false)); // <-- Right top motor follows right bottom motor.
+        krakenLTop.setControl(new Follower(krakenLBottom.getDeviceID(), false));
+        krakenRTop.setControl(new Follower(krakenRBottom.getDeviceID(), false));
     }
 
-    // Returns the left bottom motor controller.
+    /**
+     * @return The left leader motor.
+     */
     public TalonFX getLeftMotor() {
-        return krakenLBottom; // <-- Provides access to the left bottom motor.
+        return krakenLBottom;
     }
 
-    // Returns the right bottom motor controller.
+    /**
+     * @return The right leader motor.
+     */
     public TalonFX getRightMotor() {
-        return krakenRBottom; // <-- Provides access to the right bottom motor.
+        return krakenRBottom;
     }
 
-    // Sets the power for both left and right bottom motors.
+    /**
+     * Sets the motor power for both leader motors.
+     *
+     * @param left  Power for the left motor.
+     * @param right Power for the right motor.
+     */
     public void setMotorPowers(double left, double right) {
-        krakenLBottom.set(left); // <-- Sets the power for the left bottom motor.
-        krakenRBottom.set(right); // <-- Sets the power for the right bottom motor.
+        krakenLBottom.set(left);
+        krakenRBottom.set(right);
     }
 }

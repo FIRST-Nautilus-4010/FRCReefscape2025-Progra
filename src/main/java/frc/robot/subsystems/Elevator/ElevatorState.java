@@ -1,9 +1,18 @@
 package frc.robot.subsystems.Elevator;
 
-// Enum to represent the different states of the elevator system.
+/**
+ * Represents the different operational states of the elevator system.
+ */
 public enum ElevatorState {
-    RUN_TO_POSITION, // <-- State where the elevator moves to a specific position (angle and height).
-    RUN_TO_ANGLE,    // <-- State where the elevator adjusts to a specific angle.
-    RUN_TO_HEIGHT,   // <-- State where the elevator adjusts to a specific height.
-    RUN_MANUAL       // <-- State where the elevator is controlled manually by the operator.
+    /** Automatically move to a predefined position (angle and height). */
+    RUN_TO_POSITION,
+
+    /** Automatically adjust only the elevator angle. */
+    RUN_TO_ANGLE,
+
+    /** Automatically adjust only the elevator height. */
+    RUN_TO_HEIGHT,
+
+    /** Manually control both height and angle via joystick input. */
+    RUN_MANUAL
 }

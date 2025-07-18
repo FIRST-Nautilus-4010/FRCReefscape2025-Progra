@@ -1,27 +1,33 @@
 package frc.robot.subsystems.Elevator;
 
-// Enum to define predefined positions for the elevator system.
+/**
+ * Enum representing predefined target positions for the elevator mechanism.
+ * Each position includes a target angle and height.
+ */
 public enum PredefinedElevatorPositions {
-    SOURCE(0, 1), // <-- Position for the "SOURCE" target with specific angle and height.
-    REEF(0, 1),   // <-- Position for the "REEF" target with specific angle and height.
-    ALGAE(1, 1);  // <-- Position for the "ALGAE" target with specific angle and height.
+    SOURCE(0, 1),
+    REEF(0, 1),
+    ALGAE(1, 1);
 
-    private final double angle;  // <-- Angle of the elevator for the predefined position.
-    private final double height; // <-- Height of the elevator for the predefined position.
+    private final double angle;
+    private final double height;
 
-    // Constructor to initialize the angle and height for each predefined position.
+    /**
+     * Constructs a predefined elevator position.
+     *
+     * @param angle  The target angle (radians or degrees, depending on system).
+     * @param height The target height (in meters).
+     */
     PredefinedElevatorPositions(double angle, double height) {
-        this.angle = angle; // <-- Assigns the angle for the position.
-        this.height = height; // <-- Assigns the height for the position.
+        this.angle = angle;
+        this.height = height;
     }
 
-    // Returns the angle of the predefined position.
     public double getAngle() {
-        return angle; // <-- Provides access to the angle.
+        return angle;
     }
 
-    // Returns the height of the predefined position.
     public double getHeight() {
-        return height; // <-- Provides access to the height.
+        return height;
     }
 }
