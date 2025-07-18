@@ -2,6 +2,13 @@ package frc.robot.subsystems.Elevator;
 
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 
+
+/**
+ * ElevatorConstants.java
+ * This class contains constants used for the elevator subsystem.
+ * It includes maximum and minimum values for height and angle,
+ * PID controller constants, conversion factors, and constraints for trapezoidal profiles.
+ */
 public class ElevatorConstants {
     public static final double MAX_HEIGHT = 8840000;
     public static final double MAX_ANGLE = 884000000;
