@@ -1,6 +1,14 @@
-# FRCReefscape2025
+<p align="center">
+  <img src="https://avatars.githubusercontent.com/u/104218867?s=400&u=187332201ac0cb21c7aee3f4664bb5e8602ceffe&v=4" alt="Team 4010 Logo" width="120"/>
+</p>
 
-Welcome to the official repository for Robotics Team 4010's FRC robot for the 2025 season.
+<h1 align="center" style="font-size:2.5rem; font-weight:700; margin-bottom:0;">
+  FRC Team 4010
+</h1>
+<h2 align="center" style="font-size:2rem; font-weight:200; margin-bottom:0;" >Reefscape 2025</h2>
+<p align="center" style="font-size:1.2rem; color:#555;">
+  Official repository for Robotics Team 4010's FRC robot for the 2025 season
+</p>
 
 ---
 
@@ -15,6 +23,19 @@ The game rules and objectives are detailed in the [2025 FRC Game Manual](https:/
 ## About the Team
 
 We are Team 4010, a group of students and mentors passionate about robotics, technology, and innovation. Our mission is to design, build, and program competitive robots while learning and sharing knowledge in STEM fields.
+
+---
+
+## Acknowledgements
+
+We gratefully acknowledge the support of our sponsors:
+
+- **[Sponsor 1 Name](https://sponsor1.com)**
+- **[Sponsor 2 Name](https://sponsor2.com)**
+- **[Sponsor 3 Name](https://sponsor3.com)**
+- And all others who make our season possible!
+
+Thank you for believing in robotics education and Team 4010!
 
 ---
 
