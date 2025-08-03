@@ -1,71 +1,90 @@
 package frc.robot.subsystems.Elevator;
 
-import edu.wpi.first.math.controller.ProfiledPIDController;
+import com.ctre.phoenix6.configs.MotionMagicConfigs;
+import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.Slot1Configs;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.DifferentialDutyCycle;
+import com.ctre.phoenix6.controls.DifferentialMotionMagicVoltage;
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.mechanisms.SimpleDifferentialMechanism;
 
-/**
- * Handles the control logic for the elevator's height and angle using Profiled PID controllers.
- */
 public class ElevatorController {
-    private final ProfiledPIDController anglePID;
-    private final ProfiledPIDController heightPID;
+    private final TalonFX leftLeader;
+    private final TalonFX rightLeader;
+    private final SimpleDifferentialMechanism differential;
 
-    /**
-     * Constructs the ElevatorController and initializes both angle and height PID controllers
-     * using the constants defined in {@link ElevatorConstants}.
-     */
-    public ElevatorController() {
-        anglePID = new ProfiledPIDController(
-            ElevatorConstants.P_ANGLE,
-            ElevatorConstants.I_ANGLE,
-            ElevatorConstants.D_ANGLE,
-            ElevatorConstants.ANGLE_CONSTRAINTS
-        );
-        // Allow angle values to wrap around (e.g., from π to -π), useful for rotational control.
-        anglePID.enableContinuousInput(-Math.PI, Math.PI);
+    public ElevatorController(TalonFX leftLeader, TalonFX rightLeader) {
+        this.leftLeader = leftLeader;
+        this.rightLeader = rightLeader;
 
-        heightPID = new ProfiledPIDController(
-            ElevatorConstants.P_ELEVATOR,
-            ElevatorConstants.I_ELEVATOR,
-            ElevatorConstants.D_ELEVATOR,
-            ElevatorConstants.HEIGHT_CONSTRAINTS
-        );
+        TalonFXConfiguration config = createBaseConfiguration();
+
+        configureSlot0(config.Slot0);
+        configureSlot1(config.Slot1);
+        configureMotionMagic(config.MotionMagic);
+
+        applyConfigurationToMotors(config);
+
+        this.differential = new SimpleDifferentialMechanism(leftLeader, rightLeader, true);
     }
 
-    /**
-     * Calculates the output needed to reach the target angle from the current angle.
-     *
-     * @param currentAngle Current measured angle.
-     * @return Motor output to reach the target angle.
-     */
-    public double calculateAngle(double currentAngle) {
-        return anglePID.calculate(currentAngle);
+    private TalonFXConfiguration createBaseConfiguration() {
+        return new TalonFXConfiguration();
     }
 
-    /**
-     * Calculates the output needed to reach the target height from the current height.
-     *
-     * @param currentHeight Current measured height.
-     * @return Motor output to reach the target height.
-     */
-    public double calculateHeight(double currentHeight) {
-        return heightPID.calculate(currentHeight);
+    private void configureSlot0(Slot0Configs slot0) {
+        slot0.kS = 0.25;
+        slot0.kV = 0.12;
+        slot0.kA = 0.01;
+        slot0.kP = 4.8;
+        slot0.kI = 0.0;
+        slot0.kD = 0.1;
     }
 
-    /**
-     * Sets a new target angle for the angle PID controller.
-     *
-     * @param angle Target angle in radians.
-     */
-    public void setTargetAngle(double angle) {
-        anglePID.setGoal(angle);
+    private void configureSlot1(Slot1Configs slot1) {
+        slot1.kS = 0.25;
+        slot1.kV = 0.12;
+        slot1.kA = 0.01;
+        slot1.kP = 4.8;
+        slot1.kI = 0.0;
+        slot1.kD = 0.1;
     }
 
-    /**
-     * Sets a new target height for the height PID controller.
-     *
-     * @param height Target height in meters.
-     */
-    public void setTargetHeight(double height) {
-        heightPID.setGoal(height);
+    private void configureMotionMagic(MotionMagicConfigs mm) {
+        mm.MotionMagicCruiseVelocity = 80;   // rot/s
+        mm.MotionMagicAcceleration = 160;    // rot/s²
+        mm.MotionMagicJerk = 1600;           // rot/s³
+    }
+
+    private void applyConfigurationToMotors(TalonFXConfiguration config) {
+        leftLeader.getConfigurator().apply(config);
+        rightLeader.getConfigurator().apply(config);
+    }
+
+    public void setPower( double heightPwr, double anglePwr) {
+        differential.setControl(new DifferentialDutyCycle(anglePwr, heightPwr));
+    }
+
+    public void setTargetPosition(double height, double angle) {
+        differential.setControl(new DifferentialMotionMagicVoltage(angle, height));
+    }
+
+    public double getAngle() {
+        double left = leftLeader.getPosition().getValueAsDouble();
+        double right = rightLeader.getPosition().getValueAsDouble();
+
+        return (right + left) / 2.0;
+    }
+
+    public double getHeight() {
+        double left = leftLeader.getPosition().getValueAsDouble();
+        double right = rightLeader.getPosition().getValueAsDouble();
+
+        return (right - left) / 2.0;
+    }
+
+    public void periodic() {
+        differential.periodic();
     }
 }

@@ -5,18 +5,19 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 // Subsystem responsible for controlling the elevator mechanism
 public class ElevatorSubsystem extends SubsystemBase {
-    private final ElevatorIO io; // Handles motor control for the elevator
-    private final ElevatorSensors sensors; // Provides height and angle feedback
+    private final ElevatorIO io; // Handles inputs and outputs (motors, sensors)
     private final ElevatorController controller; // PID controllers for height and angle
     private final XboxController xboxController; // Operator joystick
 
     private ElevatorState currentState = ElevatorState.RUN_MANUAL;
 
+    private double targetHeight = 0;
+    private double targetAngle = 0;
+
     public ElevatorSubsystem(XboxController xboxController) {
         this.xboxController = xboxController;
         this.io = new ElevatorIO();
-        this.sensors = new ElevatorSensors(io.getLeftMotor(), io.getRightMotor());
-        this.controller = new ElevatorController();
+        this.controller = new ElevatorController(io.getLeftLeaderMotor(), io.getRightLeaderMotor());
     }
 
     public void setState(ElevatorState state) {
@@ -24,39 +25,29 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     public void setTargetHeight(double height) {
-        controller.setTargetHeight(height);
+        targetHeight = height; 
     }
 
     public void setTargetAngle(double angle) {
-        controller.setTargetAngle(angle);
+        targetAngle = angle;
     }
 
     // Called periodically: applies control logic based on current elevator state
     @Override
     public void periodic() {
-        double heightPower = 0, anglePower = 0;
-
         switch (currentState) {
             case RUN_TO_POSITION:
-                heightPower = controller.calculateHeight(sensors.getHeight());
-                anglePower = controller.calculateAngle(sensors.getAngle());
-                break;
-            case RUN_TO_HEIGHT:
-                heightPower = controller.calculateHeight(sensors.getHeight());
-                anglePower = xboxController.getLeftX(); // manual angle control
-                break;
-            case RUN_TO_ANGLE:
-                anglePower = controller.calculateAngle(sensors.getAngle());
-                heightPower = xboxController.getRightY(); // manual height control
+                controller.setTargetPosition(targetHeight, targetAngle);
                 break;
             case RUN_MANUAL:
-                heightPower = xboxController.getRightY(); 
-                anglePower = xboxController.getLeftX();
+                double heightPower = xboxController.getRightY(); 
+                double anglePower = xboxController.getLeftX();
+
+                controller.setPower(heightPower, anglePower);
                 break;
         }
 
-        // Combine height and angle control using differential motor power
-        io.setMotorPowers(heightPower + anglePower, heightPower - anglePower);
+        controller.periodic();
     }
 }
 

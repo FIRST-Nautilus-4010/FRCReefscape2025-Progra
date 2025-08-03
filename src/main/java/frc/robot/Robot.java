@@ -10,6 +10,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotInit() {
+    TeleOp.initialize();
   }
 
   @Override
@@ -46,7 +47,6 @@ public class Robot extends TimedRobot {
     if (autonomousCommand != null) {
       autonomousCommand.cancel();
     }
-    TeleOp.initialize();
   }
 
 

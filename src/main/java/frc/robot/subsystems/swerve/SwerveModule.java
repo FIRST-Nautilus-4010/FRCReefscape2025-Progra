@@ -12,10 +12,11 @@ import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import frc.robot.utils.Constants.ChassisConstants;
 
 
@@ -41,7 +42,7 @@ public class SwerveModule {
 
     final TalonFX driveMotor;
     final SparkMax turningMotor;
-    final PIDController turningPIDController;
+    final ProfiledPIDController turningPIDController;
     final int driveTalonFxId;
     final int turningSparkId;
     final CANcoder absoluteEncoder;
@@ -73,7 +74,15 @@ public class SwerveModule {
         turningMotor.configure(turningMotorConfig, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kNoPersistParameters);
                 
         // Assigns a pid controller for the turning motor. This one takes a P variable stablish in constants that specifies the proportional PID value
-        turningPIDController = new PIDController(PID_P, PID_I, PID_D);
+        turningPIDController = new ProfiledPIDController(
+            PID_P, 
+            PID_I, 
+            PID_D, 
+            new TrapezoidProfile.Constraints(
+                6.7 * 2 * Math.PI, // <-- Maximum angular velocity in radians per second.
+                100 // <-- Maximum angular acceleration in radians per second squared.
+            )
+        );
         turningPIDController.enableContinuousInput(-Math.PI, Math.PI);
 
         // Set The encoders into 0 position

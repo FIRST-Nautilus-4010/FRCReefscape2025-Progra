@@ -1,10 +1,12 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
 import frc.robot.commands.SwerveDriveJoystick;
+import frc.robot.subsystems.Elevator.ElevatorSubsystem;
 
 public class TeleOp {
     //--------Constants--------
@@ -39,7 +41,7 @@ public class TeleOp {
     public static final int ROLLERS = 5;
 
     final static Joystick driverJoystick = new Joystick(DRIVER_PORT); // <-- Driver joystick initialization.
-    final static Joystick codriverJoystick = new Joystick(CODRIVER_PORT); // <-- Co-driver joystick initialization.
+    final static XboxController codriverJoystick = new XboxController(CODRIVER_PORT); // <-- Co-driver joystick initialization.
 
     final static JoystickButton zeroHdgBtn = new JoystickButton(driverJoystick, ZERO_HDG); // <-- Button to zero the robot's heading.
     final static JoystickButton calibrateBtn = new JoystickButton(codriverJoystick, CALIBRATE); // <-- Button for calibration.
@@ -58,5 +60,7 @@ public class TeleOp {
 
         // Maps the zero heading button to an InstantCommand to reset the robot's heading.
         zeroHdgBtn.onTrue(new InstantCommand(() -> RobotContainer.swerve.zeroHeading())); // <-- Resets the robot's heading.
+
+        ElevatorSubsystem elevator = new ElevatorSubsystem(codriverJoystick); // <-- Initializes the elevator subsystem with the co-driver joystick.
     }
 }
