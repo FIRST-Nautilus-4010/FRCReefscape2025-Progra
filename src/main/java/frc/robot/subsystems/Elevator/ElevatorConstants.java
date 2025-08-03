@@ -1,7 +1,5 @@
 package frc.robot.subsystems.Elevator;
 
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
-
 /**
  * Contains all configuration constants for the Elevator subsystem,
  * including motion limits, PID gains, conversion factors, and profile constraints.
@@ -20,16 +18,6 @@ public final class ElevatorConstants {
     /** Minimum rotation angle of the elevator arm (radians). */
     public static final double MIN_ANGLE = -884000000; // radians
 
-    // --- PID Gains for Height Control ---
-    public static final double P_ELEVATOR = 0.217;
-    public static final double I_ELEVATOR = 0.0;
-    public static final double D_ELEVATOR = 0.0;
-
-    // --- PID Gains for Angle Control ---
-    public static final double P_ANGLE = 0.217;
-    public static final double I_ANGLE = 0.0;
-    public static final double D_ANGLE = 0.0;
-
     // --- Conversion Factors ---
     /** Conversion from motor rotations to meters. TODO: calibrate. */
     public static final double ROT_2_M = 0.0;
@@ -37,12 +25,33 @@ public final class ElevatorConstants {
     /** Conversion from motor rotations to radians. TODO: calibrate. */
     public static final double ROT_2_RADIAN = 0.0;
 
-    // --- Motion Profile Constraints ---
-    /** Trapezoidal profile constraints for angle control (rad/s, rad/s²). */
-    public static final TrapezoidProfile.Constraints ANGLE_CONSTRAINTS =
-        new TrapezoidProfile.Constraints(10.0, 20.0);
+    // --- MM(Magic Motion) Configuration ---
+    public static final double MAGIC_MOTION_VELOCITY = 0.0; // rot/s
+    public static final double MAGIC_MOTION_ACCELERATION = 0.0; // rot/s²
+    public static final double MAGIC_MOTION_JERK = 0.0; // rot/s³
 
-    /** Trapezoidal profile constraints for height control (m/s, m/s²). */
-    public static final TrapezoidProfile.Constraints HEIGHT_CONSTRAINTS =
-        new TrapezoidProfile.Constraints(10.0, 20.0);
+    // --- MM Gains for Slot 0 (Angle Control) ---
+    /* Every unit is in volts */
+    public static final double SLOT0_KG = 0.0; // output to overcome gravity (output)
+    public static final double SLOT0_KS = 0.0; // output to overcome static friction (output)
+    public static final double SLOT0_KV = 0.0; // output per unit of target velocity (output/rps)
+    public static final double SLOT0_KA = 0.0; // output per unit of target acceleration (output/(rps/s))
+    public static final double SLOT0_KP = 0.0; // output per unit of error in position (output/rotation)
+    public static final double SLOT0_KI = 0.0; // output per unit of integrated error in position (output/(rotation*s))
+    public static final double SLOT0_KD = 0.0; // output per unit of error in velocity (output/rps)
+
+    // --- MM Gains for Slot 1 (Height Control) ---
+    public static final double SLOT1_KG = 0.0; 
+    public static final double SLOT1_KS = 0.0; 
+    public static final double SLOT1_KV = 0.0; 
+    public static final double SLOT1_KA = 0.0; 
+    public static final double SLOT1_KP = 0.0; 
+    public static final double SLOT1_KI = 0.0; 
+    public static final double SLOT1_KD = 0.0; 
+
+    // --- Hardware IDs ---
+    public static final int KRAKEN_RR_ID = 10; // Right rear motor ID
+    public static final int KRAKEN_RL_ID = 11; // Right left motor ID
+    public static final int KRAKEN_LR_ID = 12; // Left rear motor ID
+    public static final int KRAKEN_LL_ID = 13; // Left left motor ID
 }

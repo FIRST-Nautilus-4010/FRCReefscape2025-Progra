@@ -34,27 +34,29 @@ public class ElevatorController {
     }
 
     private void configureSlot0(Slot0Configs slot0) {
-        slot0.kS = 0.25;
-        slot0.kV = 0.12;
-        slot0.kA = 0.01;
-        slot0.kP = 4.8;
-        slot0.kI = 0.0;
-        slot0.kD = 0.1;
+        slot0.kG = ElevatorConstants.SLOT0_KG;
+        slot0.kS = ElevatorConstants.SLOT0_KS;
+        slot0.kV = ElevatorConstants.SLOT0_KV;
+        slot0.kA = ElevatorConstants.SLOT0_KA;
+        slot0.kP = ElevatorConstants.SLOT0_KP;
+        slot0.kI = ElevatorConstants.SLOT0_KI;
+        slot0.kD = ElevatorConstants.SLOT0_KD;
     }
 
     private void configureSlot1(Slot1Configs slot1) {
-        slot1.kS = 0.25;
-        slot1.kV = 0.12;
-        slot1.kA = 0.01;
-        slot1.kP = 4.8;
-        slot1.kI = 0.0;
-        slot1.kD = 0.1;
+        slot1.kG = ElevatorConstants.SLOT1_KG;
+        slot1.kS = ElevatorConstants.SLOT1_KS;
+        slot1.kV = ElevatorConstants.SLOT1_KV;
+        slot1.kA = ElevatorConstants.SLOT1_KA;
+        slot1.kP = ElevatorConstants.SLOT1_KP;
+        slot1.kI = ElevatorConstants.SLOT1_KI;
+        slot1.kD = ElevatorConstants.SLOT1_KD;
     }
 
     private void configureMotionMagic(MotionMagicConfigs mm) {
-        mm.MotionMagicCruiseVelocity = 80;   // rot/s
-        mm.MotionMagicAcceleration = 160;    // rot/s²
-        mm.MotionMagicJerk = 1600;           // rot/s³
+        mm.MotionMagicCruiseVelocity = ElevatorConstants.MAGIC_MOTION_VELOCITY;   // rot/s
+        mm.MotionMagicAcceleration = ElevatorConstants.MAGIC_MOTION_ACCELERATION;    // rot/s²
+        mm.MotionMagicJerk = ElevatorConstants.MAGIC_MOTION_JERK;           // rot/s³
     }
 
     private void applyConfigurationToMotors(TalonFXConfiguration config) {

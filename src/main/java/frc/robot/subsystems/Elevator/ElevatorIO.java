@@ -3,18 +3,15 @@ package frc.robot.subsystems.Elevator;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.hardware.TalonFX;
 
-import edu.wpi.first.wpilibj.DutyCycleEncoder;
-
 /**
  * Manages the motor controllers for the elevator subsystem,
  * including configuration and basic control methods.
  */
 public class ElevatorIO {
-    private final TalonFX krakenRR = new TalonFX(10);
-    private final TalonFX krakenRL = new TalonFX(11);
-    private final TalonFX krakenLR = new TalonFX(12);
-    private final TalonFX krakenLL = new TalonFX(13);
-    private final DutyCycleEncoder angleEncoder;
+    private final TalonFX krakenRR = new TalonFX(ElevatorConstants.KRAKEN_RR_ID);
+    private final TalonFX krakenRL = new TalonFX(ElevatorConstants.KRAKEN_RL_ID);
+    private final TalonFX krakenLR = new TalonFX(ElevatorConstants.KRAKEN_LR_ID);
+    private final TalonFX krakenLL = new TalonFX(ElevatorConstants.KRAKEN_LL_ID);
 
     /**
      * Configures follower motors to mirror their respective leaders.
@@ -22,8 +19,6 @@ public class ElevatorIO {
     public ElevatorIO() {
         krakenRL.setControl(new Follower(krakenRR.getDeviceID(), false));
         krakenLL.setControl(new Follower(krakenLR.getDeviceID(), false));
-
-        this.angleEncoder = new DutyCycleEncoder(2);
     }
 
     /**
