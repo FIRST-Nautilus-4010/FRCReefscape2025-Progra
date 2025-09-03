@@ -23,20 +23,26 @@ public class SwerveDriveJoystick extends Command {
     final Swerve swerve; // <-- Instance of the swerve subsystem.
     final Supplier<Double> x, y, z; // <-- Suppliers for joystick inputs (X, Y, Z axes).
     final Supplier<Boolean> fieldRelative; // <-- Supplier for field-relative mode.
+    final Supplier<Boolean> resetYaw;
+
     final SlewRateLimiter xLimiter, yLimiter, zLimiter; // <-- Rate limiters for joystick inputs.
+
     StructArrayPublisher<SwerveModuleState> swerveDesiredStatePublisher = NetworkTableInstance.getDefault()
         .getStructArrayTopic("desiredStates", SwerveModuleState.struct).publish(); // <-- Publishes desired swerve module states to NetworkTables.
 
     public SwerveDriveJoystick(
         Swerve swerve, Supplier<Double> x, 
         Supplier<Double> y, Supplier<Double> z,
-        Supplier<Boolean> fieldRelative
+        Supplier<Boolean> fieldRelative,
+        Supplier<Boolean> resetYaw
     ) {
         this.swerve = swerve; // <-- Initializes the swerve subsystem.
         this.x = x; // <-- Initializes the X-axis joystick input supplier.
         this.y = y; // <-- Initializes the Y-axis joystick input supplier.
         this.z = z; // <-- Initializes the Z-axis joystick input supplier.
         this.fieldRelative = fieldRelative; // <-- Initializes the field-relative mode supplier.
+        this.resetYaw = resetYaw;
+
         this.xLimiter = new SlewRateLimiter(ChassisConstants.MAX_ACCEL);
         this.yLimiter = new SlewRateLimiter(ChassisConstants.MAX_ACCEL);
         this.zLimiter = new SlewRateLimiter(ChassisConstants.MAX_ANG_ACCEL);
@@ -70,6 +76,10 @@ public class SwerveDriveJoystick extends Command {
         } else {
             // Uses robot-relative speeds directly from joystick inputs.
             chassisSpeeds = new ChassisSpeeds(xSpeed, ySpeed, zSpeed); // <-- Robot-relative speeds.
+        }
+
+        if (resetYaw.get()) {
+            swerve.zeroHeading();
         }
 
         // Converts chassis speeds to individual swerve module states.

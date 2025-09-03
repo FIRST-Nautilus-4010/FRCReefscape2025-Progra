@@ -1,6 +1,7 @@
 package frc.robot.subsystems.Elevator;
 
 import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 /**
@@ -18,20 +19,14 @@ public class ElevatorIO {
      */
     public ElevatorIO() {
         krakenRL.setControl(new Follower(krakenRR.getDeviceID(), false));
-        krakenLL.setControl(new Follower(krakenLR.getDeviceID(), false));
+        krakenLL.setControl(new Follower(krakenRR.getDeviceID(), true));
+        krakenLR.setControl(new Follower(krakenRR.getDeviceID(), true));
     }
 
     /**
      * @return The left leader motor.
      */
-    public TalonFX getLeftLeaderMotor() {
-        return krakenLR;
-    }
-
-    /**
-     * @return The right leader motor.
-     */
-    public TalonFX getRightLeaderMotor() {
+    public TalonFX getLeaderMotor() {
         return krakenRR;
     }
 
@@ -41,24 +36,14 @@ public class ElevatorIO {
      * @param left  Power for the left motor.
      * @param right Power for the right motor.
      */
-    public void setMotorPowers(double left, double right) {
-        if (left != 0) {
-            krakenLR.set(left);
-        } else {
-            krakenLR.stopMotor();
-        }
-        if (right != 0) {
-            krakenRR.set(right);
-        } else {
-            krakenRR.stopMotor();
-        }
+    public void setPower(double voltage) {
+        krakenRR.setControl(new VoltageOut(voltage));
     }
 
     /**
      * Stops both motors immediately.
      */
-    public void stopMotors() {
-        krakenLR.stopMotor();
+    public void stop() {
         krakenRR.stopMotor();
     }
 
@@ -68,19 +53,7 @@ public class ElevatorIO {
      * @return Height in meters.
      */
     public double getHeight() {
-        double right = krakenRR.getPosition().getValue().magnitude() * ElevatorConstants.ROT_2_M;
-        double left = krakenLR.getPosition().getValue().magnitude() * ElevatorConstants.ROT_2_M;
-        return Math.abs(right - left);
-    }
-
-    /**
-     * Calculates elevator angle from combined motor rotation.
-     *
-     * @return Angle in radians.
-     */
-    public double getAngle() {
-        double right = krakenRR.getPosition().getValue().magnitude() * ElevatorConstants.ROT_2_RADIAN;
-        double left = krakenLR.getPosition().getValue().magnitude() * ElevatorConstants.ROT_2_RADIAN;
-        return right + left;
+        return krakenRR.getPosition().getValue().magnitude() * ElevatorConstants.ROT_2_M;
+    
     }
 }
