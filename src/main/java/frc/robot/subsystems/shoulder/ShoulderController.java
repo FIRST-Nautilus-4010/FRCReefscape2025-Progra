@@ -1,17 +1,17 @@
-package frc.robot.subsystems.elevator;
+package frc.robot.subsystems.shoulder;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 
-public class ElevatorController {
+public class ShoulderController {
     private final TalonFX leader;
     private final TalonFXConfiguration configuration;
     private final MotionMagicExpoVoltage posRequest;
     private final MotionMagicVelocityVoltage velRequest;
 
-    public ElevatorController(TalonFX leader) {
+    public ShoulderController(TalonFX leader) {
         this.leader = leader;
 
         posRequest = new MotionMagicExpoVoltage(0).withSlot(0);
@@ -28,31 +28,31 @@ public class ElevatorController {
 
     private void setPositionSlotGains() {
         var slot0 = configuration.Slot0;
-        slot0.kS = ElevatorConstants.POS_KS;
-        slot0.kV = ElevatorConstants.POS_KV;
-        slot0.kA = ElevatorConstants.POS_KA;
-        slot0.kP = ElevatorConstants.POS_KP;
-        slot0.kI = ElevatorConstants.POS_KI;
-        slot0.kD = ElevatorConstants.POS_KD;
+        slot0.kS = ShoulderConstants.POS_KS;
+        slot0.kV = ShoulderConstants.POS_KV;
+        slot0.kA = ShoulderConstants.POS_KA;
+        slot0.kP = ShoulderConstants.POS_KP;
+        slot0.kI = ShoulderConstants.POS_KI;
+        slot0.kD = ShoulderConstants.POS_KD;
     }
 
     private void setVelocitySlotGains() {
         var slot1 = configuration.Slot1;
-        slot1.kS = ElevatorConstants.VEL_KS;
-        slot1.kV = ElevatorConstants.VEL_KV;
-        slot1.kA = ElevatorConstants.VEL_KA;
-        slot1.kP = ElevatorConstants.VEL_KP;
-        slot1.kI = ElevatorConstants.VEL_KI;
-        slot1.kD = ElevatorConstants.VEL_KD;
+        slot1.kS = ShoulderConstants.VEL_KS;
+        slot1.kV = ShoulderConstants.VEL_KV;
+        slot1.kA = ShoulderConstants.VEL_KA;
+        slot1.kP = ShoulderConstants.VEL_KP;
+        slot1.kI = ShoulderConstants.VEL_KI;
+        slot1.kD = ShoulderConstants.VEL_KD;
     }
 
     private void setMMSettings() {
         var motionMagic = configuration.MotionMagic;
-        motionMagic.MotionMagicCruiseVelocity = ElevatorConstants.MAGIC_MOTION_VELOCITY;
-        motionMagic.MotionMagicAcceleration = ElevatorConstants.MAGIC_MOTION_ACCELERATION;
-        motionMagic.MotionMagicJerk = ElevatorConstants.MAGIC_MOTION_JERK;
-        motionMagic.MotionMagicExpo_kV = ElevatorConstants.MAGIC_MOTION_EXPO_KV; 
-        motionMagic.MotionMagicExpo_kA = ElevatorConstants.MAGIC_MOTION_EXPO_KA;
+        motionMagic.MotionMagicCruiseVelocity = ShoulderConstants.MAGIC_MOTION_VELOCITY;
+        motionMagic.MotionMagicAcceleration = ShoulderConstants.MAGIC_MOTION_ACCELERATION;
+        motionMagic.MotionMagicJerk = ShoulderConstants.MAGIC_MOTION_JERK;
+        motionMagic.MotionMagicExpo_kV = ShoulderConstants.MAGIC_MOTION_EXPO_KV; 
+        motionMagic.MotionMagicExpo_kA = ShoulderConstants.MAGIC_MOTION_EXPO_KA;
     }
 
     public void goTo(double position) {

@@ -16,7 +16,7 @@ public class ShoulderIO {
     }
 
     public double getAngle() {
-        return leader.getPosition().getValue().magnitude();
+        return leader.getPosition().getValue().magnitude() / ShoulderConstants.ROT_2_RADIAN;
     }
 
     public void setVoltage(double voltage) {
@@ -29,5 +29,9 @@ public class ShoulderIO {
 
     public void stop() {
         leader.stopMotor();
+    }
+
+    public double getVelocity() {
+        return leader.getVelocity().getValue().magnitude() / ShoulderConstants.ROT_2_RADIAN;
     }
 }

@@ -1,4 +1,4 @@
-package frc.robot.subsystems.Elevator;
+package frc.robot.subsystems.elevator;
 
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.VoltageOut;
@@ -9,34 +9,36 @@ import com.ctre.phoenix6.hardware.TalonFX;
  * including configuration and basic control methods.
  */
 public class ElevatorIO {
-    private final TalonFX krakenRR = new TalonFX(ElevatorConstants.KRAKEN_RR_ID);
-    private final TalonFX krakenRL = new TalonFX(ElevatorConstants.KRAKEN_RL_ID);
-    private final TalonFX krakenLR = new TalonFX(ElevatorConstants.KRAKEN_LR_ID);
-    private final TalonFX krakenLL = new TalonFX(ElevatorConstants.KRAKEN_LL_ID);
+    private final TalonFX krakenRR;
+    private final TalonFX krakenRL;
+    private final TalonFX krakenLR;
+    private final TalonFX krakenLL;
 
     /**
      * Configures follower motors to mirror their respective leaders.
      */
     public ElevatorIO() {
+        krakenRR = new TalonFX(ElevatorConstants.KRAKEN_RR_ID);
+        krakenRL = new TalonFX(ElevatorConstants.KRAKEN_RL_ID);
+        krakenLR = new TalonFX(ElevatorConstants.KRAKEN_LR_ID);
+        krakenLL = new TalonFX(ElevatorConstants.KRAKEN_LL_ID);
+
         krakenRL.setControl(new Follower(krakenRR.getDeviceID(), false));
         krakenLL.setControl(new Follower(krakenRR.getDeviceID(), true));
         krakenLR.setControl(new Follower(krakenRR.getDeviceID(), true));
     }
 
     /**
-     * @return The left leader motor.
+     * @return The leader motor.
      */
     public TalonFX getLeaderMotor() {
         return krakenRR;
     }
 
     /**
-     * Sets the motor power for both leader motors.
-     *
-     * @param left  Power for the left motor.
-     * @param right Power for the right motor.
+     * 
      */
-    public void setPower(double voltage) {
+    public void setVoltage(double voltage) {
         krakenRR.setControl(new VoltageOut(voltage));
     }
 
@@ -55,5 +57,9 @@ public class ElevatorIO {
     public double getHeight() {
         return krakenRR.getPosition().getValue().magnitude() * ElevatorConstants.ROT_2_M;
     
+    }
+
+    public double getVelocity() {
+        return krakenRR.getVelocity().getValue().magnitude();
     }
 }
