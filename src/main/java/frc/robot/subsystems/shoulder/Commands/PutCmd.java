@@ -6,7 +6,7 @@ import frc.robot.subsystems.shoulder.ShoulderController;
 import frc.robot.subsystems.shoulder.ShoulderIO;
 import frc.robot.subsystems.shoulder.ShoulderSubsystem;
 
-public class PutCommand extends Command {
+public class PutCmd extends Command {
   private final ShoulderController controller;
   private final ShoulderIO io;
   private final ShoulderSubsystem shoulderSubsystem;
@@ -15,7 +15,7 @@ public class PutCommand extends Command {
   
   private double desPos;
 
-  public PutCommand(ShoulderSubsystem shoulderSubsystem, ShoulderController controller, ShoulderIO io) {
+  public PutCmd(ShoulderSubsystem shoulderSubsystem, ShoulderController controller, ShoulderIO io) {
     this.controller = controller;
     this.io = io;
     this.shoulderSubsystem = shoulderSubsystem;

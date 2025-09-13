@@ -4,10 +4,13 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.shoulder.ShoulderConstants;
+import frc.robot.subsystems.shoulder.ShoulderIO;
 
 // Subsystem responsible for controlling the elevator mechanism
 public class ElevatorSubsystem extends SubsystemBase {
     private final ElevatorIO io; // Handles inputs and outputs (motors, sensors)
+    private final ShoulderIO shoulderIO;
     private final ElevatorController controller; // PID controllers for height and angle
 
     /**
@@ -16,6 +19,7 @@ public class ElevatorSubsystem extends SubsystemBase {
      */
     public ElevatorSubsystem() {
         this.io = new ElevatorIO();
+        this.shoulderIO = new ShoulderIO();
         this.controller = new ElevatorController(io.getLeaderMotor());
     }
 
@@ -40,16 +44,11 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     public Command elevate() {
-        if (io.getHeight() >= ElevatorConstants.MAX_HEIGHT) {
-            return stop();
-        }
+
         return new InstantCommand(() -> controller.setVelocity(3), this).withName("ElevatorElevateCmd");
     }
 
     public Command descend() {
-        if (io.getHeight() <= 0){
-            return stop();
-        }
         return new InstantCommand(() -> controller.setVelocity(-3), this).withName("ElevatorDescendCmd");
     }
 
@@ -70,7 +69,8 @@ public class ElevatorSubsystem extends SubsystemBase {
 
         if (
             (io.getHeight() >= ElevatorConstants.MAX_HEIGHT && io.getVelocity() > 0) || 
-            (io.getHeight() <= 0 && io.getVelocity() < 0)
+            (io.getHeight() <= 0 && io.getVelocity() < 0) ||
+            (io.getHeight() <= ShoulderConstants.SAFETY_HEIGHT && Math.abs(shoulderIO.getAngle()) <= 0.1 && io.getVelocity() < 0)
         ) {
             io.stop();
         }

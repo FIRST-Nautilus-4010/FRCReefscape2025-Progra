@@ -9,7 +9,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.elevator.ElevatorIO;
-import frc.robot.subsystems.shoulder.Commands.PutCommand;
+import frc.robot.subsystems.shoulder.Commands.PutCmd;
 
 public class ShoulderSubsystem extends SubsystemBase {
     private final ShoulderIO io; // Handles inputs and outputs (motors, sensors)
@@ -59,7 +59,7 @@ public class ShoulderSubsystem extends SubsystemBase {
     }
 
     public Command put() {
-        return new PutCommand(this, controller, io);
+        return new PutCmd(this, controller, io);
     }
 
     /**

@@ -22,12 +22,12 @@ public final class Constants {
       new Translation2d(-TRACKWIDTH / 2, -WHEELBASE / 2));
 
     // Speed calculations
-    public static final double MAX_SPD = 3; // <-- in m/s.
-    public static final double MAX_ANG_SPD = 2 * Math.PI; // <-- in radians per second.
+    public static final double MAX_SPD = 4.79; // <-- in m/s.
+    public static final double MAX_ANG_SPD = 4.79 * Math.PI; // <-- in radians per second.
     
     // Maximum accelerations
-    public static final double MAX_ACCEL = 3; // <-- Maximum linear acceleration in meters per second^2.
-    public static final double MAX_ANG_ACCEL = 1.5; // <-- Maximum angular acceleration in radians per second^2.
+    public static final double MAX_ACCEL = 479; // <-- Maximum linear acceleration in meters per second^2.
+    public static final double MAX_ANG_ACCEL = 479; // <-- Maximum angular acceleration in radians per second^2.
   }
 
   public static class AutonomousConstants {
