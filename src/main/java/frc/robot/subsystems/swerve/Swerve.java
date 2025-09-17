@@ -50,6 +50,7 @@ public class Swerve extends SubsystemBase{
     Optional<Alliance> ally = DriverStation.getAlliance();
 
     TrajectoryConfig trajectoryConfig;
+    HolonomicDriveController controller;
 
     private final SwerveDriveOdometry odometer = new SwerveDriveOdometry(ChassisConstants.KINEMATICS,
             new Rotation2d(0), getSwerveModulePos(),
@@ -62,13 +63,21 @@ public class Swerve extends SubsystemBase{
             try {
                 Thread.sleep(1000);
                 zeroHeading(); // Reset the gyroscope When the robot is initialized
+                ProfiledPIDController thetaController = new ProfiledPIDController(AutonomousConstants.P_Z, AutonomousConstants.I_Z, AutonomousConstants.D_Z, AutonomousConstants.Z_CONTROLER);
+                thetaController.enableContinuousInput(-Math.PI, Math.PI);
+
+                controller = new HolonomicDriveController(
+                    new PIDController(AutonomousConstants.P_X, AutonomousConstants.I_X, AutonomousConstants.D_X),
+                    new PIDController(AutonomousConstants.P_Y, AutonomousConstants.I_Y, AutonomousConstants.D_Y),
+                    thetaController
+                );
+
+                this.usePigeon = usePigeon;
+                trajectoryConfig = new TrajectoryConfig(AutonomousConstants.MAX_SPD, AutonomousConstants.MAX_ACCEL)
+                    .setKinematics(ChassisConstants.KINEMATICS);
             } catch (Exception e) {
             }
         }).start();
-
-        this.usePigeon = usePigeon;
-        trajectoryConfig = new TrajectoryConfig(AutonomousConstants.MAX_SPD, AutonomousConstants.MAX_ACCEL)
-            .setKinematics(ChassisConstants.KINEMATICS);
     }
 
     public SwerveModulePosition[] getSwerveModulePos() {
@@ -87,6 +96,30 @@ public class Swerve extends SubsystemBase{
             backLeft.getState(),
             backRight.getState()
         };
+    }
+
+    public double getAccelX() {
+        if (usePigeon) {
+            return pigeon.getAccelerationX().getValue().magnitude();
+        } else {
+            return gyro.getWorldLinearAccelX();
+        }
+    }
+
+    public double getAccelY() {
+        if (usePigeon) {
+            return pigeon.getAccelerationY().getValue().magnitude();
+        } else {
+            return gyro.getWorldLinearAccelY();
+        }
+    }
+
+    public double getAccelZ() {
+        if (usePigeon) {
+            return pigeon.getAccelerationZ().getValue().magnitude();
+        } else {
+            return gyro.getWorldLinearAccelZ();
+        }
     }
 
     // Reset the gyroscope
@@ -146,22 +179,24 @@ public class Swerve extends SubsystemBase{
         odometer.update(getRotation2d(), getSwerveModulePos());
     }
 
-    public Command goTo(Pose2d pose) {
+    public Command driveTo(Pose2d pose) {
         Trajectory trajectory = TrajectoryGenerator.generateTrajectory(
             getPose(),
             List.of(),
             pose,
             trajectoryConfig
         );
-        ProfiledPIDController thetaController = new ProfiledPIDController(AutonomousConstants.P_Z, AutonomousConstants.I_Z, AutonomousConstants.D_Z, AutonomousConstants.Z_CONTROLER);
-        thetaController.enableContinuousInput(-Math.PI, Math.PI);
-
-        HolonomicDriveController controller = new HolonomicDriveController(
-            new PIDController(AutonomousConstants.P_X, AutonomousConstants.I_X, AutonomousConstants.D_X),
-            new PIDController(AutonomousConstants.P_Y, AutonomousConstants.I_Y, AutonomousConstants.D_Y),
-            thetaController
-        );
         
+        return new SwerveControllerCommand(trajectory, this::getPose, ChassisConstants.KINEMATICS, controller, this::setStates, this);
+    }
+
+    public Command rotateTo(Rotation2d angle) {
+        Trajectory trajectory = TrajectoryGenerator.generateTrajectory(
+            getPose(),
+            List.of(),
+            new Pose2d(getPose().getTranslation(), angle),
+            trajectoryConfig
+        );
 
         return new SwerveControllerCommand(trajectory, this::getPose, ChassisConstants.KINEMATICS, controller, this::setStates, this);
     }
@@ -185,7 +220,7 @@ public class Swerve extends SubsystemBase{
 
 
     public void setStates(SwerveModuleState[] desiredStates){
-        SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, ChassisConstants.MAX_SPD);
+        SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, ChassisConstants.MAX_VELOCITY);
         
         frontLeft.setDesiredState(desiredStates[0]);
         frontRight.setDesiredState(desiredStates[1]);

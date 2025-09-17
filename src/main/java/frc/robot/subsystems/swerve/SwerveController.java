@@ -50,15 +50,15 @@ public class SwerveController {
 
     private void setMMSettings() {
         var motionMagic = configuration.MotionMagic;
-        motionMagic.MotionMagicCruiseVelocity = SwerveConstants.MAGIC_MOTION_VELOCITY;
-        motionMagic.MotionMagicAcceleration = SwerveConstants.MAGIC_MOTION_ACCELERATION;
         motionMagic.MotionMagicJerk = SwerveConstants.MAGIC_MOTION_JERK;
-        motionMagic.MotionMagicExpo_kV = SwerveConstants.MAGIC_MOTION_EXPO_KV; 
-        motionMagic.MotionMagicExpo_kA = SwerveConstants.MAGIC_MOTION_EXPO_KA;
+    }
+
+    public void setMMAccel(double accel) {
+        velRequest.Acceleration = accel / SwerveConstants.ROT_2_M;
     }
 
     public void setVelocity(double velocity) {
-        motor.setControl(velRequest.withVelocity(velocity));
+        motor.setControl(velRequest.withVelocity(velocity / SwerveConstants.ROT_2_M));
     }
 
     public double getPID(double currentAngle, double targetAngle) {

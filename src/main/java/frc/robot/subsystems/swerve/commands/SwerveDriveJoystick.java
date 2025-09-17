@@ -1,18 +1,15 @@
-package frc.robot.commands;
+package frc.robot.subsystems.swerve.commands;
 // Imports from Java
 import java.util.function.Supplier; 
 
 // Imports from WPILib
-import edu.wpi.first.math.filter.SlewRateLimiter; 
 import edu.wpi.first.math.kinematics.ChassisSpeeds; 
 import edu.wpi.first.math.kinematics.SwerveModuleState; 
 import edu.wpi.first.networktables.NetworkTableInstance; 
 import edu.wpi.first.networktables.StructArrayPublisher; 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard; 
-import edu.wpi.first.wpilibj2.command.Command; 
-
-// Local imports
-import frc.robot.subsystems.swerve.Swerve; 
+import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.utils.Constants.ChassisConstants;
 
 public class SwerveDriveJoystick extends Command {
@@ -24,8 +21,6 @@ public class SwerveDriveJoystick extends Command {
     final Supplier<Double> x, y, z; // <-- Suppliers for joystick inputs (X, Y, Z axes).
     final Supplier<Boolean> fieldRelative; // <-- Supplier for field-relative mode.
     final Supplier<Boolean> resetYaw;
-
-    final SlewRateLimiter xLimiter, yLimiter, zLimiter; // <-- Rate limiters for joystick inputs.
 
     StructArrayPublisher<SwerveModuleState> swerveDesiredStatePublisher = NetworkTableInstance.getDefault()
         .getStructArrayTopic("desiredStates", SwerveModuleState.struct).publish(); // <-- Publishes desired swerve module states to NetworkTables.
@@ -43,9 +38,6 @@ public class SwerveDriveJoystick extends Command {
         this.fieldRelative = fieldRelative; // <-- Initializes the field-relative mode supplier.
         this.resetYaw = resetYaw;
 
-        this.xLimiter = new SlewRateLimiter(ChassisConstants.MAX_ACCEL);
-        this.yLimiter = new SlewRateLimiter(ChassisConstants.MAX_ACCEL);
-        this.zLimiter = new SlewRateLimiter(ChassisConstants.MAX_ANG_ACCEL);
         addRequirements(swerve);
     }
 
@@ -63,11 +55,6 @@ public class SwerveDriveJoystick extends Command {
         xSpeed = Math.abs(xSpeed) > JOYSTICK_DEADZONE ? xSpeed : 0.0; // <-- Filters X-axis input.
         ySpeed = Math.abs(ySpeed) > JOYSTICK_DEADZONE ? ySpeed : 0.0; // <-- Filters Y-axis input.
         zSpeed = Math.abs(zSpeed) > JOYSTICK_DEADZONE ? zSpeed : 0.0; // <-- Filters Z-axis input.
-
-        // Applies rate limiting to joystick inputs and scales them to maximum speeds.
-        xSpeed = xLimiter.calculate(xSpeed) * ChassisConstants.MAX_SPD; // <-- Limits and scales X-axis speed.
-        ySpeed = yLimiter.calculate(ySpeed) * ChassisConstants.MAX_SPD; // <-- Limits and scales Y-axis speed.
-        zSpeed = zLimiter.calculate(zSpeed) * ChassisConstants.MAX_ANG_SPD; // <-- Limits and scales Z-axis angular speed.
 
         ChassisSpeeds chassisSpeeds;
         if (fieldRelative.get()) {

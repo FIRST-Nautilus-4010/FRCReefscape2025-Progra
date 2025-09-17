@@ -1,7 +1,6 @@
 package frc.robot.subsystems.shoulder;
 
 import com.ctre.phoenix6.controls.Follower;
-import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 public class ShoulderIO {
@@ -19,8 +18,12 @@ public class ShoulderIO {
         return leader.getPosition().getValue().magnitude() / ShoulderConstants.ROT_2_RADIAN;
     }
 
-    public void setVoltage(double voltage) {
-        leader.setControl(new VoltageOut(voltage));
+    public double getHeight() {
+        return Math.sin(getAngle()) * ShoulderConstants.UPPER_ARM_LENGTH;
+    }
+
+    public double getVelocity() {
+        return leader.getVelocity().getValue().magnitude() / ShoulderConstants.ROT_2_RADIAN;
     }
 
     public TalonFX getLeaderMotor() {
@@ -29,9 +32,5 @@ public class ShoulderIO {
 
     public void stop() {
         leader.stopMotor();
-    }
-
-    public double getVelocity() {
-        return leader.getVelocity().getValue().magnitude() / ShoulderConstants.ROT_2_RADIAN;
     }
 }

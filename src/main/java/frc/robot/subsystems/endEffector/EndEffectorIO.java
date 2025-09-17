@@ -1,19 +1,17 @@
-package frc.robot.subsystems.outake;
+package frc.robot.subsystems.endEffector;
 
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 
-public class OutakeIO {
+public class EndEffectorIO {
     private final SparkMax motor;
-    private boolean state;
 
     /**
      * Configures follower motors to mirror their respective leaders.
      */
-    public OutakeIO() {
-        motor = new SparkMax(OutakeConstants.MOTOR_ID, MotorType.kBrushless);
-        state = false;
+    public EndEffectorIO() {
+        motor = new SparkMax(EndEffectorConstants.MOTOR_ID, MotorType.kBrushless);
     }
 
     /**
@@ -26,9 +24,8 @@ public class OutakeIO {
     /**
      * 
      */
-    public void setVoltage(double voltage) {
-        motor.setVoltage(voltage);
-        state = true;
+    public void set(double power) {
+        motor.set(power);
     }
 
     /**
@@ -36,10 +33,9 @@ public class OutakeIO {
      */
     public void stop() {
         motor.stopMotor();
-        state = false;
     }
 
-    public boolean getState() {
-        return state;
+    public double getCurrent() {
+        return motor.getOutputCurrent();
     }
 }

@@ -1,8 +1,11 @@
 package frc.robot.subsystems.swerve;
 
+import java.util.function.Supplier;
+
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import frc.robot.utils.Constants.ChassisConstants;
 
 
 
@@ -10,9 +13,15 @@ public class SwerveModule {
     final SwerveController controller;
     final SwerveIO io;
 
+    private static Supplier<Double> massCenterHeight = () -> 1.0;
+
     public SwerveModule(int driveTalonFxId, int turningSparkId, int absoluteEncoderId) {
         io = new SwerveIO(driveTalonFxId, turningSparkId, absoluteEncoderId);
         controller = new SwerveController(io.getDriveMotor());
+    }
+
+    public static void setMassCenterHeightSupplier(Supplier<Double> supplier) {
+        massCenterHeight = supplier;
     }
 
     // Returns the current state of the swerve module as a SwerveModuleState object.
@@ -25,8 +34,8 @@ public class SwerveModule {
 
     // Returns the current position of the swerve module as a SwerveModulePosition object.
     public SwerveModulePosition getPosition() {
-        double driveDistance =io.getDriveMotorPosition(); // <-- Converts the drive motor encoder rotations to meters traveled.
-        double turningPosition = io.getAbsoluteEncoderRad() * SwerveConstants.TURNING_ROT_2_RAD; // <-- Converts the turning encoder rotations to radians.
+        double driveDistance = io.getDriveMotorPosition(); // <-- Converts the drive motor encoder rotations to meters traveled.
+        double turningPosition = io.getAbsoluteEncoderRad() * SwerveConstants.ROT_2_RAD; // <-- Converts the turning encoder rotations to radians.
 
         return new SwerveModulePosition(driveDistance, new Rotation2d(turningPosition)); // <-- Creates a SwerveModulePosition with distance and rotation.
     }
@@ -35,32 +44,49 @@ public class SwerveModule {
         io.stop(); // <-- Stops both the drive and turning motors.
     }
 
+    public double accLimits(double wantedAcc, double angle) {
+        double dirX = Math.cos(angle);
+        double dirY = Math.sin(angle);
+    
+        double safeDirX = (dirX == 0) ? 1e-9 : dirX;
+        double safeDirY = (dirY == 0) ? 1e-9 : dirY;
+    
+        double maxAccX = (SwerveConstants.MAX_SIDE_ACCEL / massCenterHeight.get()) / Math.abs(safeDirX);
+        double maxAccY = (SwerveConstants.MAX_FRONT_ACCEL / massCenterHeight.get()) / Math.abs(safeDirY);
+    
+        double directionalLimit = Math.min(maxAccX, Math.min(maxAccY, wantedAcc));
+    
+        double fordwardAccel = SwerveConstants.MAX_FORDWARD_ACCEL * (1 - (io.getDriveMotorVelocity() / ChassisConstants.MAX_VELOCITY));
+    
+        double skidAccel = Math.min(SwerveConstants.MAX_SKID_ACCEL, wantedAcc);
+    
+        double finalAccel = Math.min(directionalLimit, Math.min(fordwardAccel, skidAccel));
+    
+        return finalAccel;
+    }
+
     // Move the module by giving a SwerveModuleState object
     public void setDesiredState(SwerveModuleState desiredState) {
-        // Avoid auto-aligning the swerve module when the robot is stationary.
-        // If the desired speed is below a threshold (0.090 m/s), stop the module and exit the method.
-        if (Math.abs(desiredState.speedMetersPerSecond) < 0.090) {
+
+        if (Math.abs(desiredState.speedMetersPerSecond) < 0.09) {
             io.stop(); // <-- Stops both the drive and turning motors.
             return; // <-- Exits the method to prevent unnecessary movement.
         }
 
-        // Retrieves the current rotation of the module from the absolute encoder.
-        Rotation2d encoderRotation = new Rotation2d(io.getAbsoluteEncoderRad()); // <-- Converts the encoder position to a Rotation2d object.
+        Rotation2d encoderRotation = new Rotation2d(io.getAbsoluteEncoderRad());
 
-        // Optimizes the desired state to minimize unnecessary rotation.
-        // Ensures the module rotates in the shortest direction to achieve the desired angle.
-        desiredState.optimize(encoderRotation); // <-- Optimizes the desired state based on the current encoder rotation.
+        desiredState.optimize(encoderRotation);
+        desiredState.speedMetersPerSecond *= desiredState.angle.minus(encoderRotation).getCos();
+        
+        double wantedAcc = (desiredState.speedMetersPerSecond - io.getDriveMotorVelocity()) / 0.02; // <-- Calculates the required acceleration to reach the desired speed in one control loop cycle (20ms).
+        wantedAcc = accLimits(wantedAcc, desiredState.angle.getRadians());
 
-        // Adjusts the desired speed based on the cosine of the angle difference.
-        // This compensates for the alignment of the module relative to the desired angle.
-        desiredState.speedMetersPerSecond *= desiredState.angle.minus(encoderRotation).getCos(); // <-- Scales the speed by the cosine of the angle difference.
+        controller.setMMAccel(wantedAcc);
+        
+        double nextWantedVel = io.getDriveMotorVelocity() + wantedAcc * 0.02;
+        controller.setVelocity(nextWantedVel);
 
-        // Sets the drive motor speed as a fraction of the maximum speed.
-        controller.setVelocity(desiredState.speedMetersPerSecond / SwerveConstants.ROT_2_M); // <-- Normalizes and sets the drive motor speed.
-
-        // Calculates the output for the turning motor using a PID controller.
-        // The PID controller adjusts the turning motor to achieve the desired angle.
-        double output = controller.getPID(io.getAbsoluteEncoderRad(), desiredState.angle.getRadians()); // <-- PID calculation for turning motor.
-        io.getTurningMotor().set(output); // <-- Sets the turning motor output based on the PID calculation.
+        double output = controller.getPID(io.getAbsoluteEncoderRad(), desiredState.angle.getRadians());
+        io.getTurningMotor().set(output);
     }
 }

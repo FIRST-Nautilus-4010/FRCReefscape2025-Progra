@@ -22,7 +22,7 @@ public final class Constants {
       new Translation2d(-TRACKWIDTH / 2, -WHEELBASE / 2));
 
     // Speed calculations
-    public static final double MAX_SPD = 4.79; // <-- in m/s.
+    public static final double MAX_VELOCITY = 4.79; // <-- in m/s.
     public static final double MAX_ANG_SPD = 4.79 * Math.PI; // <-- in radians per second.
     
     // Maximum accelerations
@@ -45,7 +45,7 @@ public final class Constants {
     public static final double I_Z = 0; // <-- Integral gain for Z-axis control.
     public static final double D_Z = 0; // <-- Derivative gain for Z-axis control.
 
-    public static final double MAX_SPD = ChassisConstants.MAX_SPD; // <-- Maximum speed in meters per second.
+    public static final double MAX_SPD = ChassisConstants.MAX_VELOCITY; // <-- Maximum speed in meters per second.
     public static final double MAX_ACCEL = ChassisConstants.MAX_ACCEL; // <-- Maximum acceleration in meters per second^2.
     public static final double MAX_ANG_SPD = ChassisConstants.MAX_ANG_SPD; // <-- Maximum angular speed in radians per second.
     public static final double MAX_ANG_ACCEL = ChassisConstants.MAX_ANG_ACCEL; // <-- Maximum angular acceleration in radians per second^2.

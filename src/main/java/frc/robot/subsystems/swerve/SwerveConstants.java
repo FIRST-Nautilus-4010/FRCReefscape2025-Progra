@@ -27,36 +27,33 @@ public class SwerveConstants {
     // Gyro
     public static final int PIGEON = 9;
 
-
-    // Encoder offsets
-    public static final double[] ENCODER_OFFSETS = {0, 0, 0, 0}; // <-- {FL, FR, BL, BR} offsets.
-
-    // Wheel specifications
+    // Wheel specifications. TODO: calibrate frictionCof
     public static final double WHEEL_DIAMETER = 0.1; // <-- In meters.
+    private static final double FRICTION_COF = .95;
 
     // Motor ratios
     public static final double PWR_RATIO = 6.12; // <-- Power motor ratio.
     public static final double STR_RATIO = 12.8; // <-- Turning motor gear ratio.
     
     // Encoder conversions
-    public static final double ROT_2_M = Math.PI * WHEEL_DIAMETER / PWR_RATIO; // <-- Converts motor rotations to meters.
-    public static final double TURNING_ROT_2_RAD =  2 * Math.PI / STR_RATIO; // <-- Converts turning motor rotations to radians.
-    public static final double TURNING_RPM_2_RAD_S = 5676 / 60.0 * TURNING_ROT_2_RAD;
+    public static final double ROT_2_M = (Math.PI * WHEEL_DIAMETER) / PWR_RATIO; // <-- Converts motor rotations to meters.
+    public static final double ROT_2_RAD =  (2 * Math.PI) / STR_RATIO; // <-- Converts turning motor rotations to radians.
     
     // PID constants
     public static final double PID_P = 0.097; // <-- Proportional gain.
     public static final double PID_I = 0.000000004010; // <-- Integral gain.
-    public static final double PID_D = 0.000267; // <-- Derirvative gain. 
+    public static final double PID_D = 0.000267; // <-- Derivative gain. 
     
     // --- MM(Motion Magic) Configuration ---
-    public static final double MAGIC_MOTION_VELOCITY = 95; // rot/s
-    public static final double MAGIC_MOTION_ACCELERATION = 160; // rot/s²
-    public static final double MAGIC_MOTION_JERK = 1600; // rot/s³
-    public static final double MAGIC_MOTION_EXPO_KV = 0.12;
-    public static final double MAGIC_MOTION_EXPO_KA = 0.1;
+    public static final double MAGIC_MOTION_JERK = 0; // rot/s³
+
+    // --- 
+    public static final double MAX_FORDWARD_ACCEL = 10; // <-- in m/s.
+    public static final double MAX_FRONT_ACCEL = 10; // <-- in m/s.
+    public static final double MAX_SIDE_ACCEL = 10; // <-- in m/s.
+    public static final double MAX_SKID_ACCEL = FRICTION_COF * 9.81; // <-- in m/s.
  
     /* Factors for MM TODO: calibrate (The output is in volts units)*/
-    public static final double VEL_KG = 0.0; // output to overcome gravity (output)
     public static final double VEL_KS = 0.25; // output to overcome static friction (output)
     public static final double VEL_KV = 0.12; // output per unit of target velocity (output/rps)
     public static final double VEL_KA = 0.01; // output per unit of target acceleration (output/(rps/s))
