@@ -50,14 +50,11 @@ public class SwerveModule {
         double safeDirX = (Math.abs(dirX) < 1e-6) ? 1e-6 : dirX;
         double safeDirY = (Math.abs(dirY) < 1e-6) ? 1e-6 : dirY;
     
-        // Proteger altura del centro de masa
         double massH = Math.max(1e-6, massCenterHeight.get());
     
-        // Límites como magnitud
         double maxAccX = (SwerveConstants.MAX_SIDE_ACCEL / massH) / Math.abs(safeDirX);
         double maxAccY = (SwerveConstants.MAX_FRONT_ACCEL / massH) / Math.abs(safeDirY);
     
-        // Proteger contra NaN o Infinity
         if (Double.isNaN(maxAccX) || Double.isInfinite(maxAccX)) maxAccX = 1e6;
         if (Double.isNaN(maxAccY) || Double.isInfinite(maxAccY)) maxAccY = 1e6;
     
@@ -92,21 +89,17 @@ public class SwerveModule {
         double currentVel = io.getDriveMotorVelocity();
         double wantedAcc = (desiredState.speedMetersPerSecond - currentVel) / 0.02;
 
-        // Aplicar límites
         wantedAcc = accLimits(wantedAcc, desiredState.angle.getRadians());
 
         controller.setMMAccel(wantedAcc);
 
-        // Calcular la próxima velocidad deseada
         double nextWantedVel = currentVel + wantedAcc * 0.02;
 
         controller.setVelocity(nextWantedVel);
 
-        // Controlar el ángulo con el PID
         double output = controller.getPID(io.getAbsoluteEncoderRad(), desiredState.angle.getRadians());
         io.getTurningMotor().set(output);
 
-        // Mostrar datos en SmartDashboard
         SmartDashboard.putNumber("Desired Velocity", desiredState.speedMetersPerSecond);
         SmartDashboard.putNumber("Wanted Acc", wantedAcc);
         SmartDashboard.putNumber("Wanted Vel", nextWantedVel);
