@@ -13,7 +13,7 @@ public class ShoulderConstants {
     /** Maximum elevator height (meters) — TODO: replace placeholder. */
     public static final double MAX_ANGLE = 8840000; // meters
     public static final double MIN_ANGLE = -8840000;
-    public static final double SAFETY_HEIGHT = .2;
+    public static final double SAFETY_HEIGHT = -10;
     public static final double UPPER_ARM_LENGTH = 0.635; // meters
 
     // --- Conversion Factors ---

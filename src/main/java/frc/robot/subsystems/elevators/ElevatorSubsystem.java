@@ -1,21 +1,21 @@
-package frc.robot.subsystems.elevator;
+package frc.robot.subsystems.elevators;
 
 import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.elevator.commands.MoveTo;
+import frc.robot.subsystems.elevators.commands.MoveTo;
 
 // Subsystem responsible for controlling the elevator mechanism
-public class Elevator extends SubsystemBase {
+public class ElevatorSubsystem extends SubsystemBase {
     private final ElevatorIO io; // Handles inputs and outputs (motors, sensors)
 
     /**
      * Constructs the ElevatorSubsystem with the given Xbox controller.
      * @param xboxController The Xbox controller used for manual control.
      */
-    public Elevator() {
+    public ElevatorSubsystem() {
         this.io = new ElevatorIO();
     }
 
@@ -62,12 +62,13 @@ public class Elevator extends SubsystemBase {
     public void periodic() {
         SmartDashboard.putNumber("Elevator Height", io.getHeight());
         SmartDashboard.putString("ElevatorState", getCurrentCommand() != null ? getCurrentCommand().getName() : "None");
-
+        /*
         if (
             (io.getHeight() >= ElevatorConstants.MAX_HEIGHT && io.getVelocity() > 0) || 
             (io.getHeight() <= 0 && io.getVelocity() < 0)
         ) {
             io.stop();
         }
+        */
     }
 }

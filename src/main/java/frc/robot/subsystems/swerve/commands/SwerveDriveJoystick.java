@@ -15,7 +15,7 @@ import frc.robot.utils.Constants.ChassisConstants;
 public class SwerveDriveJoystick extends Command {
 
     //--------Constants--------
-    final double JOYSTICK_DEADZONE = .1; // <-- Deadzone for joystick inputs to ignore small movements.
+    final double JOYSTICK_DEADZONE = .07 * ChassisConstants.MAX_VELOCITY; // <-- Deadzone for joystick inputs to ignore small movements.
 
     final Swerve swerve; // <-- Instance of the swerve subsystem.
     final Supplier<Double> x, y, z; // <-- Suppliers for joystick inputs (X, Y, Z axes).
@@ -47,9 +47,9 @@ public class SwerveDriveJoystick extends Command {
         SmartDashboard.putNumberArray("Robot pos", new Double[] {swerve.getPose().getX(), swerve.getPose().getY()});
 
         // Retrieves joystick inputs for X, Y, and Z axes.
-        double xSpeed = x.get(); // <-- Raw X-axis input from the joystick.
-        double ySpeed = y.get(); // <-- Raw Y-axis input from the joystick.
-        double zSpeed = z.get(); // <-- Raw Z-axis input (rotation) from the joystick.
+        double xSpeed = x.get() * ChassisConstants.MAX_VELOCITY; // <-- Raw X-axis input from the joystick.
+        double ySpeed = y.get() * ChassisConstants.MAX_VELOCITY; // <-- Raw Y-axis input from the joystick.
+        double zSpeed = z.get() * ChassisConstants.MAX_ANG_SPD; // <-- Raw Z-axis input (rotation) from the joystick.
 
         // Applies a deadzone to joystick inputs to ignore small movements.
         xSpeed = Math.abs(xSpeed) > JOYSTICK_DEADZONE ? xSpeed : 0.0; // <-- Filters X-axis input.

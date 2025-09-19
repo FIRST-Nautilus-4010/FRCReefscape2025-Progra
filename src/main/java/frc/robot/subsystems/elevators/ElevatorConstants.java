@@ -1,4 +1,4 @@
-package frc.robot.subsystems.elevator;
+package frc.robot.subsystems.elevators;
 
 /**
  * Contains all configuration constants for the Elevator subsystem,
@@ -14,7 +14,7 @@ public final class ElevatorConstants {
 
     // --- Conversion Factors ---
     /** Conversion from motor rotations to meters. TODO: calibrate. */
-    public static final double ROT_2_M = 1;
+    public static final double ROT_2_M = .46 / 15;
 
     // --- MM(Motion Magic) Configuration ---
     public static final double MAGIC_MOTION_VELOCITY = 95; // rot/s
@@ -42,13 +42,13 @@ public final class ElevatorConstants {
 
     // --- Predefined Positions ---
     /* TODO: calibrate*/
-    public static final double L1_POS = 0 / ROT_2_M;
-    public static final double L2_POS = 1 / ROT_2_M;
-    public static final double L3_POS = 0 / ROT_2_M;
-    public static final double L4_POS = 0 / ROT_2_M;
-    public static final double TRAVEL_POS = 0 / ROT_2_M;
-    public static final double PUT_L2L3_POS = 1 / ROT_2_M;
+    public static final double L1_POS = .1;
+    public static final double L2_POS = .15;
+    public static final double L3_POS = .30;
+    public static final double L4_POS = .52;
+    public static final double TRAVEL_POS = 0;
+    public static final double PUT_L2L3_POS = .1;
 
-    public static final double INTAKE_POS = 0 / ROT_2_M;
+    public static final double INTAKE_POS = 0;
 
 }

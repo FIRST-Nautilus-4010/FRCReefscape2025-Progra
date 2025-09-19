@@ -6,6 +6,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class SwerveController {
     private final TalonFX motor;
@@ -39,13 +40,13 @@ public class SwerveController {
     }
 
     private void setVelocitySlotGains() {
-        var slot1 = configuration.Slot1;
-        slot1.kS = SwerveConstants.VEL_KS;
-        slot1.kV = SwerveConstants.VEL_KV;
-        slot1.kA = SwerveConstants.VEL_KA;
-        slot1.kP = SwerveConstants.VEL_KP;
-        slot1.kI = SwerveConstants.VEL_KI;
-        slot1.kD = SwerveConstants.VEL_KD;
+        var slot0 = configuration.Slot0;
+        slot0.kS = SwerveConstants.VEL_KS;
+        slot0.kV = SwerveConstants.VEL_KV;
+        slot0.kA = SwerveConstants.VEL_KA;
+        slot0.kP = SwerveConstants.VEL_KP;
+        slot0.kI = SwerveConstants.VEL_KI;
+        slot0.kD = SwerveConstants.VEL_KD;
     }
 
     private void setMMSettings() {
@@ -54,11 +55,13 @@ public class SwerveController {
     }
 
     public void setMMAccel(double accel) {
-        velRequest.Acceleration = accel / SwerveConstants.ROT_2_M;
+        SmartDashboard.putNumber("KrakenSetAcceleration", Math.abs(accel));
+        velRequest.Acceleration = Math.abs(accel) / (SwerveConstants.ROT_2_M * SwerveConstants.ROT_2_M);
     }
 
     public void setVelocity(double velocity) {
-        motor.setControl(velRequest.withVelocity(velocity / SwerveConstants.ROT_2_M));
+        double adjustedVelocity = velocity / SwerveConstants.ROT_2_M;
+        motor.setControl(velRequest.withVelocity(adjustedVelocity));
     }
 
     public double getPID(double currentAngle, double targetAngle) {

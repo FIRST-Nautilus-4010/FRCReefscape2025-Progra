@@ -32,9 +32,9 @@ public class RobotContainer {
     // Sets the default command for the swerve subsystem to joystick control.
     swerve.setDefaultCommand(new SwerveDriveJoystick(
         swerve, // <-- Swerve subsystem instance.
-        () -> driverJoystick.getLeftX(), // <-- X-axis input from the driver joystick.
-        () -> driverJoystick.getLeftY(), // <-- Y-axis input from the driver joystick.
-        () -> driverJoystick.getRightX(), // <-- Z-axis (rotation) input from the driver joystick.
+        () -> -driverJoystick.getLeftY(), // <-- X-axis input from the driver joystick.
+        () -> -driverJoystick.getLeftX(), // <-- Y-axis input from the driver joystick.
+        () -> -driverJoystick.getRightX(), // <-- Z-axis (rotation) input from the driver joystick.
         () -> !driverJoystick.getXButton(), // <-- Determines if the robot is in robot-oriented mode.
         () -> driverJoystick.getAButton()
     ));

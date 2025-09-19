@@ -1,12 +1,12 @@
-package frc.robot.subsystems.elevator.commands;
+package frc.robot.subsystems.elevators.commands;
 
 import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.elevator.ElevatorConstants;
-import frc.robot.subsystems.elevator.ElevatorController;
-import frc.robot.subsystems.elevator.ElevatorIO;
+import frc.robot.subsystems.elevators.ElevatorConstants;
+import frc.robot.subsystems.elevators.ElevatorController;
+import frc.robot.subsystems.elevators.ElevatorIO;
 import frc.robot.subsystems.shoulder.ShoulderConstants;
 
 public class MoveTo extends Command {
