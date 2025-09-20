@@ -24,14 +24,15 @@ public class SwerveIO {
 
     // Resets the drive motor encoder position to zero.
     public final void resetEncoders() {
+        turningMotor.getEncoder().setPosition((getAbsoluteEncoderRad() / (2 * Math.PI)) * SwerveConstants.STR_RATIO);
         driveMotor.setPosition(0); // <-- Sets the drive motor encoder position to zero.
     }
 
 
     // Stops both the drive and turning motors of the swerve module.
     public void stop() {
-        driveMotor.set(0.0); // <-- Stops the drive motor by setting its speed to zero.
-        turningMotor.set(0); // <-- Stops the turning motor by setting its speed to zero.
+        driveMotor.stopMotor(); // <-- Stops the drive motor by setting its speed to zero.
+        turningMotor.stopMotor();; // <-- Stops the turning motor by setting its speed to zero.
     }
 
     // Returns the absolute encoder position in radians, adjusted by the offset.

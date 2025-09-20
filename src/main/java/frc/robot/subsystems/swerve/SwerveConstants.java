@@ -45,12 +45,26 @@ public class SwerveConstants {
     public static final double PID_D = 0.000267; // <-- Derivative gain. 
     
     // --- MM(Motion Magic) Configuration ---
-    public static final double MAGIC_MOTION_JERK = 0; // rot/s³
+    public static final double MAGIC_MOTION_ACC = 400; // rot/s
+    public static final double MAGIC_MOTION_JERK = 4000; // rot/s³
 
-    // --- 
+    // --- Max Motion Configuration ---
+    public static final double MAX_MOTION_VEL = 5200; // rot/s
+    public static final double MAX_MOTION_ACC = 400; // rot/s²
+    public static final double MAX_MOTION_ALLOWED_ERR = 0.02; // rot
+
+    // --- Max Motion Factors ---
+    public static final double MAX_MOTION_KP = 12; // <-- Proportional gain factor.
+    public static final double MAX_MOTION_KI = 0; // <-- Integral gain factor.
+    public static final double MAX_MOTION_KD = 0; // <-- Derivative gain factor.
+    public static final double MAX_MOTION_KF = 0; // <-- Feedforward gain factor.
+    public static final double MAX_MOTION_MIN_OUTPUT = -1; // <-- Minimum output.
+    public static final double MAX_MOTION_MAX_OUTPUT = 1; // <-- Maximum output.
+
+    // --- Acceleration Limits ---
     public static final double MAX_FORDWARD_ACCEL = 10; // <-- in m/s.
-    public static final double MAX_FRONT_ACCEL = 10; // <-- in m/s.
-    public static final double MAX_SIDE_ACCEL = 10; // <-- in m/s.
+    public static final double MAX_FRONT_ACCEL = 5; // <-- in m/s.
+    public static final double MAX_SIDE_ACCEL = 5; // <-- in m/s.
     public static final double MAX_SKID_ACCEL = FRICTION_COF * 9.81; // <-- in m/s.
  
     /* Factors for MM TODO: calibrate (The output is in volts units)*/

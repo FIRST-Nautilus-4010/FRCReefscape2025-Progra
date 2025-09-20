@@ -28,9 +28,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
+
+import frc.robot.Constants.AutonomousConstants;
+import frc.robot.Constants.ChassisConstants;
 import frc.robot.subsystems.Vision;
-import frc.robot.utils.Constants.AutonomousConstants;
-import frc.robot.utils.Constants.ChassisConstants;
 
 public class Swerve extends SubsystemBase{
     //Defines every single module by giving the drive spark id, the turning spark id, the absolute encoder id, absolute encoder offset, is inverted
@@ -41,6 +42,7 @@ public class Swerve extends SubsystemBase{
 
     private final AHRS gyro = new AHRS(NavXComType.kMXP_SPI);
     private final Pigeon2 pigeon = new Pigeon2(SwerveConstants.PIGEON);
+
     Vision vision = new Vision();
 
     private boolean usePigeon = true;
@@ -59,25 +61,29 @@ public class Swerve extends SubsystemBase{
 
     
     public Swerve(boolean usePigeon){ 
-        new Thread(() -> {
-            try {
-                Thread.sleep(1000);
-                zeroHeading(); // Reset the gyroscope When the robot is initialized
-                ProfiledPIDController thetaController = new ProfiledPIDController(AutonomousConstants.P_Z, AutonomousConstants.I_Z, AutonomousConstants.D_Z, AutonomousConstants.Z_CONTROLER);
-                thetaController.enableContinuousInput(-Math.PI, Math.PI);
+        zeroHeading(); // Reset the gyroscope When the robot is initialized
+        ProfiledPIDController thetaController = new ProfiledPIDController(AutonomousConstants.P_Z, AutonomousConstants.I_Z, AutonomousConstants.D_Z, AutonomousConstants.Z_CONTROLER);
+        thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
-                controller = new HolonomicDriveController(
-                    new PIDController(AutonomousConstants.P_X, AutonomousConstants.I_X, AutonomousConstants.D_X),
-                    new PIDController(AutonomousConstants.P_Y, AutonomousConstants.I_Y, AutonomousConstants.D_Y),
-                    thetaController
-                );
+        controller = new HolonomicDriveController(
+            new PIDController(AutonomousConstants.P_X, AutonomousConstants.I_X, AutonomousConstants.D_X),
+            new PIDController(AutonomousConstants.P_Y, AutonomousConstants.I_Y, AutonomousConstants.D_Y),
+            thetaController
+        );
 
-                this.usePigeon = usePigeon;
-                trajectoryConfig = new TrajectoryConfig(AutonomousConstants.MAX_SPD, AutonomousConstants.MAX_ACCEL)
-                    .setKinematics(ChassisConstants.KINEMATICS);
-            } catch (Exception e) {
-            }
-        }).start();
+        this.usePigeon = usePigeon;
+        trajectoryConfig = new TrajectoryConfig(AutonomousConstants.MAX_SPD, AutonomousConstants.MAX_ACCEL)
+            .setKinematics(ChassisConstants.KINEMATICS);
+    }
+
+    @Override
+    // This repeat periodically during the subsystem use
+    public void periodic() {
+        updateOdometry();
+        SmartDashboard.putNumber("Robot Heading", getHeading());
+        SmartDashboard.putString("Robot Location", getPose().getTranslation().toString());
+        posePublisher.set(getPose());
+        swervePublisher.set(getSwerveModuleStates());
     }
 
     public SwerveModulePosition[] getSwerveModulePos() {
@@ -207,17 +213,6 @@ public class Swerve extends SubsystemBase{
         backLeft.stop();
         backRight.stop();
     }
-
-    @Override
-    // This repeat periodically during the subsystem use
-    public void periodic() {
-        updateOdometry();
-        SmartDashboard.putNumber("Robot Heading", getHeading());
-        SmartDashboard.putString("Robot Location", getPose().getTranslation().toString());
-        posePublisher.set(getPose());
-        swervePublisher.set(getSwerveModuleStates());
-    }
-
 
     public void setStates(SwerveModuleState[] desiredStates){
         SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, ChassisConstants.MAX_VELOCITY);

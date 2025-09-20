@@ -62,13 +62,13 @@ public class ElevatorSubsystem extends SubsystemBase {
     public void periodic() {
         SmartDashboard.putNumber("Elevator Height", io.getHeight());
         SmartDashboard.putString("ElevatorState", getCurrentCommand() != null ? getCurrentCommand().getName() : "None");
-        /*
+        
         if (
             (io.getHeight() >= ElevatorConstants.MAX_HEIGHT && io.getVelocity() > 0) || 
             (io.getHeight() <= 0 && io.getVelocity() < 0)
         ) {
             io.stop();
         }
-        */
+        
     }
 }

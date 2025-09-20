@@ -1,4 +1,4 @@
-package frc.robot.utils;
+package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -22,7 +22,7 @@ public final class Constants {
       new Translation2d(-TRACKWIDTH / 2, -WHEELBASE / 2));
 
     // Speed calculations
-    public static final double MAX_VELOCITY = 4.79; // <-- in m/s.
+    public static final double MAX_VELOCITY = 5.4; // <-- in m/s.
     public static final double MAX_ANG_SPD = 4.79 * Math.PI; // <-- in radians per second.
     
     // Maximum accelerations

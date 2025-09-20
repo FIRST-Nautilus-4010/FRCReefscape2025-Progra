@@ -4,39 +4,50 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 
-import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
 
 public class SwerveController {
-    private final TalonFX motor;
+    private final TalonFX driveMotor;
     private final TalonFXConfiguration configuration;
     private final MotionMagicVelocityVoltage velRequest;
-    private final ProfiledPIDController turningPIDController;
 
-    public SwerveController(TalonFX motor) {
-        this.motor = motor;
+    private final SparkMax turningMotor;
+    private final SparkClosedLoopController turningPIDController;
+    private final SparkMaxConfig config;
 
+    public SwerveController(TalonFX driveMotor, SparkMax turningMotor) {
+        this.driveMotor = driveMotor;
+        configuration = new TalonFXConfiguration();
         velRequest = new MotionMagicVelocityVoltage(0).withSlot(0);
 
-        configuration = new TalonFXConfiguration();
+        this.turningMotor = turningMotor;
+        config = new SparkMaxConfig();
+        this.turningPIDController = turningMotor.getClosedLoopController();
+
 
         setVelocitySlotGains();
         setMMSettings();
 
-        motor.getConfigurator().apply(configuration);
+        setStearingSlot();
+        setMaxMotionParameters();
 
-        // Assigns a pid controller for the turning motor. This one takes a P variable stablish in constants that specifies the proportional PID value
-        turningPIDController = new ProfiledPIDController(
-            SwerveConstants.PID_P, 
-            SwerveConstants.PID_I, 
-            SwerveConstants.PID_D, 
-            new TrapezoidProfile.Constraints(
-                6.7 * 2 * Math.PI, // <-- Maximum angular velocity in radians per second.
-                10000 // <-- Maximum angular acceleration in radians per second squared.
-            )
-        );
-        turningPIDController.enableContinuousInput(-Math.PI, Math.PI);
+        this.driveMotor.getConfigurator().apply(configuration);
+        this.turningMotor.configure(config, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
+    }
+
+    private void setStearingSlot() {
+        config.closedLoop
+        .p(SwerveConstants.MAX_MOTION_KP)
+        .i(SwerveConstants.MAX_MOTION_KI)
+        .d(SwerveConstants.MAX_MOTION_KD)
+        .outputRange(SwerveConstants.MAX_MOTION_MIN_OUTPUT, SwerveConstants.MAX_MOTION_MAX_OUTPUT)
+        .positionWrappingInputRange(-0.5 * SwerveConstants.STR_RATIO, 0.5 * SwerveConstants.STR_RATIO)
+        .positionWrappingEnabled(true);
     }
 
     private void setVelocitySlotGains() {
@@ -51,20 +62,23 @@ public class SwerveController {
 
     private void setMMSettings() {
         var motionMagic = configuration.MotionMagic;
+        motionMagic.MotionMagicAcceleration = SwerveConstants.MAGIC_MOTION_ACC;
         motionMagic.MotionMagicJerk = SwerveConstants.MAGIC_MOTION_JERK;
     }
 
-    public void setMMAccel(double accel) {
-        SmartDashboard.putNumber("KrakenSetAcceleration", Math.abs(accel));
-        velRequest.Acceleration = Math.abs(accel) / (SwerveConstants.ROT_2_M * SwerveConstants.ROT_2_M);
+    private void setMaxMotionParameters() {
+        config.closedLoop.maxMotion
+        .maxVelocity(SwerveConstants.MAX_MOTION_VEL)
+        .maxAcceleration(SwerveConstants.MAX_MOTION_ACC)
+        .allowedClosedLoopError(SwerveConstants.MAX_MOTION_ALLOWED_ERR);
     }
 
     public void setVelocity(double velocity) {
         double adjustedVelocity = velocity / SwerveConstants.ROT_2_M;
-        motor.setControl(velRequest.withVelocity(adjustedVelocity));
+        driveMotor.setControl(velRequest.withVelocity(adjustedVelocity));
     }
 
-    public double getPID(double currentAngle, double targetAngle) {
-        return turningPIDController.calculate(currentAngle, targetAngle);
+    public void setAngle(double angle) {
+        turningPIDController.setReference(angle / SwerveConstants.ROT_2_RAD, ControlType.kPosition);
     }
 }

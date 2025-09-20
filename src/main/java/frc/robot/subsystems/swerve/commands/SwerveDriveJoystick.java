@@ -7,10 +7,9 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState; 
 import edu.wpi.first.networktables.NetworkTableInstance; 
 import edu.wpi.first.networktables.StructArrayPublisher; 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard; 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.swerve.Swerve;
-import frc.robot.utils.Constants.ChassisConstants;
+import frc.robot.Constants.ChassisConstants;
 
 public class SwerveDriveJoystick extends Command {
 
@@ -43,9 +42,6 @@ public class SwerveDriveJoystick extends Command {
 
     @Override
     public void execute() {
-        // Updates the SmartDashboard with the robot's current position (X, Y coordinates).
-        SmartDashboard.putNumberArray("Robot pos", new Double[] {swerve.getPose().getX(), swerve.getPose().getY()});
-
         // Retrieves joystick inputs for X, Y, and Z axes.
         double xSpeed = x.get() * ChassisConstants.MAX_VELOCITY; // <-- Raw X-axis input from the joystick.
         double ySpeed = y.get() * ChassisConstants.MAX_VELOCITY; // <-- Raw Y-axis input from the joystick.
