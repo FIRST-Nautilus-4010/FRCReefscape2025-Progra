@@ -19,7 +19,7 @@ public class ShoulderIO {
     }
 
     public double getHeight() {
-        return Math.sin(getAngle()) * ShoulderConstants.UPPER_ARM_LENGTH;
+        return -Math.cos(getAngle()) * ShoulderConstants.UPPER_ARM_LENGTH;
     }
 
     public double getVelocity() {

@@ -2,9 +2,9 @@ package frc.robot;
 
 public enum RobotState {
     TRAVEL,
-    INTAKE,
-    PUT_L1,
-    PUT_L2,
-    PUT_L3,
-    PUT_L4
+    INTAKE_CORAL,
+    PLACE_L1,
+    PLACE_L2,
+    PLACE_L3,
+    PLACE_L4
 }

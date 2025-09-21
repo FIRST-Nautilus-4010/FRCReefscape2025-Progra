@@ -54,8 +54,8 @@ public class ShoulderController {
 
     public void update() {
         var slot0 = configuration.Slot0;
-        slot0.kG = ShoulderConstants.POS_KG * Math.cos(io.getAngle());
-        slot0.kA = ShoulderConstants.POS_KA * robotAcc.get() * Math.sin(io.getAngle());
+        slot0.kG = ShoulderConstants.POS_KG * Math.sin(io.getAngle());
+        slot0.kA = ShoulderConstants.POS_KA * robotAcc.get() * -Math.cos(io.getAngle());
 
         leader.getConfigurator().apply(configuration);
     }

@@ -9,6 +9,7 @@ import frc.robot.subsystems.swerve.commands.SwerveDriveJoystick;
 
 public class RobotContainer {
   private final Swerve swerve;
+  private final SubsystemManager subsystemManager;
 
   private final XboxController driverJoystick;
   private final XboxController codriverJoystick;
@@ -20,7 +21,7 @@ public class RobotContainer {
     codriverJoystick = new XboxController(1);
     configureBindings();
 
-    SubsystemManager.initialize(swerve);
+    subsystemManager = new SubsystemManager(swerve);
   }
 
   public Command getAutonomouCmd() {
@@ -40,25 +41,29 @@ public class RobotContainer {
     ));
 
     Trigger intake = new Trigger(() -> codriverJoystick.getLeftBumperButtonPressed());
-    intake.onTrue(new InstantCommand(() -> SubsystemManager.scheduleState(RobotState.INTAKE)));
+    intake.onTrue(new InstantCommand(() -> subsystemManager.scheduleState(RobotState.INTAKE_CORAL)));
 
     Trigger putL1 = new Trigger(() -> codriverJoystick.getPOV() == 0);
-    putL1.onTrue(new InstantCommand(() -> SubsystemManager.scheduleState(RobotState.PUT_L1)));
+    putL1.onTrue(new InstantCommand(() -> subsystemManager.scheduleState(RobotState.PLACE_L1)));
 
     Trigger putL2 = new Trigger(() -> codriverJoystick.getPOV() == 90);
-    putL2.onTrue(new InstantCommand(() -> SubsystemManager.scheduleState(RobotState.PUT_L2)));
+    putL2.onTrue(new InstantCommand(() -> subsystemManager.scheduleState(RobotState.PLACE_L2)));
 
     Trigger putL3 = new Trigger(() -> codriverJoystick.getPOV() == 180);
-    putL3.onTrue(new InstantCommand(() -> SubsystemManager.scheduleState(RobotState.PUT_L3)));
+    putL3.onTrue(new InstantCommand(() -> subsystemManager.scheduleState(RobotState.PLACE_L3)));
 
     Trigger putL4 = new Trigger(() -> codriverJoystick.getPOV() == 270);
-    putL4.onTrue(new InstantCommand(() -> SubsystemManager.scheduleState(RobotState.PUT_L4)));
+    putL4.onTrue(new InstantCommand(() -> subsystemManager.scheduleState(RobotState.PLACE_L4)));
 
     Trigger travel = new Trigger(() -> codriverJoystick.getXButton());
-    travel.onTrue(new InstantCommand(() -> SubsystemManager.executeState(RobotState.TRAVEL)));
+    travel.onTrue(new InstantCommand(() -> subsystemManager.executeState(RobotState.TRAVEL)));
   } 
-
+  
   public Command getTestCommand() {
     return new InstantCommand();
+  }
+
+  public void periodic() {
+    subsystemManager.periodic();
   }
 }
