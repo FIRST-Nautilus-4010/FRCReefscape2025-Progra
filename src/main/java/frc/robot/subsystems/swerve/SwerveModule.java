@@ -112,7 +112,7 @@ public class SwerveModule {
     }
 
     private double[] applyStabilityAssist(double accHypot, double accAngle, double chassisRoll, double chassisPitch) {
-        double maxSafeAngle = 10; // ángulo seguro
+        double maxSafeAngle = 5; // ángulo seguro
         double kAssist = .3; // 0 = domina por completo, 1 = apagado
     
         double accX = accHypot * Math.cos(accAngle);
@@ -120,14 +120,16 @@ public class SwerveModule {
     
         double assistX = 0.0;
         double assistY = 0.0;
-    
+        
+        double maxAccel = accLimits(SwerveConstants.MAX_FORDWARD_ACCEL, accAngle)[0];
+
         if (Math.abs(chassisPitch) > maxSafeAngle) {
-            accX *= kAssist;
-            assistX = -Math.signum(chassisPitch) * ((Math.abs(chassisPitch) - maxSafeAngle) / 80) * (1 - kAssist) * accHypot * Math.cos(accAngle);
+            accX *= kAssist; 
+            assistX = -Math.signum(chassisPitch) * ((Math.abs(chassisPitch) - maxSafeAngle) / 80) * (1 - kAssist) * (maxAccel - accHypot) * Math.cos(accAngle);
         }
         if (Math.abs(chassisRoll) > maxSafeAngle) {
             accY *= kAssist;
-            assistY = -Math.signum(chassisRoll) * ((Math.abs(chassisRoll) - maxSafeAngle) / 80) * (1 - kAssist) * accHypot * Math.sin(accAngle);
+            assistY = -Math.signum(chassisRoll) * ((Math.abs(chassisRoll) - maxSafeAngle) / 80) * (1 - kAssist) * (maxAccel - accHypot) * Math.sin(accAngle);
         }
     
 
