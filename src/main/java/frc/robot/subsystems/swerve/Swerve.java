@@ -140,16 +140,32 @@ public class Swerve extends SubsystemBase{
     // Returns the actual robot angle
     public double getHeading() {
         if (usePigeon) {
-            return pigeon.getRotation2d().getDegrees();
+            return pigeon.getYaw().getValueAsDouble();
         } else {
             return -gyro.getAngle();
         }
     }
 
+    public double getPitch() {
+        if (usePigeon) {
+            return pigeon.getPitch().getValueAsDouble();
+        } else {
+            return gyro.getPitch();
+        }
+    }
+
+    public double getRoll() {
+        if (usePigeon) {
+            return pigeon.getRoll().getValueAsDouble();
+        } else {
+            return gyro.getRoll();
+        }
+    }
+
+
     // Returns a Rotation2d class with the robot angle
     public Rotation2d getRotation2d() {
         return Rotation2d.fromDegrees(getHeading());
-        //return Rotation2d.fromDegrees(36);
     }
 
     // Return actual robot position
@@ -217,9 +233,9 @@ public class Swerve extends SubsystemBase{
     public void setStates(SwerveModuleState[] desiredStates){
         SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, ChassisConstants.MAX_VELOCITY);
         
-        frontLeft.setDesiredState(desiredStates[0]);
-        frontRight.setDesiredState(desiredStates[1]);
-        backLeft.setDesiredState(desiredStates[2]);
-        backRight.setDesiredState(desiredStates[3]);
+        frontLeft.setDesiredState(desiredStates[0], getRoll(), getPitch());
+        frontRight.setDesiredState(desiredStates[1], getRoll(), getPitch());
+        backLeft.setDesiredState(desiredStates[2], getRoll(), getPitch());
+        backRight.setDesiredState(desiredStates[3], getRoll(), getPitch());
     }
 }
