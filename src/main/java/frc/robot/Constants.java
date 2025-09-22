@@ -1,7 +1,6 @@
 package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -56,37 +55,8 @@ public final class Constants {
                         MAX_ANG_ACCEL // <-- Maximum angular acceleration for Z-axis control.
     );
 
-
-    public enum FieldTarget {
-      REEF(new Pose3d[] {
-          new Pose3d(), // <-- Poses for the reef targets.
-      }),
-      SOURCE(new Pose3d[] {
-          new Pose3d() // <-- Poses for the source targets.
-      }),
-      ALGAE(new Pose3d[] {
-          new Pose3d()
-      });
-  
-      private final Pose3d[] poses;
-  
-      FieldTarget(Pose3d[] poses) {
-          this.poses = poses;
-      }
-  
-      public Pose3d[] getPoses() {
-          return poses;
-      }
-
-      public Pose3d getPose(int index) {
-        return poses[index];
-      }
-      
-      public int getPoseCount() {
-          return poses.length;
-      }
-
-    }
+    public static final double POS_TOLERANCE = 0.05; // <-- Position tolerance in meters.
+    public static final double ANG_TOLERANCE = Math.toRadians(5); // <-- Angular tolerance in radians.
   
   }
 

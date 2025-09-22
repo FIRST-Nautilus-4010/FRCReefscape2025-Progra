@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.Constants.ChassisConstants;
 
-public class SwerveDriveJoystick extends Command {
+public class DriveJoystick extends Command {
 
     //--------Constants--------
     final double JOYSTICK_DEADZONE = .07 * ChassisConstants.MAX_VELOCITY; // <-- Deadzone for joystick inputs to ignore small movements.
@@ -24,7 +24,7 @@ public class SwerveDriveJoystick extends Command {
     StructArrayPublisher<SwerveModuleState> swerveDesiredStatePublisher = NetworkTableInstance.getDefault()
         .getStructArrayTopic("desiredStates", SwerveModuleState.struct).publish(); // <-- Publishes desired swerve module states to NetworkTables.
 
-    public SwerveDriveJoystick(
+    public DriveJoystick(
         Swerve swerve, Supplier<Double> x, 
         Supplier<Double> y, Supplier<Double> z,
         Supplier<Boolean> fieldRelative,
