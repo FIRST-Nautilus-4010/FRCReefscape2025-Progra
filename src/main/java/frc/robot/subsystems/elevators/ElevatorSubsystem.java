@@ -47,8 +47,12 @@ public class ElevatorSubsystem extends SubsystemBase {
         return moveTo(ElevatorConstants.TRAVEL_POS, shoulderAngle).withName("Elevator to Travel");
     }
 
-    public Command putL2L3(Supplier<Double> shoulderAngle) {
-        return moveTo(io.getHeight() - ElevatorConstants.PUT_L2L3_POS, shoulderAngle).withName("Elevator put L2/L3");
+    public Command placeL2(Supplier<Double> shoulderAngle) {
+        return moveTo(ElevatorConstants.L2_POS - ElevatorConstants.PUT_L2L3_POS, shoulderAngle).withName("Elevator place L2");
+    }
+
+    public Command placeL3(Supplier<Double> shoulderAngle) {
+        return moveTo(ElevatorConstants.L3_POS - ElevatorConstants.PUT_L2L3_POS, shoulderAngle).withName("Elevator place L3");
     }
 
     public double getHeight() {

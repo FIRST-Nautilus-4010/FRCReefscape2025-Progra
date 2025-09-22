@@ -42,7 +42,7 @@ public class Shoulder extends SubsystemBase {
         return rotateTo(ShoulderConstants.TRAVEL_POS, pivotHeight);
     }
 
-    public Command putL4(Supplier<Double> pivotHeight) {
+    public Command placeL4(Supplier<Double> pivotHeight) {
         return rotateTo(ShoulderConstants.PUT, pivotHeight);
     }
 
