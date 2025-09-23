@@ -14,7 +14,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.robot.Constants.ChassisConstants;
-import frc.robot.subsystems.Vision;
 
 public class Swerve extends SubsystemBase{
     //Defines every single module by giving the drive spark id, the turning spark id, the absolute encoder id, absolute encoder offset, is inverted
@@ -25,8 +24,6 @@ public class Swerve extends SubsystemBase{
 
     private final AHRS gyro = new AHRS(NavXComType.kMXP_SPI);
     private final Pigeon2 pigeon = new Pigeon2(SwerveConstants.PIGEON);
-
-    Vision vision = new Vision();
 
     private boolean usePigeon = true;
     StructArrayPublisher<SwerveModuleState> swervePublisher = NetworkTableInstance.getDefault().getStructArrayTopic("Detected module states", SwerveModuleState.struct).publish();

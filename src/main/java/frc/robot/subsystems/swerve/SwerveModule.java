@@ -48,45 +48,60 @@ public class SwerveModule {
     private static final double DEBUG_PERIOD = 1;
 
     private double lastTimestamp = Timer.getFPGATimestamp();
+    private double lastFilteredVel = 0.0; // memoria para el filtro de velocidad
+    private static final double VELOCITY_DEADZONE = 0.1; // zona muerta cerca de 0
 
     // Move the module by giving a SwerveModuleState object
     public void setDesiredState(SwerveModuleState desiredState, double chassisRoll, double chassisPitch) {
         Rotation2d encoderRotation = new Rotation2d(io.getAbsoluteEncoderRad());
-        
+
         double currentTime = Timer.getFPGATimestamp();
         double dt = currentTime - lastTimestamp;
         if (dt <= 0) dt = 0.02;
         lastTimestamp = currentTime;
-        
+
         double currentVel = io.getDriveMotorVelocity();
+
+        if (Math.abs(desiredState.speedMetersPerSecond) < VELOCITY_DEADZONE) {
+            desiredState.speedMetersPerSecond = 0.0;
+        }
+
         double wantedAcc = (desiredState.speedMetersPerSecond - currentVel) / dt;
         double wantedAngle = desiredState.angle.getRadians();
-    
-        // aplicar límites de aceleración
+
         double[] limitedAcc = accLimits(wantedAcc, wantedAngle);
-        // aplicar stability assist
+
+        // --- Stability Assist ---
         limitedAcc = applyStabilityAssist(limitedAcc[0], limitedAcc[1], chassisRoll, chassisPitch);
-    
         wantedAcc = limitedAcc[0];
 
         double nextWantedVel = currentVel + wantedAcc * dt;
 
-        desiredState.speedMetersPerSecond = nextWantedVel;
+        // --- Velocity filter ---
+        double deltaVel = nextWantedVel - lastFilteredVel;
+        deltaVel = Math.max(Math.min(deltaVel, wantedAcc * dt), -wantedAcc * dt);
+        double filteredVel = lastFilteredVel + deltaVel;
+        lastFilteredVel = filteredVel;
+
+        desiredState.speedMetersPerSecond = filteredVel;
         desiredState.angle = Rotation2d.fromRadians(limitedAcc[1]);
-        
+
         desiredState.optimize(encoderRotation);
 
         controller.setVelocity(desiredState.speedMetersPerSecond);
         controller.setAngle(desiredState.angle.getRadians());
-    
+
+        // --- SmartDashboard debug ---
         if (currentTime - lastDebugTime >= DEBUG_PERIOD) {
             lastDebugTime = currentTime;
-    
             SmartDashboard.putNumber("Wanted Acc " + io.getDriveMotor().getDeviceID(), wantedAcc);
             SmartDashboard.putNumber("Wanted Angle " + io.getDriveMotor().getDeviceID(), wantedAngle);
             SmartDashboard.putNumber("dt " + io.getDriveMotor().getDeviceID(), dt);
+            SmartDashboard.putNumber("Filtered Vel " + io.getDriveMotor().getDeviceID(), filteredVel);
         }
     }
+
+    
 
     private double[] accLimits(double accHypot, double accAngle) {
         double desiredAccelX = accHypot * Math.cos(accAngle);
