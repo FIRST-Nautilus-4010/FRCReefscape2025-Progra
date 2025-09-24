@@ -66,7 +66,10 @@ public class SwerveModule {
             desiredState.speedMetersPerSecond = 0.0;
         }
 
+
         double wantedAcc = (desiredState.speedMetersPerSecond - currentVel) / dt;
+        wantedAcc = Math.abs(wantedAcc) < 1.5 ? 0.0 : wantedAcc;
+
         double wantedAngle = desiredState.angle.getRadians();
 
         double[] limitedAcc = accLimits(wantedAcc, wantedAngle);
