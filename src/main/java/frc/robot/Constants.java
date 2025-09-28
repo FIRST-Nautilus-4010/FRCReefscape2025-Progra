@@ -21,7 +21,7 @@ public final class Constants {
       new Translation2d(-TRACKWIDTH / 2, -WHEELBASE / 2));
 
     // Speed calculations
-    public static final double MAX_VELOCITY = 5.4; // <-- in m/s.
+    public static final double MAX_VELOCITY = 5; // <-- in m/s.
     public static final double MAX_ANG_SPD = 4.79 * Math.PI; // <-- in radians per second.
     
     // Maximum accelerations

@@ -45,88 +45,79 @@ public class SwerveModule {
     }
     
     private double lastDebugTime = 0.0;
-    private static final double DEBUG_PERIOD = 1;
-
-    private double lastTimestamp = Timer.getFPGATimestamp();
-    private double lastFilteredVel = 0.0; // memoria para el filtro de velocidad
-    private static final double VELOCITY_DEADZONE = 0.1; // zona muerta cerca de 0
 
     // Move the module by giving a SwerveModuleState object
     public void setDesiredState(SwerveModuleState desiredState, double chassisRoll, double chassisPitch) {
         Rotation2d encoderRotation = new Rotation2d(io.getAbsoluteEncoderRad());
 
-        double currentTime = Timer.getFPGATimestamp();
-        double dt = currentTime - lastTimestamp;
-        if (dt <= 0) dt = 0.02;
-        lastTimestamp = currentTime;
+        double desiredFinalVel = desiredState.speedMetersPerSecond;
+        double currentVel = Math.abs(io.getDriveMotorVelocity());
 
-        double currentVel = io.getDriveMotorVelocity();
+        double wantedDirection = desiredState.angle.getRadians();
 
-        if (Math.abs(desiredState.speedMetersPerSecond) < VELOCITY_DEADZONE) {
-            desiredState.speedMetersPerSecond = 0.0;
-        }
+        double wantedAcc = (desiredFinalVel - currentVel) / 0.02;
+        double[] accLimits = accLimits(wantedAcc, wantedDirection);
+        accLimits = applyStabilityAssist(accLimits[0], accLimits[1], chassisRoll, chassisPitch);
 
+        double limitedAcc = accLimits[0];
+        double limitedDirection = accLimits[1];
 
-        double wantedAcc = (desiredState.speedMetersPerSecond - currentVel) / dt;
-        wantedAcc = Math.abs(wantedAcc) < 1.5 ? 0.0 : wantedAcc;
+        double nextWantedVel = currentVel + (limitedAcc * 0.02);
 
-        double wantedAngle = desiredState.angle.getRadians();
-
-        double[] limitedAcc = accLimits(wantedAcc, wantedAngle);
-
-        // --- Stability Assist ---
-        limitedAcc = applyStabilityAssist(limitedAcc[0], limitedAcc[1], chassisRoll, chassisPitch);
-        wantedAcc = limitedAcc[0];
-
-        double nextWantedVel = currentVel + wantedAcc * dt;
-
-        // --- Velocity filter ---
-        double deltaVel = nextWantedVel - lastFilteredVel;
-        deltaVel = Math.max(Math.min(deltaVel, wantedAcc * dt), -wantedAcc * dt);
-        double filteredVel = lastFilteredVel + deltaVel;
-        lastFilteredVel = filteredVel;
-
-        desiredState.speedMetersPerSecond = filteredVel;
-        desiredState.angle = Rotation2d.fromRadians(limitedAcc[1]);
+        desiredState.speedMetersPerSecond = nextWantedVel;
+        desiredState.angle = Rotation2d.fromRadians(limitedDirection);
 
         desiredState.optimize(encoderRotation);
 
-        controller.setVelocity(desiredState.speedMetersPerSecond);
-        controller.setAngle(desiredState.angle.getRadians());
+        if (Math.abs(desiredState.speedMetersPerSecond) < SwerveConstants.VELOCITY_DEADZONE) {
+            controller.setVelocity(0);
+        } else {
+            controller.setVelocity(desiredState.speedMetersPerSecond);
+        }
+        //controller.setAngle(desiredState.angle.getRadians());
 
         // --- SmartDashboard debug ---
-        if (currentTime - lastDebugTime >= DEBUG_PERIOD) {
+        double currentTime = Timer.getFPGATimestamp();
+        if (currentTime - lastDebugTime >= 1) {
             lastDebugTime = currentTime;
             SmartDashboard.putNumber("Wanted Acc " + io.getDriveMotor().getDeviceID(), wantedAcc);
-            SmartDashboard.putNumber("Wanted Angle " + io.getDriveMotor().getDeviceID(), wantedAngle);
-            SmartDashboard.putNumber("dt " + io.getDriveMotor().getDeviceID(), dt);
-            SmartDashboard.putNumber("Filtered Vel " + io.getDriveMotor().getDeviceID(), filteredVel);
+            SmartDashboard.putNumber("Limited Acc " + io.getDriveMotor().getDeviceID(), limitedAcc);
+
+            SmartDashboard.putNumber("Wanted Side Acc " + io.getDriveMotor().getDeviceID(), wantedAcc * Math.cos(wantedDirection));
+            SmartDashboard.putNumber("Wanted Front Acc " + io.getDriveMotor().getDeviceID(), wantedAcc * Math.sin(wantedDirection));
+
+            SmartDashboard.putNumber("Limited Side Acc " + io.getDriveMotor().getDeviceID(), limitedAcc * Math.cos(limitedDirection));
+            SmartDashboard.putNumber("Limited Front Acc " + io.getDriveMotor().getDeviceID(), limitedAcc * Math.sin(limitedDirection));
+
+            SmartDashboard.putNumber("Wanted Direction " + io.getDriveMotor().getDeviceID(), wantedDirection);
+            SmartDashboard.putNumber("Limited Direction " + io.getDriveMotor().getDeviceID(), limitedDirection);
+
+            SmartDashboard.putNumber("Desired Final Vel " + io.getDriveMotor().getDeviceID(), desiredFinalVel);
+            SmartDashboard.putNumber("Current Vel " + io.getDriveMotor().getDeviceID(), currentVel);
+            SmartDashboard.putNumber("Next Wanted Vel " + io.getDriveMotor().getDeviceID(), nextWantedVel);
         }
     }
 
     
 
-    private double[] accLimits(double accHypot, double accAngle) {
-        double desiredAccelX = accHypot * Math.cos(accAngle);
-        double desiredAccelY = accHypot * Math.sin(accAngle);
+    private double[] accLimits(double wantedAcc, double wantedDirection) {
+        double wantedAccMagnitude = Math.abs(wantedAcc);
 
-        double accelModule = Math.hypot(desiredAccelX, desiredAccelY);
+        double forwardAccel = Math.min(wantedAccMagnitude, SwerveConstants.MAX_FORDWARD_ACCEL * (1 - (io.getDriveMotorVelocity() / ChassisConstants.MAX_VELOCITY)));
+        double skidAccel = Math.min(wantedAccMagnitude, SwerveConstants.MAX_SKID_ACCEL);
 
-        double forwardAccel = Math.min(accelModule, SwerveConstants.MAX_FORDWARD_ACCEL * (1 - (io.getDriveMotorVelocity() / ChassisConstants.MAX_VELOCITY)));
-        double skidAccel = Math.min(accelModule, SwerveConstants.MAX_SKID_ACCEL);
+        double minAccel = Math.min(skidAccel, forwardAccel);
         
-        if (accelModule < 1e-6) return new double[] {0.0, 0.0};
+        double wantedSideAcc = minAccel * Math.cos(wantedDirection);
+        double wantedFrontAcc = minAccel * Math.sin(wantedDirection);
+        
+        double frontAccel = Math.min(SwerveConstants.MAX_FRONT_ACCEL / massCenterHeight.get() + .001, wantedFrontAcc);
+        double sideAccel = Math.min(SwerveConstants.MAX_SIDE_ACCEL / massCenterHeight.get() + .001, wantedSideAcc);
 
-        double finalAccelX = (Math.abs(desiredAccelX) / accelModule) * Math.min(skidAccel, forwardAccel);
-        double finalAccelY = (Math.abs(desiredAccelY) / accelModule) * Math.min(skidAccel, forwardAccel);
+        double limitedAcc = Math.copySign(Math.hypot(frontAccel, sideAccel), wantedAcc);
+        double limitedDirection = Math.atan2(frontAccel, sideAccel);
 
-        double maxSideAccel = SwerveConstants.MAX_SIDE_ACCEL / (massCenterHeight.get() + .001);
-        double maxFrontAccel = SwerveConstants.MAX_FRONT_ACCEL / (massCenterHeight.get() + .001);
-
-        finalAccelX = Math.min(finalAccelX, maxSideAccel);
-        finalAccelY = Math.min(finalAccelY, maxFrontAccel);
-
-        return new double[] {Math.hypot(finalAccelX, finalAccelY), Math.atan2(finalAccelY, finalAccelX)};
+        return new double[] {limitedAcc, limitedDirection};
     }
 
     private double[] applyStabilityAssist(double accHypot, double accAngle, double chassisRoll, double chassisPitch) {
@@ -139,15 +130,21 @@ public class SwerveModule {
         double assistX = 0.0;
         double assistY = 0.0;
         
-        double maxAccel = accLimits(SwerveConstants.MAX_FORDWARD_ACCEL, accAngle)[0];
-
         if (Math.abs(chassisPitch) > maxSafeAngle) {
             accX *= kAssist; 
-            assistX = -Math.signum(chassisPitch) * ((Math.abs(chassisPitch) - maxSafeAngle) / 80) * (1 - kAssist) * (maxAccel - accHypot) * Math.cos(accAngle);
+            assistX = -Math.signum(chassisPitch) * 
+                ((Math.abs(chassisPitch) - maxSafeAngle) / 80) * 
+                (1 - kAssist) * 
+                (SwerveConstants.MAX_SKID_ACCEL - accHypot) * 
+                Math.cos(accAngle);
         }
         if (Math.abs(chassisRoll) > maxSafeAngle) {
             accY *= kAssist;
-            assistY = -Math.signum(chassisRoll) * ((Math.abs(chassisRoll) - maxSafeAngle) / 80) * (1 - kAssist) * (maxAccel - accHypot) * Math.sin(accAngle);
+            assistY = -Math.signum(chassisRoll) * 
+                ((Math.abs(chassisRoll) - maxSafeAngle) / 80) * 
+                (1 - kAssist) * 
+                (SwerveConstants.MAX_SKID_ACCEL - accHypot) * 
+                Math.sin(accAngle);
         }
     
 

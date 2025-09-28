@@ -66,12 +66,14 @@ public class SwerveConstants {
     public static final double MAX_FRONT_ACCEL = 5; // <-- in m/s.
     public static final double MAX_SIDE_ACCEL = 5; // <-- in m/s.
     public static final double MAX_SKID_ACCEL = FRICTION_COF * 9.81; // <-- in m/s.
+    //public static final double MAX_SKID_ACCEL = 15;
+    public static final double VELOCITY_DEADZONE = .1; // zona muerta cerca de 0
  
     /* Factors for MM TODO: calibrate (The output is in volts units)*/
-    public static final double VEL_KS = 0.25; // output to overcome static friction (output)
-    public static final double VEL_KV = 0.12; // output per unit of target velocity (output/rps)
-    public static final double VEL_KA = 0.01; // output per unit of target acceleration (output/(rps/s))
-    public static final double VEL_KP = 0.11; // output per unit of error in velocity (output/rps)
-    public static final double VEL_KI = 0.0; // output per unit of integrated error in velocity (output/rotation)
-    public static final double VEL_KD = 0.0; // output per unit of error derivate in velocity (output/rps/s)
+    public static final double VEL_KS = 0.10442; // output to overcome static friction (output)
+    public static final double VEL_KV = 0.10882; // output per unit of target velocity (output/rps)
+    public static final double VEL_KA = 0.001647; // output per unit of target acceleration (output/(rps/s))
+    public static final double VEL_KP = 0.02; // output per unit of error in velocity (output/rps)
+    public static final double VEL_KI = 0.005; // output per unit of integrated error in velocity (output/rotation)
+    public static final double VEL_KD = 0.01; // output per unit of error derivate in velocity (output/rps/s)
 }

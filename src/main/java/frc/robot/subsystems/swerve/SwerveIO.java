@@ -52,10 +52,10 @@ public class SwerveIO {
     }
 
     public double getDriveMotorVelocity() {
-        return driveMotor.getVelocity().getValue().magnitude() * SwerveConstants.ROT_2_M; // <-- Converts the drive motor speed from RPM to meters per second.
+        return driveMotor.getVelocity().getValueAsDouble() * SwerveConstants.ROT_2_M; // <-- Converts the drive motor speed from RPM to meters per second.
     }
 
     public double getDriveMotorPosition() {
-        return driveMotor.getPosition().getValue().magnitude() * SwerveConstants.ROT_2_M; // <-- Converts the drive motor encoder rotations to meters traveled.
+        return driveMotor.getPosition().getValueAsDouble() * SwerveConstants.ROT_2_M; // <-- Converts the drive motor encoder rotations to meters traveled.
     }
 }
