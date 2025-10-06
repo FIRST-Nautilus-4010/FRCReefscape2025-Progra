@@ -5,6 +5,7 @@ import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -26,8 +27,11 @@ public class Swerve extends SubsystemBase{
     private final Pigeon2 pigeon = new Pigeon2(SwerveConstants.PIGEON);
 
     private boolean usePigeon = true;
+
     StructArrayPublisher<SwerveModuleState> swervePublisher = NetworkTableInstance.getDefault().getStructArrayTopic("Detected module states", SwerveModuleState.struct).publish();
-        
+    StructArrayPublisher<SwerveModuleState> swerveDesiredStatePublisher = NetworkTableInstance.getDefault()
+    .getStructArrayTopic("desiredStates", SwerveModuleState.struct).publish(); // <-- Publishes desired swerve module states to NetworkTables.
+
     public Swerve(boolean usePigeon){ 
 
         zeroHeading(); // Reset the gyroscope When the robot is initialized
@@ -113,6 +117,25 @@ public class Swerve extends SubsystemBase{
         }
     }
 
+    public double getLinearAcceleration() {
+        return Math.sqrt(Math.pow(getAccelX(), 2) + Math.pow(getAccelY(), 2) + Math.pow(getAccelZ(), 2));
+    }
+
+    public double getAverageWheelSpeed() {
+        SwerveModuleState[] states = getSwerveModuleStates();
+        double sum = 0;
+        for (SwerveModuleState state : states) {
+            sum += state.speedMetersPerSecond;
+        }
+        return sum / states.length;
+    }
+    
+    public double getChassisSpeed() {
+        ChassisSpeeds speeds = ChassisConstants.KINEMATICS.toChassisSpeeds(getSwerveModuleStates());
+        
+        return Math.hypot(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond);
+    }
+
     // Reset the gyroscope
     public void zeroHeading() {
         if (usePigeon) {
@@ -127,6 +150,28 @@ public class Swerve extends SubsystemBase{
         frontRight.stop();
         backLeft.stop();
         backRight.stop();
+    }
+
+    public void driveFieldRelative(double xSpeed, double ySpeed, double rotSpeed) {
+        // Convierte velocidades del marco del campo al marco del robot
+        var fieldRelativeSpeeds = edu.wpi.first.math.kinematics.ChassisSpeeds.fromFieldRelativeSpeeds(
+            xSpeed,
+            ySpeed,
+            rotSpeed,
+            getRotation2d()
+        );
+    
+        // Usa tu método normal de conducción
+        drive(fieldRelativeSpeeds);
+    }
+
+    public void drive(ChassisSpeeds speeds) {
+        SwerveModuleState[] moduleStates = ChassisConstants.KINEMATICS.toSwerveModuleStates(speeds); // <-- Calculates swerve module states.
+
+       setStates(moduleStates); // <-- Updates swerve modules with calculated states.
+
+        swerveDesiredStatePublisher.set(moduleStates);
+        
     }
 
     public void setStates(SwerveModuleState[] desiredStates){

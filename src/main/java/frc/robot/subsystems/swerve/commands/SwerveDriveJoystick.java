@@ -4,9 +4,6 @@ import java.util.function.Supplier;
 
 // Imports from WPILib
 import edu.wpi.first.math.kinematics.ChassisSpeeds; 
-import edu.wpi.first.math.kinematics.SwerveModuleState; 
-import edu.wpi.first.networktables.NetworkTableInstance; 
-import edu.wpi.first.networktables.StructArrayPublisher; 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.Constants.ChassisConstants;
@@ -20,9 +17,6 @@ public class SwerveDriveJoystick extends Command {
     final Supplier<Double> x, y, z; // <-- Suppliers for joystick inputs (X, Y, Z axes).
     final Supplier<Boolean> fieldRelative; // <-- Supplier for field-relative mode.
     final Supplier<Boolean> resetYaw;
-
-    StructArrayPublisher<SwerveModuleState> swerveDesiredStatePublisher = NetworkTableInstance.getDefault()
-        .getStructArrayTopic("desiredStates", SwerveModuleState.struct).publish(); // <-- Publishes desired swerve module states to NetworkTables.
 
     public SwerveDriveJoystick(
         Swerve swerve, Supplier<Double> x, 
@@ -52,27 +46,19 @@ public class SwerveDriveJoystick extends Command {
         ySpeed = Math.abs(ySpeed) > JOYSTICK_DEADZONE ? ySpeed : 0.0; // <-- Filters Y-axis input.
         zSpeed = Math.abs(zSpeed) > JOYSTICK_DEADZONE ? zSpeed : 0.0; // <-- Filters Z-axis input.
 
-        ChassisSpeeds chassisSpeeds;
+        ChassisSpeeds chassisSpeeds = new ChassisSpeeds(xSpeed, ySpeed, zSpeed);
         if (fieldRelative.get()) {
             // Converts joystick inputs to field-relative speeds using the robot's current rotation.
-            chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, zSpeed, swerve.getRotation2d()); // <-- Field-relative speeds.
+            swerve.driveFieldRelative(xSpeed, ySpeed, zSpeed); // <-- Field-relative speeds.
         } else {
             // Uses robot-relative speeds directly from joystick inputs.
-            chassisSpeeds = new ChassisSpeeds(xSpeed, ySpeed, zSpeed); // <-- Robot-relative speeds.
+            swerve.drive(chassisSpeeds); // <-- Robot-relative speeds.
         }
 
         if (resetYaw.get()) {
             swerve.zeroHeading();
         }
 
-        // Converts chassis speeds to individual swerve module states.
-        SwerveModuleState[] moduleStates = ChassisConstants.KINEMATICS.toSwerveModuleStates(chassisSpeeds); // <-- Calculates swerve module states.
-
-        // Sets the desired states for the swerve modules.
-        swerve.setStates(moduleStates); // <-- Updates swerve modules with calculated states.
-
-        // Publishes the desired swerve module states to NetworkTables for debugging or visualization.
-        swerveDesiredStatePublisher.set(moduleStates); // <-- Publishes module states.
     }
 
     @Override

@@ -1,11 +1,14 @@
 package frc.robot;
 
+import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 
 public final class Constants {
@@ -57,7 +60,27 @@ public final class Constants {
 
     public static final double POS_TOLERANCE = 0.05; // <-- Position tolerance in meters.
     public static final double ANG_TOLERANCE = Math.toRadians(5); // <-- Angular tolerance in radians.
-  
+
+    public static final double NORMAL_STD = 0.06;
+
+    public static final Matrix<N3, N1> NORMAL_CONFIDENCE_STD;
+
+    static {
+      NORMAL_CONFIDENCE_STD = new Matrix<>(N3.instance, N1.instance);
+      NORMAL_CONFIDENCE_STD.set(0, 0, NORMAL_STD); // X
+      NORMAL_CONFIDENCE_STD.set(1, 0, NORMAL_STD); // Y
+      NORMAL_CONFIDENCE_STD.set(2, 0, Math.toRadians(3)); // Z
+    }
+    public static final double LOW_STD = 0.3; // Define a standard deviation value.
+
+    public static final Matrix<N3, N1> LOW_CONFIDENCE_STD;
+
+    static {
+        LOW_CONFIDENCE_STD = new Matrix<>(N3.instance, N1.instance);
+        LOW_CONFIDENCE_STD.set(0, 0, LOW_STD); // X
+        LOW_CONFIDENCE_STD.set(1, 0, LOW_STD); // Y
+        LOW_CONFIDENCE_STD.set(2, 0, Math.toRadians(5)); // Z
+    }
   }
 
   public static class VisionConstants {
