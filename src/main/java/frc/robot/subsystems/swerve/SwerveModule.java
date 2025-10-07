@@ -57,24 +57,23 @@ public class SwerveModule {
 
         double wantedAcc = (desiredFinalVel - currentVel) / 0.02;
         double[] accLimits = accLimits(wantedAcc, wantedDirection);
-        accLimits = applyStabilityAssist(accLimits[0], accLimits[1], chassisRoll, chassisPitch);
+        //accLimits = applyStabilityAssist(accLimits[0], accLimits[1], chassisRoll, chassisPitch);
 
         double limitedAcc = accLimits[0];
         double limitedDirection = accLimits[1];
 
         double nextWantedVel = currentVel + (limitedAcc * 0.02);
 
-        desiredState.speedMetersPerSecond = nextWantedVel;
-        desiredState.angle = Rotation2d.fromRadians(limitedDirection);
+        SwerveModuleState optimizedState = new SwerveModuleState(nextWantedVel, Rotation2d.fromRadians(limitedDirection));
 
-        desiredState.optimize(encoderRotation);
+        optimizedState.optimize(encoderRotation);
 
         if (Math.abs(desiredState.speedMetersPerSecond) < SwerveConstants.VELOCITY_DEADZONE) {
             controller.setVelocity(0);
         } else {
-            controller.setVelocity(desiredState.speedMetersPerSecond);
+            controller.setVelocity(optimizedState.speedMetersPerSecond);
         }
-        //controller.setAngle(desiredState.angle.getRadians());
+        controller.setAngle(optimizedState.angle.getRadians());
 
         // --- SmartDashboard debug ---
         double currentTime = Timer.getFPGATimestamp();
@@ -107,17 +106,26 @@ public class SwerveModule {
         double skidAccel = Math.min(wantedAccMagnitude, SwerveConstants.MAX_SKID_ACCEL);
 
         double minAccel = Math.min(skidAccel, forwardAccel);
-        
-        double wantedSideAcc = minAccel * Math.cos(wantedDirection);
-        double wantedFrontAcc = minAccel * Math.sin(wantedDirection);
-        
-        double frontAccel = Math.min(SwerveConstants.MAX_FRONT_ACCEL / massCenterHeight.get() + .001, wantedFrontAcc);
-        double sideAccel = Math.min(SwerveConstants.MAX_SIDE_ACCEL / massCenterHeight.get() + .001, wantedSideAcc);
 
-        double limitedAcc = Math.copySign(Math.hypot(frontAccel, sideAccel), wantedAcc);
-        double limitedDirection = Math.atan2(frontAccel, sideAccel);
+        // Controles tilt
+        double wantedSideAcc = minAccel * -Math.sin(wantedDirection);
+        double wantedFrontAcc = minAccel * Math.cos(wantedDirection);
+        
+        double limitedFrontAcc = Math.max(-SwerveConstants.MAX_FRONT_ACCEL, Math.min(wantedFrontAcc, SwerveConstants.MAX_FRONT_ACCEL));
+        double limitedSideAcc = Math.max(-SwerveConstants.MAX_SIDE_ACCEL, Math.min(wantedSideAcc, SwerveConstants.MAX_SIDE_ACCEL));
 
-        return new double[] {limitedAcc, limitedDirection};
+        double limitedAcc = Math.hypot(limitedFrontAcc, limitedSideAcc);
+
+        double limitedDirection;
+        if (Math.abs(limitedSideAcc) < SwerveConstants.MAX_SIDE_ACCEL && Math.abs(limitedFrontAcc) < SwerveConstants.MAX_SIDE_ACCEL) {
+            limitedDirection = wantedDirection;
+        } else {
+            limitedDirection = Math.atan2(-limitedSideAcc, limitedFrontAcc);
+        }
+        
+        
+        //return new double[] {Math.copySign(minAccel, wantedAcc), wantedDirection};
+        return new double[] {Math.copySign(limitedAcc, wantedAcc), limitedDirection};
     }
 
     private double[] applyStabilityAssist(double accHypot, double accAngle, double chassisRoll, double chassisPitch) {

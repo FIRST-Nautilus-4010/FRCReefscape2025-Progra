@@ -7,6 +7,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.MAXMotionConfig.MAXMotionPositionMode;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -34,7 +35,7 @@ public class SwerveController {
         setMMSettings();
 
         setStearingSlot();
-        setMaxMotionParameters();
+        setMaxMotionParameters();;
 
         this.driveMotor.getConfigurator().apply(configuration);
         this.turningMotor.configure(config, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
@@ -46,7 +47,7 @@ public class SwerveController {
         .i(SwerveConstants.MAX_MOTION_KI)
         .d(SwerveConstants.MAX_MOTION_KD)
         .outputRange(SwerveConstants.MAX_MOTION_MIN_OUTPUT, SwerveConstants.MAX_MOTION_MAX_OUTPUT)
-        .positionWrappingInputRange(-0.5 * SwerveConstants.STR_RATIO, 0.5 * SwerveConstants.STR_RATIO)
+        .positionWrappingInputRange(-Math.PI / SwerveConstants.STR_RATIO, Math.PI / SwerveConstants.STR_RATIO)
         .positionWrappingEnabled(true);
     }
 
@@ -68,9 +69,10 @@ public class SwerveController {
 
     private void setMaxMotionParameters() {
         config.closedLoop.maxMotion
-        .maxVelocity(SwerveConstants.MAX_MOTION_VEL)
+        .maxVelocity(SwerveConstants.MAX_MOTION_VEL) // cambiar a cruiseVelocity
         .maxAcceleration(SwerveConstants.MAX_MOTION_ACC)
-        .allowedClosedLoopError(SwerveConstants.MAX_MOTION_ALLOWED_ERR);
+        .allowedClosedLoopError(SwerveConstants.MAX_MOTION_ALLOWED_ERR)
+        .positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal);
     }
 
     public void setVelocity(double velocity) {
@@ -79,6 +81,6 @@ public class SwerveController {
     }
 
     public void setAngle(double angle) {
-        turningPIDController.setReference(angle / SwerveConstants.ROT_2_RAD, ControlType.kPosition);
+        turningPIDController.setReference((angle / SwerveConstants.ROT_2_RAD), ControlType.kMAXMotionPositionControl);
     }
 }
