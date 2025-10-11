@@ -1,6 +1,7 @@
 package frc.robot.subsystems.swerve;
 
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -13,6 +14,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.AutonomousConstants;
 import frc.robot.Constants.ChassisConstants;
 import frc.robot.subsystems.swerve.commands.DriveTo;
+import frc.robot.subsystems.swerve.commands.SwerveDriveJoystick;
 import frc.robot.utils.PoseConfidenceTracker; // te explico más abajo
 import frc.robot.utils.CollisionDetector;      // idem
 import frc.robot.utils.LimelightHelpers;
@@ -29,6 +31,8 @@ public class PoseTracker {
     // utilidades nuevas
     private final PoseConfidenceTracker confidenceTracker = new PoseConfidenceTracker();
     private final CollisionDetector collisionDetector = new CollisionDetector();
+
+    private boolean initialPoseSetFromVision = false;
 
     public PoseTracker(Swerve swerve) {
         this.swerve = swerve;
@@ -62,6 +66,10 @@ public class PoseTracker {
         );
     }
 
+    public Command setSpeeds(Supplier<Double> vx, Supplier<Double> vy, Supplier<Double> omega, Supplier<Boolean> fieldRelative, Supplier<Boolean> resetYaw) {
+        return new SwerveDriveJoystick(swerve, vx, vy, omega, fieldRelative, resetYaw);
+    }
+
     private Optional<Pose2d> getVisionPose() {
         if (LimelightHelpers.getTV("limelight") && LimelightHelpers.getTA("limelight") > 0.1) {
             Pose2d botpose = LimelightHelpers.getBotPose2d_wpiBlue("limelight");
@@ -75,36 +83,41 @@ public class PoseTracker {
     }
 
   public void periodic() {
-    // ======= Collision detection =======
-    if (collisionDetector.detectImpact(swerve)) {
-        // Congelar actualizaciones por unos ciclos si hay golpe fuerte
+     // ======= Collision detection =======
+     if (collisionDetector.detectImpact(swerve)) {
         collisionDetector.freeze();
     } else {
-        // Solo actualizar si no hay impacto reciente
         poseEstimator.update(swerve.getRotation2d(), swerve.getSwerveModulePos());
     }
 
     // ======= Skid detection =======
     confidenceTracker.update(swerve);
     if (confidenceTracker.isSkidding()) {
-      // Aumenta la incertidumbre del odómetro temporalmente
-      poseEstimator.setVisionMeasurementStdDevs(AutonomousConstants.LOW_CONFIDENCE_STD);
+        poseEstimator.setVisionMeasurementStdDevs(AutonomousConstants.LOW_CONFIDENCE_STD);
     } else {
-      poseEstimator.setVisionMeasurementStdDevs(AutonomousConstants.NORMAL_CONFIDENCE_STD);
+        poseEstimator.setVisionMeasurementStdDevs(AutonomousConstants.NORMAL_CONFIDENCE_STD);
     }
 
-    // ======= Vision updates (AprilTags) =======
-    var visionMeasurement = getVisionPose(); // retorna Optional<Pose2d>
+    // ======= Vision updates (AprilTags / Limelight) =======
+    var visionMeasurement = getVisionPose();
     if (visionMeasurement.isPresent()) {
-      Pose2d visionPose = visionMeasurement.get();
-      double timestamp = getLastVisionTimestamp();
+        Pose2d visionPose = visionMeasurement.get();
+        double timestamp = getLastVisionTimestamp();
 
-      if (confidenceTracker.shouldTrustVision(visionPose, getPose())) {
-        poseEstimator.addVisionMeasurement(visionPose, timestamp);
-      }
+        // Si aún no hemos fijado la posición inicial con visión
+        if (!initialPoseSetFromVision) {
+            resetOdometry(visionPose);  // Reinicia usando la pose de la cámara
+            initialPoseSetFromVision = true;
+            SmartDashboard.putString("Init Pose Source", "Limelight");
+        }
+
+        // Luego sigue con el procesamiento normal de visión
+        if (confidenceTracker.shouldTrustVision(visionPose, getPose())) {
+            poseEstimator.addVisionMeasurement(visionPose, timestamp);
+        }
     }
 
-    // ======= Dashboard & logging =======
+    // ======= Dashboard =======
     SmartDashboard.putString("Robot Pose", getPose().toString());
     posePublisher.set(getPose());
   }

@@ -15,6 +15,7 @@ import frc.robot.subsystems.shoulder.ShoulderController;
 import frc.robot.subsystems.swerve.PoseTracker;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.swerve.SwerveModule;
+import frc.robot.subsystems.swerve.commands.SwerveDriveJoystick;
 
 public final class SubsystemManager {
 
