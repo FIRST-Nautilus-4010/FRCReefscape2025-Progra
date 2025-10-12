@@ -97,6 +97,8 @@ public class PoseTracker {
 
     private Optional<Pose2d> getVisionPose() {
         if (LimelightHelpers.getTV("limelight") && LimelightHelpers.getTA("limelight") > 0.1) {
+            LimelightHelpers.SetRobotOrientation("limelight", 
+            swerve.getHeading(), swerve.getYawRate(), swerve.getPitch(), swerve.getPitchRate(), swerve.getRoll(), swerve.getRollRate());
             Pose2d botpose = LimelightHelpers.getBotPose2d_wpiBlue("limelight");
             return Optional.of(botpose);
         }
@@ -107,30 +109,36 @@ public class PoseTracker {
         return Timer.getFPGATimestamp() - LimelightHelpers.getLatency_Capture("limelight") / 1000.0;
     }
 
-    private double estimateDistanceFromTY(double ty) {
-        double cameraHeight = 0.6;  // m
-        double targetHeight = 0.15;  // m
-        double cameraAngle = Math.toRadians(30);
-        return (targetHeight - cameraHeight) / Math.tan(cameraAngle + Math.toRadians(ty));
-    }
-
     private void detectCorals() {
         List<Pose2d> detectedCorals = new ArrayList<>();
 
+        var table = NetworkTableInstance.getDefault().getTable("limelight-coral");
+
+        double[] txs = table.getEntry("tx").getDoubleArray(new double[0]);
+        double[] tys = table.getEntry("ty").getDoubleArray(new double[0]);
+
         for (int i = 0; i < LimelightHelpers.getTargetCount("limelight-coral"); i++) {
             // Calcular la posición del coral detectado
-            double tx = LimelightHelpers.getTX("limelight-coral");
-            double ty = LimelightHelpers.getTY("limelight-coral");
-            double distance = estimateDistanceFromTY(ty);
+            double tx = txs[i];
+            double ty = tys[i];
 
-            // Coral en coordenadas relativas al robot
-            double coralX = distance * Math.cos(Math.toRadians(tx));
-            double coralY = distance * Math.sin(Math.toRadians(tx));
+            double cameraHeight = 0.5; // Altura de la cámara en metros
+            double cameraXOffset = 0.0; // Desplazamiento horizontal de la cámara desde el centro del robot en metros
+            double cameraYOffset = 0.0; // Desplazamiento vertical de la cámara desde el centro del robot en metros
+            double cameraPitch = 35; // Ángulo de inclinación de la cámara en grados
+            double cameraYaw = 0; // Ángulo de giro de la cámara en grados
+            
+            Pose2d botPos = getPose();
 
-            Pose2d robotPose = getPose();
-            Translation2d coralField = robotPose.getTranslation().plus(new Translation2d(coralX, coralY));
+            double distance = cameraHeight / Math.tan(Math.toRadians(-ty + cameraPitch));
 
-            detectedCorals.add(new Pose2d(coralField, robotPose.getRotation()));
+            double y = distance * Math.cos(Math.toRadians(tx + cameraYaw + botPos.getRotation().getDegrees())) + cameraYOffset;
+            double x = distance * Math.sin(Math.toRadians(tx + cameraYaw + botPos.getRotation().getDegrees())) + cameraXOffset;
+
+            y += botPos.getY();
+            x += botPos.getX();
+
+            detectedCorals.add(new Pose2d(new Translation2d(x, y), new Rotation2d()));
         }
 
         coralPoses = detectedCorals;

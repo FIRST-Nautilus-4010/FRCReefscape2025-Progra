@@ -108,6 +108,14 @@ public final class SubsystemManager {
         ).andThen(() -> scheduleState(RobotState.TRAVEL)).schedule();
     }
 
+    private void test() {
+        new ParallelCommandGroup(
+            new InstantCommand(() -> setState(RobotState.TEST)),
+            shoulder.rotateToTravel(() -> elevator.getHeight()),
+            elevator.moveToTravel(() -> shoulder.getAngle()),
+            posTracker.driveToCoral()
+        ).schedule();
+    }
 
     private void setState(RobotState state) {
         robotState = state;
@@ -137,6 +145,9 @@ public final class SubsystemManager {
                 break;
             case PLACE_L4:
                 placeL4();
+                break;
+            case TEST:
+                
                 break;
             default:
                 travel();

@@ -16,8 +16,6 @@ public class AssistToCoral extends Command {
     private final PoseTracker poseTracker;
     private final Supplier<Double> xInput, yInput, rotInput;
     private final Supplier<Boolean> hasIntake;
-    private final double kAssist = 0.15;
-    private final double maxAssist = 1.0;
 
     public AssistToCoral(Swerve swerve, PoseTracker poseTracker,
     Supplier<Double> xInput, Supplier<Double> yInput, Supplier<Double> rotInput, Supplier<Boolean> hasIntake) {
@@ -35,6 +33,7 @@ public class AssistToCoral extends Command {
     public void execute() {
         Pose2d closestCoral = getClosestCoralAnglePos();
         double relativeAngle = 0;
+        double distance = 3;
 
         if (closestCoral == null) {
             swerve.driveFieldRelative(xInput.get(), yInput.get(), rotInput.get());
@@ -44,19 +43,31 @@ public class AssistToCoral extends Command {
             double absoluteVelocityAngle = Math.atan2(yInput.get(), xInput.get());
             relativeAngle = absoluteCoralAngle - absoluteVelocityAngle;
 
-            if (Math.abs(relativeAngle) > Math.toRadians(15)) {
+            relativeAngle = Math.atan2(Math.sin(relativeAngle), Math.cos(relativeAngle));
+
+            distance = closestCoral.getTranslation().getDistance(poseTracker.getPose().getTranslation());
+
+            if (Math.abs(relativeAngle) > Math.toRadians(15) && distance > 3) {
                 swerve.driveFieldRelative(xInput.get(), yInput.get(), rotInput.get());
                 return;
             }
         }
 
-        double distance = closestCoral.getTranslation().getDistance(poseTracker.getPose().getTranslation());
-
-        double finalVecX = Math.cos(relativeAngle + Math.PI) * distance * Math.sin(relativeAngle);
-        double finalVecY = Math.sin(relativeAngle + Math.PI) * distance * Math.sin(relativeAngle);
+        distance = Math.max(distance, 0.1); 
+        double assistGain = Math.min(.3333 / distance, 0.5);
+        
+        double finalVecX = Math.cos(relativeAngle + Math.PI / 2) * assistGain;
+        double finalVecY = Math.sin(relativeAngle + Math.PI / 2) * assistGain;
 
         finalVecX += xInput.get();
         finalVecY += yInput.get();
+
+        double maxComponent = Math.max(Math.abs(finalVecX), Math.abs(finalVecY));
+
+        if (maxComponent > 1) {
+            finalVecX = finalVecX / maxComponent;
+            finalVecY = finalVecY / maxComponent;
+        }
 
         swerve.driveFieldRelative(finalVecX, finalVecY, rotInput.get());
     }
@@ -70,7 +81,7 @@ public class AssistToCoral extends Command {
         Pose2d closestCoralPos = null;
 
         for (Pose2d coral : poseTracker.getCoralPoses()){
-            double absoluteCoralAngle = Math.atan2(coral.getY(), coral.getX());
+            double absoluteCoralAngle = Math.atan2(coral.getY() - poseTracker.getPose().getY(),  coral.getX() - poseTracker.getPose().getX());
             double absoluteVelocityAngle = Math.atan2(yInput.get(), xInput.get());
             double relativeAngle = absoluteCoralAngle - absoluteVelocityAngle;
 

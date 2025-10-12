@@ -28,6 +28,9 @@ public class RobotContainer {
     return new InstantCommand();
   }
 
+  public Command getTestCmd() {
+    return new InstantCommand(() -> subsystemManager.scheduleState(RobotState.TEST));
+  }
 
   public void configureBindings() {
     // Sets the default command for the swerve subsystem to joystick control.

@@ -32,7 +32,13 @@ public class DriveToCoral extends Command {
 
     @Override
     public void execute() {
-        if (driveToCommand != null) driveToCommand.execute();
+        Pose2d newTarget = getClosestCoralPos();
+        if (!newTarget.equals(driveToCommand.getTargetPose())) {
+            driveToCommand = new DriveTo(newTarget, swerve, poseTracker);
+            driveToCommand.initialize();
+        }
+        driveToCommand.execute();
+        
     }
 
     @Override
@@ -42,13 +48,13 @@ public class DriveToCoral extends Command {
 
     @Override
     public boolean isFinished() {
-        return driveToCommand == null || driveToCommand.isFinished() || poseTracker.getCoralCount() <= 0;
+        return false;
     }
 
 
     public Pose2d getClosestCoralPos() {
         double closestCoralDistance = 100000;
-        Pose2d closestCoralPos = new Pose2d();
+        Pose2d closestCoralPos = null;
 
         for (Pose2d coral : poseTracker.getCoralPoses()) {
             double tmpCoralDistance = coral.getTranslation().getDistance(poseTracker.getPose().getTranslation());
