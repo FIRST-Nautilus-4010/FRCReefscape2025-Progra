@@ -111,16 +111,13 @@ public class PoseTracker {
 
     private void detectCorals() {
         List<Pose2d> detectedCorals = new ArrayList<>();
-
-        var table = NetworkTableInstance.getDefault().getTable("limelight-coral");
-
-        double[] txs = table.getEntry("tx").getDoubleArray(new double[0]);
-        double[] tys = table.getEntry("ty").getDoubleArray(new double[0]);
+        
+        LimelightHelpers.LimelightTarget_Detector[] targets = LimelightHelpers.getLatestResults("limelight-coral").targets_Detector;
 
         for (int i = 0; i < LimelightHelpers.getTargetCount("limelight-coral"); i++) {
             // Calcular la posición del coral detectado
-            double tx = txs[i];
-            double ty = tys[i];
+            double tx = targets[i].tx;
+            double ty = targets[i].ty;
 
             double cameraHeight = 0.5; // Altura de la cámara en metros
             double cameraXOffset = 0.0; // Desplazamiento horizontal de la cámara desde el centro del robot en metros
