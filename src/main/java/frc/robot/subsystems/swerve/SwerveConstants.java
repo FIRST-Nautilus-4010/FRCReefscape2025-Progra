@@ -29,6 +29,7 @@ public class SwerveConstants {
 
     // Wheel specifications. TODO: calibrate frictionCof
     public static final double WHEEL_DIAMETER = 0.1; // <-- In meters.
+    public static final double MAX_HEIGHT = 2.2;
     private static final double FRICTION_COF = .95;
 
     // Motor ratios
@@ -48,18 +49,32 @@ public class SwerveConstants {
     public static final double MAX_MOTION_ACC = 50000; // rot/m²
     public static final double MAX_MOTION_ALLOWED_ERR = 1; // rot
 
-    // --- Max Motion Factors ---
-    public static final double MAX_MOTION_KP = 0.5; // <-- Proportional gain factor.
-    public static final double MAX_MOTION_KI = 0; // <-- Integral gain factor.
-    public static final double MAX_MOTION_KD = 0.0; // <-- Derivative gain factor.
-    public static final double MAX_MOTION_KF = 0; // <-- Feedforward gain factor.
-    public static final double MAX_MOTION_MIN_OUTPUT = -1; // <-- Minimum output.
-    public static final double MAX_MOTION_MAX_OUTPUT = 1; // <-- Maximum output.
+    // --- Pos config ---
+
+    // --- MM(Motion Magic) Configuration STR---
+    public static final double MAGIC_MOTION_VELOCITY_STR = 95; // rot/s
+    public static final double MAGIC_MOTION_ACCELERATION_STR = 160; // rot/s²
+    public static final double MAGIC_MOTION_JERK_STR = 1600; // rot/s³
+    public static final double MAGIC_MOTION_EXPO_KV_STR = 0.12;
+    public static final double MAGIC_MOTION_EXPO_KA_STR = 0.1;
+
+
+    // --- MM Gains for Slot 0 ---
+    /* Factors for MM TODO: calibrate (The output is in volts units) STR*/
+    public static final double POS_KG = 0.2; // output to overcome gravity (output)
+    public static final double POS_KS = 0.25; // output to overcome static friction (output)
+    public static final double POS_KV = 0.12; // output per unit of target velocity (output/rps)
+    public static final double POS_KA = 0.01; // output per unit of target acceleration (output/(rps/s))
+    public static final double POS_KP = 4.8; // output per unit of error in position (output/rotation)
+    public static final double POS_KI = 0.0; // output per unit of integrated error in position (output/(rotation*s))
+    public static final double POS_KD = 0.1; // output per unit of error in velocity (output/rps)
 
     // --- Acceleration Limits ---
     public static final double MAX_FORDWARD_ACCEL = 10; // <-- in m/s.
     public static final double MAX_FRONT_ACCEL = 10; // <-- in m/s.
     public static final double MAX_SIDE_ACCEL = 10; // <-- in m/s.
+    public static final double MAX_FRONT_ACCEL_MAX = 10;
+    public static final double MAX_SIDE_ACCEL_MAX = 10;
     public static final double MAX_SKID_ACCEL = FRICTION_COF * 9.81; // <-- in m/s.
     //public static final double MAX_SKID_ACCEL = 15;
     public static final double VELOCITY_DEADZONE = .1; // zona muerta cerca de 0

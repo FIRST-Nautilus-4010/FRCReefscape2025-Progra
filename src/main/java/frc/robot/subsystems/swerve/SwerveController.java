@@ -1,12 +1,16 @@
 package frc.robot.subsystems.swerve;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
+
+import frc.robot.subsystems.elevators.ElevatorConstants;
+
 import com.revrobotics.spark.config.MAXMotionConfig.MAXMotionPositionMode;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
@@ -17,38 +21,38 @@ public class SwerveController {
     private final TalonFXConfiguration configuration;
     private final MotionMagicVelocityVoltage velRequest;
 
-    private final SparkMax turningMotor;
-    private final SparkClosedLoopController turningPIDController;
-    private final SparkMaxConfig config;
+    private final TalonFX turningMotor;
+    private final TalonFXConfiguration turningConfig;
+    private final MotionMagicExpoVoltage posRequest;
 
-    public SwerveController(TalonFX driveMotor, SparkMax turningMotor) {
+    public SwerveController(TalonFX driveMotor, TalonFX turningMotor) {
         this.driveMotor = driveMotor;
         configuration = new TalonFXConfiguration();
         velRequest = new MotionMagicVelocityVoltage(0).withSlot(0);
 
         this.turningMotor = turningMotor;
-        config = new SparkMaxConfig();
-        this.turningPIDController = turningMotor.getClosedLoopController();
+        turningConfig = new TalonFXConfiguration();
+        posRequest = new MotionMagicExpoVoltage(0).withSlot(0);
 
 
         setVelocitySlotGains();
         setMMSettings();
 
         setStearingSlot();
-        setMaxMotionParameters();;
 
         this.driveMotor.getConfigurator().apply(configuration);
-        this.turningMotor.configure(config, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
+        this.turningMotor.getConfigurator().apply(turningConfig);
     }
 
     private void setStearingSlot() {
-        config.closedLoop
-        .p(SwerveConstants.MAX_MOTION_KP)
-        .i(SwerveConstants.MAX_MOTION_KI)
-        .d(SwerveConstants.MAX_MOTION_KD)
-        .outputRange(SwerveConstants.MAX_MOTION_MIN_OUTPUT, SwerveConstants.MAX_MOTION_MAX_OUTPUT)
-        .positionWrappingInputRange(-Math.PI / SwerveConstants.STR_RATIO, Math.PI / SwerveConstants.STR_RATIO)
-        .positionWrappingEnabled(true);
+        var slot0 = turningConfig.Slot0;
+        slot0.kG = SwerveConstants.POS_KG;
+        slot0.kS = SwerveConstants.POS_KS;
+        slot0.kV = SwerveConstants.POS_KV;
+        slot0.kA = SwerveConstants.POS_KA;
+        slot0.kP = SwerveConstants.POS_KP;
+        slot0.kI = SwerveConstants.POS_KI;
+        slot0.kD = SwerveConstants.POS_KD;
     }
 
     private void setVelocitySlotGains() {
@@ -65,14 +69,13 @@ public class SwerveController {
         var motionMagic = configuration.MotionMagic;
         motionMagic.MotionMagicAcceleration = SwerveConstants.MAGIC_MOTION_ACC;
         motionMagic.MotionMagicJerk = SwerveConstants.MAGIC_MOTION_JERK;
-    }
 
-    private void setMaxMotionParameters() {
-        config.closedLoop.maxMotion
-        .maxVelocity(SwerveConstants.MAX_MOTION_VEL) // cambiar a cruiseVelocity
-        .maxAcceleration(SwerveConstants.MAX_MOTION_ACC)
-        .allowedClosedLoopError(SwerveConstants.MAX_MOTION_ALLOWED_ERR)
-        .positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal);
+        var motionMagicStr = turningConfig.MotionMagic;
+        motionMagicStr.MotionMagicCruiseVelocity = SwerveConstants.MAGIC_MOTION_VELOCITY_STR;
+        motionMagicStr.MotionMagicAcceleration = SwerveConstants.MAGIC_MOTION_ACCELERATION_STR;
+        motionMagicStr.MotionMagicJerk = SwerveConstants.MAGIC_MOTION_JERK_STR;
+        motionMagicStr.MotionMagicExpo_kV = SwerveConstants.MAGIC_MOTION_EXPO_KV_STR; 
+        motionMagicStr.MotionMagicExpo_kA = SwerveConstants.MAGIC_MOTION_EXPO_KA_STR;
     }
 
     public void setVelocity(double velocity) {
@@ -81,6 +84,7 @@ public class SwerveController {
     }
 
     public void setAngle(double angle) {
-        turningPIDController.setReference((angle / SwerveConstants.ROT_2_RAD), ControlType.kMAXMotionPositionControl);
+        double rotations = (angle / SwerveConstants.ROT_2_RAD);
+        turningMotor.setControl(posRequest.withPosition(rotations));
     }
 }

@@ -7,15 +7,15 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 public class SwerveIO {
     private final TalonFX driveMotor;
-    private final SparkMax turningMotor;
+    private final TalonFX turningMotor;
     private final CANcoder absoluteEncoder;
 
-    public SwerveIO(int driveTalonFxId, int turningSparkId, int absoluteEncoderId) {
+    public SwerveIO(int driveTalonFxId, int turningTalonId, int absoluteEncoderId) {
 
         absoluteEncoder = new CANcoder(absoluteEncoderId);
 
         driveMotor = new TalonFX(driveTalonFxId);
-        turningMotor = new SparkMax(turningSparkId, MotorType.kBrushless);
+        turningMotor = new TalonFX(turningTalonId);
 
         // Set The encoders into 0 position
         resetEncoders();
@@ -24,7 +24,7 @@ public class SwerveIO {
 
     // Resets the drive motor encoder position to zero.
     public final void resetEncoders() {
-        turningMotor.getEncoder().setPosition((getAbsoluteEncoderRad() / (2 * Math.PI)) * SwerveConstants.STR_RATIO);
+        turningMotor.setPosition((getAbsoluteEncoderRad() / (2 * Math.PI)) * SwerveConstants.STR_RATIO);
         driveMotor.setPosition(0); // <-- Sets the drive motor encoder position to zero.
     }
 
@@ -47,7 +47,7 @@ public class SwerveIO {
         return driveMotor;
     }
 
-    public SparkMax getTurningMotor() {
+    public TalonFX getTurningMotor() {
         return turningMotor;
     }
 
