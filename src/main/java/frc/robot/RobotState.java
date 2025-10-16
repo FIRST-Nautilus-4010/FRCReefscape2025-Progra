@@ -6,6 +6,5 @@ public enum RobotState {
     PLACE_L1,
     PLACE_L2,
     PLACE_L3,
-    PLACE_L4,
-    TEST
+    PLACE_L4
 }

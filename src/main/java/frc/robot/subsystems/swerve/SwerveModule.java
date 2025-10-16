@@ -26,7 +26,7 @@ public class SwerveModule {
 
     // Returns the current state of the swerve module as a SwerveModuleState object.
     public SwerveModuleState getState() {
-        double driveSpeed = io.getDriveMotorVelocity();
+        double driveSpeed = io.getDriveMotorVelocity(); 
         double turningPosition = io.getAbsoluteEncoderRad(); 
 
         return new SwerveModuleState(driveSpeed, new Rotation2d(turningPosition));
@@ -111,8 +111,8 @@ public class SwerveModule {
         double wantedSideAcc = minAccel * -Math.sin(wantedDirection);
         double wantedFrontAcc = minAccel * Math.cos(wantedDirection);
         
-        double limitedFrontAcc = Math.max(-SwerveConstants.MAX_FRONT_ACCEL - massCenterHeight.get() * SwerveConstants.MAX_FRONT_ACCEL_MAX / SwerveConstants.MAX_HEIGHT, Math.min(wantedFrontAcc, SwerveConstants.MAX_FRONT_ACCEL));
-        double limitedSideAcc = Math.max(-SwerveConstants.MAX_SIDE_ACCEL - massCenterHeight.get() * SwerveConstants.MAX_SIDE_ACCEL_MAX / SwerveConstants.MAX_HEIGHT, Math.min(wantedSideAcc, SwerveConstants.MAX_SIDE_ACCEL));
+        double limitedFrontAcc = Math.max(-SwerveConstants.MAX_FRONT_ACCEL, Math.min(wantedFrontAcc, SwerveConstants.MAX_FRONT_ACCEL));
+        double limitedSideAcc = Math.max(-SwerveConstants.MAX_SIDE_ACCEL, Math.min(wantedSideAcc, SwerveConstants.MAX_SIDE_ACCEL));
 
         double limitedAcc = Math.hypot(limitedFrontAcc, limitedSideAcc);
 

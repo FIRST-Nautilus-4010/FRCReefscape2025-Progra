@@ -1,21 +1,16 @@
 package frc.robot.subsystems.swerve.commands;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.swerve.PoseTracker;
+import frc.robot.utils.LimelightHelpers;
 
 public class DriveToCoral extends Command {
     private final Swerve swerve;
     private final PoseTracker poseTracker;
     private DriveTo driveToCommand;
-
-    private final StructPublisher<Pose2d> targetCoralPublisher = 
-    NetworkTableInstance.getDefault()
-    .getStructTopic("Target coral", Pose2d.struct)
-    .publish();
 
     public DriveToCoral(Swerve swerve, PoseTracker poseTracker) {
         this.swerve = swerve;
@@ -25,20 +20,33 @@ public class DriveToCoral extends Command {
 
     @Override
     public void initialize() {
+        if (LimelightHelpers.getTargetCount("limelight-coral") == 0) {
+            cancel();
+            return;
+        }
+
+        // Calcular la posición del coral detectado
+        double tx = LimelightHelpers.getTX("limelight-coral");
+        double ty = LimelightHelpers.getTY("limelight-coral");
+        double distance = estimateDistanceFromTY(ty);
+
+        // Coral en coordenadas relativas al robot
+        double coralX = distance * Math.cos(Math.toRadians(tx));
+        double coralY = distance * Math.sin(Math.toRadians(tx));
+
+        Pose2d robotPose = poseTracker.getPose();
+        Translation2d coralField = robotPose.getTranslation().plus(new Translation2d(coralX, coralY));
+
+        Pose2d targetPose = new Pose2d(coralField, robotPose.getRotation());
+
         // Reutilizar DriveTo con ese target dinámico
-        driveToCommand = new DriveTo(getClosestCoralPos(), swerve, poseTracker);
+        driveToCommand = new DriveTo(targetPose, swerve, poseTracker);
         driveToCommand.initialize();
     }
 
     @Override
     public void execute() {
-        Pose2d newTarget = getClosestCoralPos();
-        if (!newTarget.equals(driveToCommand.getTargetPose())) {
-            driveToCommand = new DriveTo(newTarget, swerve, poseTracker);
-            driveToCommand.initialize();
-        }
-        driveToCommand.execute();
-        
+        if (driveToCommand != null) driveToCommand.execute();
     }
 
     @Override
@@ -48,24 +56,13 @@ public class DriveToCoral extends Command {
 
     @Override
     public boolean isFinished() {
-        return false;
+        return driveToCommand == null || driveToCommand.isFinished();
     }
 
-
-    public Pose2d getClosestCoralPos() {
-        double closestCoralDistance = 100000;
-        Pose2d closestCoralPos = null;
-
-        for (Pose2d coral : poseTracker.getCoralPoses()) {
-            double tmpCoralDistance = coral.getTranslation().getDistance(poseTracker.getPose().getTranslation());
-            if (tmpCoralDistance < closestCoralDistance) {
-                closestCoralDistance = tmpCoralDistance;
-                closestCoralPos = coral;
-            }
-        }
-
-        targetCoralPublisher.set(closestCoralPos);
-
-        return closestCoralPos;
+    private double estimateDistanceFromTY(double ty) {
+        double cameraHeight = 0.6;  // m
+        double targetHeight = 1.1;  // m
+        double cameraAngle = Math.toRadians(30);
+        return (targetHeight - cameraHeight) / Math.tan(cameraAngle + Math.toRadians(ty));
     }
 }

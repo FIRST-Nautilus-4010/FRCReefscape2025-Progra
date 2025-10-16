@@ -32,11 +32,11 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     public Command moveToL3(Supplier<Double> shoulderAngle) {
-        return moveTo(ElevatorConstants.L3_POS, shoulderAngle).withName("Elevator to L3");
+        return moveTo(0, shoulderAngle).withName("Elevator to L3");
     }
 
     public Command moveToL4(Supplier<Double> shoulderAngle) {
-        return moveTo(ElevatorConstants.L4_POS, shoulderAngle).withName("Elevator to L4");
+        return moveTo(0.5633, shoulderAngle).withName("Elevator to L4");
     }
 
     public Command moveToIntake(Supplier<Double> shoulderAngle) {
@@ -45,14 +45,6 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     public Command moveToTravel(Supplier<Double> shoulderAngle) {
         return moveTo(ElevatorConstants.TRAVEL_POS, shoulderAngle).withName("Elevator to Travel");
-    }
-
-    public Command placeL2(Supplier<Double> shoulderAngle) {
-        return moveTo(ElevatorConstants.L2_POS - ElevatorConstants.PUT_L2L3_POS, shoulderAngle).withName("Elevator place L2");
-    }
-
-    public Command placeL3(Supplier<Double> shoulderAngle) {
-        return moveTo(ElevatorConstants.L3_POS - ElevatorConstants.PUT_L2L3_POS, shoulderAngle).withName("Elevator place L3");
     }
 
     public double getHeight() {

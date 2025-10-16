@@ -2,6 +2,7 @@ package frc.robot.subsystems.endEffector;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.robot.subsystems.endEffector.commands.Intake;
@@ -19,7 +20,7 @@ public class EndEffector extends SubsystemBase{
     }
 
     public Command outake() {
-        return new Outake(io, this).withName("OutakeOutakeCmd");
+        return new InstantCommand(() -> io.set(.3));
     }
 
     @Override

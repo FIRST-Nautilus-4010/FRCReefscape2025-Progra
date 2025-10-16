@@ -35,20 +35,20 @@ public final class ElevatorConstants {
     public static final double POS_KD = 0.1; // output per unit of error in velocity (output/rps)
 
     // --- Hardware IDs ---
-    public static final int KRAKEN_RR_ID = 10; // Right rear motor ID
-    public static final int KRAKEN_RL_ID = 11; // Right left motor ID
-    public static final int KRAKEN_LR_ID = 12; // Left rear motor ID
-    public static final int KRAKEN_LL_ID = 13; // Left left motor ID
+    public static final int KRAKEN_RR_ID = 16; // Right rear motor ID
+    public static final int KRAKEN_RL_ID = 17; // Right left motor ID
+    public static final int KRAKEN_LR_ID = 22; // Left rear motor ID
+    public static final int KRAKEN_LL_ID = 23; // Left left motor ID
 
     // --- Predefined Positions ---
     /* TODO: calibrate*/
-    public static final double L1_POS = .1;
-    public static final double L2_POS = .15;
+    public static final double L1_POS = .3;
+    public static final double L2_POS = .3;
     public static final double L3_POS = .30;
     public static final double L4_POS = .52;
-    public static final double TRAVEL_POS = 0;
-    public static final double PUT_L2L3_POS = .1;
+    public static final double TRAVEL_POS = .3;
+    public static final double PUT_L2L3_POS = .3;
 
-    public static final double INTAKE_POS = 0;
+    public static final double INTAKE_POS = .3;
 
 }

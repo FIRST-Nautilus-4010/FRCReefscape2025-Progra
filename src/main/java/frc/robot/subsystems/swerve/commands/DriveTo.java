@@ -43,10 +43,12 @@ public class DriveTo extends Command {
 
   @Override
   public void execute() {
-    if (target == null) return;
-
-    var chassisSpeeds = controller.calculate(poseTracker.getPose(), target, AutonomousConstants.MAX_SPD, target.getRotation());
-    swerve.drive(chassisSpeeds);
+    var chassisSpeeds = controller.calculate(poseTracker.getPose(), new Pose2d(
+      target.getX(),
+      target.getY(),
+      target.getRotation()
+    ), AutonomousConstants.MAX_SPD, target.getRotation());
+    swerve.driveFieldRelative(chassisSpeeds.vxMetersPerSecond, chassisSpeeds.vyMetersPerSecond, chassisSpeeds.omegaRadiansPerSecond);
   }
 
   @Override
@@ -56,17 +58,10 @@ public class DriveTo extends Command {
 
   @Override
   public boolean isFinished() {
-    if (target == null) return true;
-
     if (poseTracker.getPose().getTranslation().getDistance(target.getTranslation()) < AutonomousConstants.POS_TOLERANCE &&
         Math.abs(poseTracker.getPose().getRotation().getRadians() - target.getRotation().getRadians()) < AutonomousConstants.ANG_TOLERANCE) {
       return true;
     }
     return false;
   }
-
-  public Pose2d getTargetPose() {
-    return target;
-  }
-  
 }

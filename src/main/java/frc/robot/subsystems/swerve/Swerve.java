@@ -93,30 +93,6 @@ public class Swerve extends SubsystemBase{
         return Rotation2d.fromDegrees(getHeading());
     }
 
-    public double getYawRate() {
-        if (usePigeon) {
-            return pigeon.getAngularVelocityZDevice().getValueAsDouble();
-        } else {
-            return gyro.getRobotCentricVelocityZ();
-        }
-    }
-
-    public double getPitchRate() {
-        if (usePigeon) {
-            return pigeon.getAngularVelocityYDevice().getValueAsDouble();
-        } else {
-            return gyro.getRobotCentricVelocityY();
-        }
-    }
-
-    public double getRollRate() {
-        if (usePigeon) {
-            return pigeon.getAngularVelocityXDevice().getValueAsDouble();
-        } else {
-            return gyro.getRobotCentricVelocityX();
-        }
-    }
-
     public double getAccelX() {
         if (usePigeon) {
             return pigeon.getAccelerationX().getValue().magnitude();

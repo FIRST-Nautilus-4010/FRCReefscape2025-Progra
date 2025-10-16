@@ -52,15 +52,7 @@ public class ShoulderController {
         motionMagic.MotionMagicExpo_kA = ShoulderConstants.MAGIC_MOTION_EXPO_KA;
     }
 
-    public void update() {
-        var slot0 = configuration.Slot0;
-        slot0.kG = ShoulderConstants.POS_KG * Math.sin(io.getAngle());
-        slot0.kA = ShoulderConstants.POS_KA * robotAcc.get() * -Math.cos(io.getAngle());
-
-        leader.getConfigurator().apply(configuration);
-    }
-
     public void rotateTo(double angle) {
-    leader.setControl(posRequest.withPosition(angle / ShoulderConstants.ROT_2_RADIAN));
+    leader.setControl(posRequest.withPosition(angle));
     }
 }

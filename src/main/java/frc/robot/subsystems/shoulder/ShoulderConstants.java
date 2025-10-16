@@ -1,5 +1,6 @@
 package frc.robot.subsystems.shoulder;
 
+import org.opencv.core.Mat;
 
 /**
  * Contains all configuration constants for the Elevator subsystem,
@@ -18,7 +19,7 @@ public class ShoulderConstants {
 
     // --- Conversion Factors ---
     /** Conversion from motor rotations to meters. TODO: calibrate. */  
-    public static final double ROT_2_RADIAN = (2 / 3) * Math.PI;
+    public static final double ROT_2_RADIAN = 2.0943951023931954923084289221863 / 81;
 
     // --- MM(Motion Magic) Configuration ---
     public static final double MAGIC_MOTION_VELOCITY = 95; // rot/s
@@ -39,17 +40,16 @@ public class ShoulderConstants {
     public static final double POS_KD = 0.1; // output per unit of error in velocity (output/rps)
  
     // --- Hardware IDs ---
-    public static final int KRAKEN_R_ID = 14; // Right rear motor ID
-    public static final int KRAKEN_L_ID = 15; // Left motor ID
+    public static final int KRAKEN_R_ID = 19; // Right rear motor ID
 
     // --- Predefined Positions ---
     /* TODO: calibrate*/
-    public static final double L1_POS = 0 / ROT_2_RADIAN;
-    public static final double L2_POS = (Math.PI) / ROT_2_RADIAN;
-    public static final double L3_POS = 0 / ROT_2_RADIAN;
-    public static final double L4_POS = 0 / ROT_2_RADIAN;
+    public static final double L1_POS = 0;
+    public static final double L2_POS = -(Math.PI) / ROT_2_RADIAN;
+    public static final double L3_POS = -(1 * Math.PI / 4) / ROT_2_RADIAN;
+    public static final double L4_POS = -(Math.PI / 2) / ROT_2_RADIAN;
     public static final double TRAVEL_POS = 0 / ROT_2_RADIAN;
-    public static final double INTAKE_POS = 0 / ROT_2_RADIAN;
+    public static final double INTAKE_POS = 0 ;
 
     public static final double PUT = L4_POS + 0.1;
 }

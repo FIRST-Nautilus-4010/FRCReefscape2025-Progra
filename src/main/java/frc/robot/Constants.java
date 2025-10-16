@@ -61,7 +61,7 @@ public final class Constants {
     public static final double POS_TOLERANCE = 0.05; // <-- Position tolerance in meters.
     public static final double ANG_TOLERANCE = Math.toRadians(5); // <-- Angular tolerance in radians.
 
-    public static final double NORMAL_STD = 0.06;
+    public static final double NORMAL_STD = 0.003;
 
     public static final Matrix<N3, N1> NORMAL_CONFIDENCE_STD;
 
@@ -71,7 +71,7 @@ public final class Constants {
       NORMAL_CONFIDENCE_STD.set(1, 0, NORMAL_STD); // Y
       NORMAL_CONFIDENCE_STD.set(2, 0, Math.toRadians(3)); // Z
     }
-    public static final double LOW_STD = 0.3; // Define a standard deviation value.
+    public static final double LOW_STD = 0.05; // Define a standard deviation value.
 
     public static final Matrix<N3, N1> LOW_CONFIDENCE_STD;
 

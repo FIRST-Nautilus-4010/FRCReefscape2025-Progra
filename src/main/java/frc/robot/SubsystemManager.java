@@ -2,6 +2,7 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -10,6 +11,9 @@ import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.elevators.ElevatorSubsystem;
 import frc.robot.subsystems.endEffector.EndEffector;
+import frc.robot.subsystems.endEffector.commands.Intake;
+import frc.robot.subsystems.endEffector.commands.Outake;
+import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.shoulder.Shoulder;
 import frc.robot.subsystems.shoulder.ShoulderController;
 import frc.robot.subsystems.swerve.PoseTracker;
@@ -22,6 +26,7 @@ public final class SubsystemManager {
     private final Shoulder shoulder = new Shoulder();
     private final ElevatorSubsystem elevator = new ElevatorSubsystem();
     private final EndEffector endEffector = new EndEffector();
+    private final IntakeSubsystem intake = new IntakeSubsystem();
     private final PoseTracker posTracker;
 
     private RobotState robotState = RobotState.TRAVEL;
@@ -39,8 +44,9 @@ public final class SubsystemManager {
         return posTracker.getPose();
     }
     
-    private Pose3d getClosestL() {
-        return new Pose3d(posTracker.getPose().getX(), posTracker.getPose().getY(), 4.0, new Rotation3d());
+    private Pose2d getClosestL() {
+        //return new Pose2d(11.6, 4.1, Rotation2d.fromDegrees(84.71));
+        return new Pose2d(posTracker.getPose().getX() + 0.5, posTracker.getPose().getY(), posTracker.getPose().getRotation());
     }
 
     private void travel() {
@@ -52,12 +58,17 @@ public final class SubsystemManager {
     }
 
     private void intakeCoral() {
-        new ParallelCommandGroup(
-            new InstantCommand(() -> setState(RobotState.INTAKE_CORAL)),
-            //shoulder.rotateToIntake(() -> elevator.getHeight()),
-            elevator.moveToIntake(() -> shoulder.getAngle())
-            //endEffector.intake()
-            //swerve.driveTo(getClosestSource())
+        new SequentialCommandGroup(
+            new ParallelCommandGroup(
+                new InstantCommand(() -> setState(RobotState.INTAKE_CORAL)),
+                shoulder.rotateToIntake(() -> elevator.getHeight()),
+                elevator.moveToIntake(() -> shoulder.getAngle()),
+                intake.goToIntake(),
+                new InstantCommand(() -> System.out.println("en primera fase de intake"))
+                //swerve.driveTo(getClosestSource())
+            ),
+            new InstantCommand(() -> System.out.println("empezando segunda fase intake")),
+            intake.save()
         ).andThen(() -> scheduleState(RobotState.TRAVEL)).schedule();
     }
 
@@ -65,57 +76,57 @@ public final class SubsystemManager {
         new SequentialCommandGroup(
             new ParallelCommandGroup(
                 shoulder.rotateToL1(() -> elevator.getHeight()),
-                elevator.moveToL1(() -> shoulder.getAngle())
-                //swerve.driveTo(getClosestL())
-            )
-            //endEffector.outake()
-        ).andThen(() -> scheduleState(RobotState.TRAVEL)).schedule();
-    }
-
-    private void placeL2() {
-        new SequentialCommandGroup(
-            new ParallelCommandGroup(
-                shoulder.rotateToL2L3(() -> elevator.getHeight()),
-                elevator.moveToL2(() -> shoulder.getAngle())
-                //swerve.driveTo(getClosestL())
+                elevator.moveToL1(() -> shoulder.getAngle()),
+                intake.goToL1(),
+                posTracker.driveTo(new Pose2d(
+                    getClosestSource().getTranslation(),
+                    getClosestSource().getRotation().plus(Rotation2d.fromDegrees(-90))
+                ))
             ),
-            elevator.placeL2(() -> shoulder.getAngle())
-            //endEffector.outake()
+            endEffector.outake()
         ).andThen(() -> scheduleState(RobotState.TRAVEL)).schedule();
     }
     
     private void placeL3() {
         new SequentialCommandGroup(
             new ParallelCommandGroup(
-                shoulder.rotateToL2L3(() -> elevator.getHeight()),
-                elevator.moveToL3(() -> shoulder.getAngle())
-                //swerve.driveTo(getClosestL())
+                shoulder.rotateToIntake(() -> elevator.getHeight()),
+                elevator.moveToIntake(() -> shoulder.getAngle())
             ),
-            elevator.placeL3(() -> shoulder.getAngle())
-            //endEffector.outake()
+            new ParallelCommandGroup(
+                intake.give(),
+                endEffector.intake()
+            ),
+            new ParallelCommandGroup(
+                shoulder.rotateToL3(() -> elevator.getHeight()),
+                intake.save()
+                //posTracker.driveTo(getClosestL())
+            ),
+            elevator.moveToL3(() -> shoulder.getAngle()),
+            shoulder.placeL3(() -> elevator.getHeight()),
+            endEffector.outake()
         ).andThen(() -> scheduleState(RobotState.TRAVEL)).schedule();
     }
 
     private void placeL4() {
         new SequentialCommandGroup(
             new ParallelCommandGroup(
-                shoulder.rotateToL4(() -> elevator.getHeight()),
-                elevator.moveToL4(() -> shoulder.getAngle())
-                //swerve.driveTo(getClosestL())
+                shoulder.rotateToIntake(() -> elevator.getHeight()),
+                elevator.moveToIntake(() -> shoulder.getAngle()),
+                endEffector.intake()
             ),
-            shoulder.placeL4(() -> elevator.getHeight())
-            //endEffector.outake()
+            intake.give(),
+            new ParallelCommandGroup(
+                shoulder.rotateToL4(() -> elevator.getHeight()),
+                intake.save(),
+                posTracker.driveTo(getClosestL())
+            ),
+            elevator.moveToL4(() -> shoulder.getAngle()),
+            shoulder.placeL4(() -> elevator.getHeight()),
+            endEffector.outake()
         ).andThen(() -> scheduleState(RobotState.TRAVEL)).schedule();
     }
 
-    private void test() {
-        new ParallelCommandGroup(
-            new InstantCommand(() -> setState(RobotState.TEST)),
-            shoulder.rotateToTravel(() -> elevator.getHeight()),
-            elevator.moveToTravel(() -> shoulder.getAngle()),
-            posTracker.driveToCoral()
-        ).schedule();
-    }
 
     private void setState(RobotState state) {
         robotState = state;
@@ -137,17 +148,11 @@ public final class SubsystemManager {
             case PLACE_L1:
                 placeL1();
                 break;
-            case PLACE_L2:
-                placeL2();
-                break;
             case PLACE_L3:
                 placeL3();
                 break;
             case PLACE_L4:
                 placeL4();
-                break;
-            case TEST:
-                
                 break;
             default:
                 travel();

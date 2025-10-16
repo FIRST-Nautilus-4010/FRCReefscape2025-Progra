@@ -46,9 +46,17 @@ public class RotateTo extends Command {
 
   @Override
   public boolean isFinished() {
-    if (Math.abs(shoulderIO.getAngle() - angle) <= 0.00175) {
+    double realAngle = shoulderIO.getAngle();
+    if (Double.isInfinite(realAngle)) {
+      realAngle = 0;
+      System.out.println("el angulo es infinito");
+    }
+
+    if (Math.abs(realAngle - angle) <= 0.4) {
+      System.out.println("terminando comando shoulder");
       return true;
     }
+    System.out.println("angle diference: " + (realAngle - angle));
     return false;
   }
 }

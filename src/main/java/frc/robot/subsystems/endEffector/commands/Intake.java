@@ -27,6 +27,7 @@ public class Intake extends Command {
   @Override
   public boolean isFinished() {
     if (io.getCurrent() >= EndEffectorConstants.CURRENT_THRESHOLD) {
+      System.out.println("termino end effector");
       return true;
     }
     return false;

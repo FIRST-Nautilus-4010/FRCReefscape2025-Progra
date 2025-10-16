@@ -26,16 +26,16 @@ public class Shoulder extends SubsystemBase {
         return rotateTo(ShoulderConstants.L1_POS, pivotHeight).withName("Shoulder to L1");
     }
 
-    public Command rotateToL2L3(Supplier<Double> pivotHeight) {
-        return rotateTo(ShoulderConstants.L1_POS, pivotHeight).withName("Shoulder to L2/L3");
+    public Command rotateToL3(Supplier<Double> pivotHeight) {
+        return rotateTo(-29.55, pivotHeight).withName("Shoulder to L2/L3");
     }
 
     public Command rotateToL4(Supplier<Double> pivotHeight) {
-        return rotateTo(ShoulderConstants.L1_POS, pivotHeight).withName("Shoulder to L4");
+        return rotateTo(-32.76, pivotHeight).withName("Shoulder to L4");
     }
 
     public Command rotateToIntake(Supplier<Double> pivotHeight) {
-        return rotateTo(ShoulderConstants.L1_POS, pivotHeight);
+        return rotateTo(ShoulderConstants.INTAKE_POS, pivotHeight);
     }
 
     public Command rotateToTravel(Supplier<Double> pivotHeight) {
@@ -43,7 +43,11 @@ public class Shoulder extends SubsystemBase {
     }
 
     public Command placeL4(Supplier<Double> pivotHeight) {
-        return rotateTo(ShoulderConstants.PUT, pivotHeight);
+        return rotateTo(-30.84, pivotHeight);
+    }
+
+    public Command placeL3(Supplier<Double> pivotHeight) {
+        return rotateTo(-26.1079, pivotHeight);
     }
 
     public ShoulderIO getIO() {

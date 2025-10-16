@@ -1,23 +1,24 @@
 package frc.robot.subsystems.endEffector;
 
+import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 
 public class EndEffectorIO {
-    private final SparkMax motor;
+    private final TalonFX motor;
 
     /**
      * Configures follower motors to mirror their respective leaders.
      */
     public EndEffectorIO() {
-        motor = new SparkMax(EndEffectorConstants.MOTOR_ID, MotorType.kBrushless);
+        motor = new TalonFX(EndEffectorConstants.MOTOR_ID);
     }
 
     /**
      * @return The leader motor.
      */
-    public SparkMax getMotor() {
+    public TalonFX getMotor() {
         return motor;
     }
 
@@ -36,6 +37,6 @@ public class EndEffectorIO {
     }
 
     public double getCurrent() {
-        return motor.getOutputCurrent();
+        return motor.getStatorCurrent().getValueAsDouble();
     }
 }

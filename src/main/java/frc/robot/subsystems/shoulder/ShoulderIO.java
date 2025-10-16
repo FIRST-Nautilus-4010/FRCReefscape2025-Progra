@@ -1,21 +1,16 @@
 package frc.robot.subsystems.shoulder;
 
-import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 public class ShoulderIO {
     private final TalonFX leader;
-    private final TalonFX follower;
 
     public ShoulderIO() {
-        leader = new TalonFX(ShoulderConstants.KRAKEN_L_ID);
-        follower = new TalonFX(ShoulderConstants.KRAKEN_R_ID);
-
-        follower.setControl(new Follower(leader.getDeviceID(), false));
+        leader = new TalonFX(ShoulderConstants.KRAKEN_R_ID);
     }
 
     public double getAngle() {
-        return leader.getPosition().getValue().magnitude() / ShoulderConstants.ROT_2_RADIAN;
+        return leader.getPosition().getValue().magnitude();
     }
 
     public double getHeight() {

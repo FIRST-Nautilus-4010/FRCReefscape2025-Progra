@@ -43,6 +43,7 @@ public class MoveTo extends Command {
   @Override
   public boolean isFinished() {
     if (Math.abs(elevatorIO.getHeight() - height) <= 0.005) {
+      System.out.println("terminando comando elevador");
       return true;
     }
     return false;
