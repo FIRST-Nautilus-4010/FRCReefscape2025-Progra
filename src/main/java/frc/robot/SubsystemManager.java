@@ -31,6 +31,11 @@ public final class SubsystemManager {
 
     private RobotState robotState = RobotState.TRAVEL;
 
+    private final Pose2d reefPos[] = {
+        new Pose2d(11.6, 4.1, Rotation2d.fromDegrees(84.71))
+        
+    };
+
     public SubsystemManager(Swerve swerve) {
         posTracker = new PoseTracker(swerve);
 
@@ -45,8 +50,18 @@ public final class SubsystemManager {
     }
     
     private Pose2d getClosestL() {
-        //return new Pose2d(11.6, 4.1, Rotation2d.fromDegrees(84.71));
-        return new Pose2d(posTracker.getPose().getX() + 0.5, posTracker.getPose().getY(), posTracker.getPose().getRotation());
+        Pose2d closestReef = reefPos[0];
+        double closestDistance = posTracker.getPose().getTranslation().getDistance(reefPos[0].getTranslation());
+
+        for (int i = 1; i < reefPos.length; i++) {
+            double distance = posTracker.getPose().getTranslation().getDistance(reefPos[i].getTranslation());
+            if (distance < closestDistance) {
+                closestDistance = distance;
+                closestReef = reefPos[i];
+            }
+        }
+
+        return closestReef;
     }
 
     private void travel() {
@@ -153,6 +168,9 @@ public final class SubsystemManager {
                 break;
             case PLACE_L4:
                 placeL4();
+                break;
+            case TEST:
+                posTracker.driveTo(new Pose2d(posTracker.getPose().getX() + .3, posTracker.getPose().getY(), posTracker.getPose().getRotation())).schedule();
                 break;
             default:
                 travel();
