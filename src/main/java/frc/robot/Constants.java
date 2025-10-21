@@ -35,11 +35,11 @@ public final class Constants {
   public static class AutonomousConstants {
     public static final Pose2d initialPose = new Pose2d(); // <-- Initial pose of the robot.
 
-    public static final double P_X = 1.5; // <-- Proportional gain for autonomous control.
+    public static final double P_X = 50; // <-- Proportional gain for autonomous control.
     public static final double I_X = 0; // <-- Integral gain for autonomous control.
     public static final double D_X = 0; // <-- Derivative gain for autonomous control.
 
-    public static final double P_Y = 1.5; // <-- Proportional gain for autonomous control.
+    public static final double P_Y = 50; // <-- Proportional gain for autonomous control.
     public static final double I_Y = 0; // <-- Integral gain for autonomous control.
     public static final double D_Y = 0; // <-- Derivative gain for autonomous control.
 
